@@ -1,0 +1,53 @@
+{
+  "_note": "Sanitized recorded values behind the two worked examples. This file is the single source the figures are generated from. No private paths, hostnames, or identifiers appear here. Model names are public (Qwen family). Provenance labels are explicit: 'representative' means produced with a stubbed editing harness on representative data (design behavior, not a live A/B); 'live' means executed end to end, small-n.",
+  "bootstrap": {
+    "iterations": 2000,
+    "seed": 12345,
+    "note": "Seeded percentile bootstrap over paired per-task success deltas. Fixed seed makes reported intervals exactly reproducible."
+  },
+  "tolerance_band": 0.10,
+  "capability_representative": {
+    "provenance": "representative (stubbed editing harness, representative data)",
+    "classes": ["fix_failing_test", "multifile_refactor", "repo_reasoning", "small_edit"],
+    "incumbent": {
+      "label": "local incumbent default",
+      "by_class": [0.80, 0.50, 0.60, 0.90],
+      "overall": 0.70
+    },
+    "candidate": {
+      "label": "qwen2.5-coder-32b (32B candidate)",
+      "by_class": [0.90, 0.80, 0.70, 0.90],
+      "overall": 0.82
+    },
+    "role_recommendation": {
+      "margin": 0.12,
+      "confidence": "confident",
+      "note": "The capability layer recommends the switch. A capability-only decision would flip the default."
+    }
+  },
+  "promotion_gate_cases": [
+    {
+      "name": "representative false-positive",
+      "provenance": "representative (stubbed editing harness)",
+      "paired_delta": 0.250,
+      "ci_low": 0.0,
+      "ci_high": 0.5,
+      "sign_test": "2W / 0L / 2T (p=0.5, two-sided, reported only)",
+      "decision": "NO-GO",
+      "failing": ["beats_incumbent_beyond_band"],
+      "reason": "Mean paired delta clears the 0.10 band, but the bootstrap CI lower bound is 0, so the gain is not statistically distinguishable from zero. The significance floor caught the false positive."
+    },
+    {
+      "name": "live smoke",
+      "provenance": "live (small-n: 4 tasks x 2 replicates; carried a transport artifact)",
+      "candidate": "qwen2.5-coder-32b",
+      "paired_delta": -0.500,
+      "ci_low": -0.875,
+      "ci_high": -0.125,
+      "sign_test": "0W / 3L / 1T (p=0.25, two-sided, reported only)",
+      "decision": "NO-GO",
+      "failing": ["beats_incumbent_beyond_band", "latency_slo", "no_regression_must_not_break"],
+      "reason": "Candidate significantly worse (CI entirely below 0). latency_slo n/a (0 successes -> not a pass). Regressions on the must-not-break subset. The 0% task success was partly transport_blocked (the local Ollama adapter dropped tool calls), later addressed upstream in the gateway."
+    }
+  ]
+}
