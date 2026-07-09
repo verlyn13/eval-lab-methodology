@@ -2,5 +2,11 @@
 __pycache__/
 *.pyc
 
+# Quarto render outputs
+.quarto/
+_site/
+reports/*.html
+reports/rendered/
+
 # OS cruft
 .DS_Store

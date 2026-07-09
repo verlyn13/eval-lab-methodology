@@ -1,0 +1,352 @@
+---
+title: "Agentic-Coding Evaluation Lab Methodology Report"
+format:
+  html:
+    toc: true
+    standalone: true
+    theme: cosmo
+jupyter: python3
+execute:
+  echo: false
+  warning: false
+  error: false
+params:
+  evidence: "../evidence/sample-lab-report.json"
+---
+
+```{python}
+#| tags: [parameters]
+evidence = "../evidence/sample-lab-report.json"
+```
+
+```{python}
+#| include: false
+import json
+import sys
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any
+
+
+def find_repo_root(start: Path) -> Path:
+    for candidate in (start.resolve(), *start.resolve().parents):
+        if (candidate / "pyproject.toml").exists() and (candidate / "src").exists():
+            return candidate
+    raise RuntimeError("Could not locate repository root from Quarto execution directory")
+
+
+repo_root = find_repo_root(Path.cwd())
+src_path = repo_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
+from eval_lab_methodology import validate_evidence_report
+
+
+def resolve_evidence_path(raw: str) -> Path:
+    path = Path(raw).expanduser()
+    if path.is_absolute():
+        return path.resolve()
+    for base in (Path.cwd(), repo_root, repo_root / "reports"):
+        candidate = (base / path).resolve()
+        if candidate.exists():
+            return candidate
+    return (repo_root / path).resolve()
+
+
+evidence_path = resolve_evidence_path(evidence)
+document = json.loads(evidence_path.read_text(encoding="utf-8"))
+validate_evidence_report(document)
+
+sanitization = document["manifest"].get("sanitization", {})
+if sanitization.get("status") != "public-safe":
+    raise RuntimeError("Refusing to render: manifest.sanitization.status must be public-safe")
+if sanitization.get("checked") is not True:
+    raise RuntimeError("Refusing to render: manifest.sanitization.checked must be true")
+if sanitization.get("redactions_required") is True:
+    raise RuntimeError("Refusing to render: manifest.sanitization.redactions_required must be false")
+
+report = document["report"]
+stats = report["statistics"]
+decision = report["decision"]
+enhanced = stats["enhanced_estimators"]
+sign = decision["sign_test"]
+
+required_labels = {
+    "decision.label": (decision.get("label"), "enforcing:superiority-by-margin"),
+    "decision.rule": (decision.get("rule"), "bootstrap_ci_low_gt_margin"),
+    "enhanced.two_stage_bootstrap.label": (
+        enhanced["two_stage_bootstrap"].get("label"),
+        "enhanced:two-stage-bootstrap",
+    ),
+    "enhanced.wilcoxon_signed_rank.label": (
+        enhanced["wilcoxon_signed_rank"].get("label"),
+        "enhanced:wilcoxon-signed-rank",
+    ),
+    "enhanced.glmm.label": (enhanced["glmm"].get("label"), "enhanced:glmm-logistic"),
+    "sign_test.alternative": (sign.get("alternative"), "two-sided"),
+    "sign_test.reported_only": (sign.get("reported_only"), True),
+}
+bad_labels = [
+    f"{field} expected {expected!r}, got {actual!r}"
+    for field, (actual, expected) in required_labels.items()
+    if actual != expected
+]
+if bad_labels:
+    raise RuntimeError("Refusing to render: " + "; ".join(bad_labels))
+
+
+def text(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, float):
+        return f"{value:.6g}"
+    return str(value)
+
+
+def pct(value: float) -> str:
+    return f"{value * 100:.1f}%"
+
+
+def interval(ci: dict[str, Any]) -> str:
+    confidence = ci.get("confidence")
+    prefix = f"{pct(confidence)} CI " if isinstance(confidence, int | float) else "CI "
+    return f"{prefix}[{text(ci.get('low'))}, {text(ci.get('high'))}]"
+
+
+def table(headers: list[str], rows: list[list[Any]]) -> str:
+    def cell(value: Any) -> str:
+        return text(value).replace("|", "\\|").replace("\n", "<br>")
+
+    header = "| " + " | ".join(cell(item) for item in headers) + " |"
+    separator = "| " + " | ".join("---" for _ in headers) + " |"
+    body = ["| " + " | ".join(cell(item) for item in row) + " |" for row in rows]
+    return "\n".join([header, separator, *body])
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return path.name
+
+
+def outcome_summary(raw_outcomes: list[dict[str, Any]]) -> tuple[int, int, Counter[str], dict[str, dict[str, int]]]:
+    task_classes: Counter[str] = Counter()
+    totals: dict[str, dict[str, int]] = defaultdict(lambda: {"tasks": 0, "replicates": 0, "incumbent": 0, "candidate": 0})
+    replicate_count = 0
+    for task in raw_outcomes:
+        task_class = task["task_class"]
+        task_classes[task_class] += 1
+        totals[task_class]["tasks"] += 1
+        for replicate in task["replicates"]:
+            replicate_count += 1
+            totals[task_class]["replicates"] += 1
+            totals[task_class]["incumbent"] += int(replicate["incumbent"]["success"])
+            totals[task_class]["candidate"] += int(replicate["candidate"]["success"])
+    return len(raw_outcomes), replicate_count, task_classes, dict(totals)
+
+
+task_count, replicate_count, task_classes, class_totals = outcome_summary(document["raw_outcomes"])
+```
+
+```{python}
+#| output: asis
+capability = stats["capability"]
+paired = stats["paired_delta"]
+manifest = document["manifest"]
+two_stage = enhanced["two_stage_bootstrap"]
+wilcoxon = enhanced["wilcoxon_signed_rank"]
+glmm = enhanced["glmm"]
+
+capability_rows = []
+for role in ("incumbent", "candidate"):
+    item = capability[role]
+    capability_rows.append(
+        [
+            role,
+            f"{item['successes']}/{item['trials']}",
+            pct(item["rate"]),
+            interval(item["wilson"]),
+        ]
+    )
+
+enhanced_rows = [
+    [
+        "Two-stage bootstrap",
+        two_stage["label"],
+        "reported",
+        f"estimate {text(two_stage['estimate'])}; {interval(two_stage['ci'])}; seed {two_stage['bootstrap']['seed']}; iterations {two_stage['bootstrap']['iterations']}; alpha {two_stage['bootstrap']['alpha']}",
+        "non-gating additive estimator",
+    ],
+    [
+        "Wilcoxon signed-rank",
+        wilcoxon["label"],
+        wilcoxon["status"],
+        f"statistic {text(wilcoxon.get('statistic'))}; p_value {text(wilcoxon.get('p_value'))}; n {text(wilcoxon.get('n'))}",
+        "non-gating additive estimator",
+    ],
+    [
+        "GLMM logistic",
+        glmm["label"],
+        glmm["status"],
+        f"formula {text(glmm.get('formula'))}; backend {text(glmm.get('backend'))}",
+        "non-gating additive estimator",
+    ],
+]
+
+raw_rows = []
+for task_class in sorted(class_totals):
+    item = class_totals[task_class]
+    raw_rows.append(
+        [
+            task_class,
+            item["tasks"],
+            item["replicates"],
+            item["incumbent"],
+            item["candidate"],
+        ]
+    )
+
+seed_rows = [[name, value] for name, value in sorted(manifest["seeds"].items())]
+model_rows = [
+    [item["role"], item["label"], item["version"], item["quantization"]]
+    for item in manifest["models"]
+]
+preflight_rows = [
+    [
+        item["model_role"],
+        item["resolved"],
+        item.get("model_version"),
+        item.get("notes", ""),
+    ]
+    for item in manifest["preflight"]["results"]
+]
+paired_rows = [[
+    paired["point_estimate"],
+    interval(paired["ci"]),
+    paired["bootstrap"]["seed"],
+    paired["bootstrap"]["iterations"],
+    paired["bootstrap"]["alpha"],
+]]
+sign_rows = [[
+    sign["wins"],
+    sign["losses"],
+    sign["ties"],
+    sign["p_value"],
+    f"alternative:\"{sign['alternative']}\"",
+    f"reported_only:{text(sign['reported_only'])}",
+    "does not gate",
+]]
+task_set_rows = [[
+    manifest["task_set"]["task_set_hash"],
+    manifest["task_set"]["task_count"],
+    manifest["task_set"]["replicates_per_task"],
+    manifest["task_set"]["fixture_policy"],
+    ", ".join(manifest["task_set"].get("task_classes", [])),
+]]
+cost_rows = [[manifest["cost"]["currency"], manifest["cost"]["total"], manifest["cost"]["basis"]]]
+core_rows = [[document["core"]["core_version"], document["core"]["core_content_hash"]]]
+
+print(
+    f"""
+## Campaign Header
+
+**campaign_id:** `{report["campaign_id"]}`  
+**created_at:** `{report["created_at"]}`  
+**evidence:** `{display_path(evidence_path)}`
+
+::: {{.callout-note}}
+**Provenance:** `{report["provenance"]}`  
+**Sanitization status:** `{sanitization["status"]}`  
+**Sanitization checked:** `{text(sanitization.get("checked"))}`  
+**Redactions required:** `{text(sanitization.get("redactions_required"))}`
+:::
+
+## Capability Table
+
+{table(["Role", "Successes / trials", "Rate", "Wilson CI"], capability_rows)}
+
+## Paired Delta
+
+{table(
+    ["Point estimate", "Bootstrap CI", "Seed", "Iterations", "Alpha"],
+    paired_rows,
+)}
+
+## Decision
+
+::: {{.callout-important appearance="simple"}}
+**Decision:** `{text(decision["promote"])}`  
+**Label:** `{decision["label"]}`  
+**Rule:** `rule={decision["rule"]}`  
+**Margin:** `{text(decision["margin"])}`
+
+{decision.get("reason", "")}
+:::
+
+## Enhanced Estimators
+
+Enhanced estimators are additive diagnostics for new analyses. They are explicitly **non-gating** here and do not strengthen or relabel the primary result.
+
+{table(["Estimator", "Label", "Status", "Rendered values", "Gate role"], enhanced_rows)}
+
+## Sign Test
+
+The sign test is two-sided, reported-only, and does not gate.
+
+{table(
+    ["Wins", "Losses", "Ties", "p_value", "alternative", "reported_only", "Gate role"],
+    sign_rows,
+)}
+
+## Raw Outcomes Summary
+
+**Tasks:** `{task_count}`  
+**Replicates:** `{replicate_count}`  
+**Task classes:** `{", ".join(f"{name}={count}" for name, count in sorted(task_classes.items()))}`
+
+{table(["Task class", "Tasks", "Replicates", "Incumbent successes", "Candidate successes"], raw_rows)}
+
+## Reproducibility Manifest
+
+### Seeds
+
+{table(["Name", "Seed"], seed_rows)}
+
+### Task Set
+
+{table(
+    ["task_set_hash", "task_count", "replicates_per_task", "fixture_policy", "task_classes"],
+    task_set_rows,
+)}
+
+### Models
+
+{table(["Role", "Label", "Version", "Quantization"], model_rows)}
+
+### Cost
+
+{table(
+    ["Currency", "Total", "Basis"],
+    cost_rows,
+)}
+
+### Preflight Results
+
+**Status:** `{manifest["preflight"]["status"]}`  
+**Checked at:** `{text(manifest["preflight"].get("checked_at"))}`
+
+{table(["Model role", "Resolved", "Model version", "Notes"], preflight_rows)}
+
+### Core
+
+{table(
+    ["Core version", "Core content hash"],
+    core_rows,
+)}
+"""
+)
+```

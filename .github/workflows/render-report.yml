@@ -1,0 +1,70 @@
+name: Render Methodology Report
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    name: Render public evidence reports
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Jupyter runtime
+        run: python -m pip install --upgrade pip jupyter
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Validate sample evidence
+        run: make validate-report EVIDENCE=evidence/sample-lab-report.json
+
+      - name: Render sample report
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          to: html
+          path: reports/methodology-report.qmd
+
+      - name: Collect sample report artifact
+        run: |
+          mkdir -p reports/rendered/sample
+          mv reports/methodology-report.html reports/rendered/sample/methodology-report.html
+
+      - name: Render campaign evidence reports
+        shell: bash
+        run: |
+          shopt -s nullglob globstar
+          campaign_files=(evidence/campaigns/**/evidence.json)
+          if [ ${#campaign_files[@]} -eq 0 ]; then
+            echo "No evidence/campaigns/**/evidence.json files present."
+            exit 0
+          fi
+
+          for evidence in "${campaign_files[@]}"; do
+            safe_name="${evidence#evidence/campaigns/}"
+            safe_name="${safe_name%/evidence.json}"
+            safe_name="${safe_name//\//-}"
+            out_dir="reports/rendered/campaigns/${safe_name}"
+            python scripts/render_methodology_report.py \
+              --evidence "$evidence" \
+              --report reports/methodology-report.qmd \
+              --output-dir "$out_dir"
+          done
+
+      - name: Upload rendered reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: methodology-report-html
+          path: reports/rendered/**/*.html
+          if-no-files-found: error
