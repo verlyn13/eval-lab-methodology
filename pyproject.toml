@@ -1,0 +1,26 @@
+[build-system]
+requires = []
+build-backend = "build_backend"
+backend-path = ["."]
+
+[project]
+name = "eval-lab-methodology"
+version = "0.1.0"
+description = "Public statistical and reporting core for the Agentic-Coding Evaluation Lab methodology."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [
+  { name = "Verlyn Nash" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+glmm = [
+  "pandas>=2.0",
+  "statsmodels>=0.14"
+]
+dev = [
+  "jsonschema>=4.22",
+  "pytest>=8.0"
+]

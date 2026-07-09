@@ -19,11 +19,44 @@ functionally, not exposed.
 ## What is in this repo
 
 - `README.md`: the methodology write-up (this file).
+- `src/eval_lab_methodology/`: the importable, dependency-free public
+  statistical core.
+- `evidence/schema.json`: the versioned public evidence contract for report
+  `model_dump()` output, raw per-task/per-replicate outcomes, and reproducibility
+  manifests.
 - `evidence/`: the sanitized recorded values behind the two worked examples, and
   the small data file the figures are generated from.
 - `figures/`: two figures generated reproducibly from `evidence/data.json`, plus
   the script that regenerates them.
 - `LICENSE`: Apache-2.0.
+
+## Public core API
+
+The canonical public core is importable as `eval_lab_methodology`. Its light
+primitives have no runtime dependencies:
+
+- `wilson_interval(successes, n)`
+- `sign_test(deltas)` - two-sided, reported only
+- `bootstrap_ci(deltas, seed=12345)` - seeded percentile interval
+
+Additive enhanced estimators are clearly labeled in their return objects:
+`wilcoxon_signed_rank`, `two_stage_bootstrap`, `power_simulation`, and
+`fit_glmm_logistic`. The GLMM wrapper imports `pandas` and `statsmodels` only
+inside the function and raises `OptionalDependencyError` when the optional
+backend is absent.
+
+Offline parity checks can assert:
+
+```python
+from eval_lab_methodology import __core_content_hash__, __core_version__
+```
+
+Local verification:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+python -m pip wheel . --no-deps -w /tmp/eval-lab-methodology-wheel
+```
 
 ## The problem
 
