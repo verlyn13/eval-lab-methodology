@@ -1,0 +1,304 @@
+{
+  "core": {
+    "core_content_hash": "sha256:ed970924070f2f1bc6e92871d2ce6b7812ae30121de8826d83d03eb3842bd604",
+    "core_version": "0.1.0"
+  },
+  "manifest": {
+    "cost": {
+      "basis": "synthetic local example; no provider-metered cost",
+      "currency": "USD",
+      "total": 0.0
+    },
+    "models": [
+      {
+        "label": "openai/qwen3.5-9b",
+        "quantization": null,
+        "role": "incumbent",
+        "version": "qwen3.5:9b"
+      },
+      {
+        "label": "openai/qwen2.5-coder-7b",
+        "quantization": null,
+        "role": "candidate",
+        "version": "qwen2.5-coder:7b"
+      }
+    ],
+    "preflight": {
+      "checked_at": "2026-07-09T00:00:00+00:00",
+      "results": [
+        {
+          "model_role": "incumbent",
+          "model_version": "qwen3.5:9b",
+          "notes": "",
+          "resolved": true
+        },
+        {
+          "model_role": "candidate",
+          "model_version": "qwen2.5-coder:7b",
+          "notes": "",
+          "resolved": true
+        }
+      ],
+      "status": "passed"
+    },
+    "sanitization": {
+      "checked": true,
+      "notes": "Synthetic campaign; no private terms detected.",
+      "redactions_required": false,
+      "status": "public-safe"
+    },
+    "seeds": {
+      "bootstrap": 12345,
+      "power_simulation": 12345
+    },
+    "task_set": {
+      "fixture_policy": "synthetic",
+      "replicates_per_task": 2,
+      "task_classes": [
+        "fix_failing_test",
+        "multifile_refactor",
+        "repo_reasoning",
+        "small_edit"
+      ],
+      "task_count": 4,
+      "task_set_hash": "sha256:6c8e84bfd10233d52ea472d69b230a49b7051a89aa1989e2e8334a3056c5a180"
+    }
+  },
+  "raw_outcomes": [
+    {
+      "must_not_break": true,
+      "replicates": [
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1321.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1421.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "replicate": 1
+        },
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1322.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1782.0,
+            "status": "test_failed",
+            "success": 0
+          },
+          "replicate": 2
+        }
+      ],
+      "task_class": "small_edit",
+      "task_id": "se-add-countdown-step"
+    },
+    {
+      "must_not_break": false,
+      "replicates": [
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1321.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1421.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "replicate": 1
+        },
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1692.0,
+            "status": "test_failed",
+            "success": 0
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1782.0,
+            "status": "test_failed",
+            "success": 0
+          },
+          "replicate": 2
+        }
+      ],
+      "task_class": "multifile_refactor",
+      "task_id": "mr-merge-helpers-single-source"
+    },
+    {
+      "must_not_break": false,
+      "replicates": [
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1321.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1421.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "replicate": 1
+        },
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1322.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1782.0,
+            "status": "test_failed",
+            "success": 0
+          },
+          "replicate": 2
+        }
+      ],
+      "task_class": "repo_reasoning",
+      "task_id": "rr-grade-boundary-lookup"
+    },
+    {
+      "must_not_break": true,
+      "replicates": [
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1321.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1421.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "replicate": 1
+        },
+        {
+          "candidate": {
+            "cost": null,
+            "latency_ms": 1692.0,
+            "status": "test_failed",
+            "success": 0
+          },
+          "incumbent": {
+            "cost": null,
+            "latency_ms": 1422.0,
+            "status": "succeeded",
+            "success": 1
+          },
+          "replicate": 2
+        }
+      ],
+      "task_class": "fix_failing_test",
+      "task_id": "ft-binary-search-loop-bound"
+    }
+  ],
+  "report": {
+    "campaign_id": "synthetic-local-promotion-001",
+    "created_at": "2026-07-09T17:34:57+00:00",
+    "decision": {
+      "label": "enforcing:superiority-by-margin",
+      "margin": 0.1,
+      "promote": false,
+      "reason": "not promotable \u2014 failing: beats_incumbent_beyond_band, no_regression_must_not_break",
+      "rule": "bootstrap_ci_low_gt_margin",
+      "sign_test": {
+        "alternative": "two-sided",
+        "losses": 1,
+        "p_value": 1.0,
+        "reported_only": true,
+        "ties": 1,
+        "wins": 2
+      }
+    },
+    "provenance": "synthetic",
+    "statistics": {
+      "capability": {
+        "candidate": {
+          "rate": 0.75,
+          "successes": 6,
+          "trials": 8,
+          "wilson": {
+            "confidence": 0.95,
+            "high": 0.9285223111419724,
+            "low": 0.40926987910258916
+          }
+        },
+        "incumbent": {
+          "rate": 0.625,
+          "successes": 5,
+          "trials": 8,
+          "wilson": {
+            "confidence": 0.95,
+            "high": 0.863158240538479,
+            "low": 0.30573785458380187
+          }
+        }
+      },
+      "enhanced_estimators": {
+        "glmm": {
+          "backend": null,
+          "formula": null,
+          "label": "enhanced:glmm-logistic",
+          "status": "optional-dependency-missing"
+        },
+        "two_stage_bootstrap": {
+          "bootstrap": {
+            "alpha": 0.05,
+            "iterations": 2000,
+            "seed": 12345
+          },
+          "ci": {
+            "confidence": 0.95,
+            "high": 0.625,
+            "low": -0.375
+          },
+          "estimate": 0.125,
+          "label": "enhanced:two-stage-bootstrap"
+        },
+        "wilcoxon_signed_rank": {
+          "label": "enhanced:wilcoxon-signed-rank",
+          "n": 3,
+          "p_value": 1.0,
+          "statistic": 2.0,
+          "status": "reported"
+        }
+      },
+      "paired_delta": {
+        "bootstrap": {
+          "alpha": 0.05,
+          "iterations": 2000,
+          "seed": 12345
+        },
+        "ci": {
+          "confidence": 0.95,
+          "high": 0.5,
+          "low": -0.25
+        },
+        "point_estimate": 0.125
+      }
+    }
+  },
+  "schema_version": "1.0.0"
+}
