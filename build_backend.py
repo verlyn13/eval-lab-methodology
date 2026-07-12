@@ -13,7 +13,7 @@ from typing import Any
 
 NAME = "eval-lab-methodology"
 NORMALIZED_NAME = "eval_lab_methodology"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 DIST_INFO = f"{NORMALIZED_NAME}-{VERSION}.dist-info"
 ROOT = Path(__file__).resolve().parent
 PACKAGE_ROOT = ROOT / "src" / "eval_lab_methodology"
@@ -49,7 +49,7 @@ def build_wheel(
     payloads: list[tuple[str, bytes]] = []
 
     for path in sorted(PACKAGE_ROOT.rglob("*")):
-        if path.is_file():
+        if path.is_file() and not _is_bytecode(path):
             arcname = f"eval_lab_methodology/{path.relative_to(PACKAGE_ROOT).as_posix()}"
             payloads.append((arcname, path.read_bytes()))
 
@@ -95,11 +95,17 @@ def build_sdist(
             path = ROOT / relative
             if path.is_dir():
                 for item in sorted(path.rglob("*")):
-                    if item.is_file():
+                    if item.is_file() and not _is_bytecode(item):
                         tar.add(item, arcname=f"{prefix}/{item.relative_to(ROOT).as_posix()}")
             elif path.is_file():
                 tar.add(path, arcname=f"{prefix}/{relative}")
     return sdist_name
+
+
+def _is_bytecode(path: Path) -> bool:
+    """True for interpreter-state files that must never ship in artifacts."""
+
+    return "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}
 
 
 def _metadata() -> str:

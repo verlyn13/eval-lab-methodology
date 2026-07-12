@@ -1,13 +1,24 @@
 {
   "core": {
-    "core_content_hash": "sha256:ed970924070f2f1bc6e92871d2ce6b7812ae30121de8826d83d03eb3842bd604",
-    "core_version": "0.1.0"
+    "core_content_hash": "sha256:7ec59090e3196b225ca2d68bc76cb6703b867f259f87e9d9e2bcafce896bf6ca",
+    "core_version": "0.2.0"
   },
   "manifest": {
     "cost": {
       "basis": "synthetic local example; no provider-metered cost",
       "currency": "USD",
       "total": 0.0
+    },
+    "identity_domain": {
+      "bridge_authorization": null,
+      "candidate_identity_domain_sha256": "sha256:174b6b7acf10e667605d2d4cf144e540ed61e020df9f2907ca089342ba72e462",
+      "identity_domain_sha256": "sha256:174b6b7acf10e667605d2d4cf144e540ed61e020df9f2907ca089342ba72e462",
+      "incumbent_identity_domain_sha256": "sha256:174b6b7acf10e667605d2d4cf144e540ed61e020df9f2907ca089342ba72e462",
+      "observed_identity_domain_sha256s": [
+        "sha256:174b6b7acf10e667605d2d4cf144e540ed61e020df9f2907ca089342ba72e462"
+      ],
+      "reason": "synthetic campaign: all runs share the single synthetic identity domain published as the conformance vector",
+      "status": "matched"
     },
     "models": [
       {
@@ -300,5 +311,5 @@
       }
     }
   },
-  "schema_version": "1.0.0"
+  "schema_version": "1.1.0"
 }

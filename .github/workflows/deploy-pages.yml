@@ -1,0 +1,108 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Render and deploy the public site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Jupyter runtime
+        run: python -m pip install --upgrade pip jupyter papermill
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render website
+        run: quarto render
+
+      - name: Validate and render sample report
+        run: |
+          python scripts/render_methodology_report.py \
+            --evidence evidence/sample-lab-report.json \
+            --report reports/methodology-report.qmd \
+            --output-dir reports/rendered/sample
+
+      - name: Render campaign evidence reports
+        shell: bash
+        run: |
+          shopt -s nullglob globstar
+          campaign_files=(evidence/campaigns/**/evidence.json)
+          if [ ${#campaign_files[@]} -eq 0 ]; then
+            echo "No evidence/campaigns/**/evidence.json files present."
+            exit 0
+          fi
+
+          for evidence in "${campaign_files[@]}"; do
+            safe_name="${evidence#evidence/campaigns/}"
+            safe_name="${safe_name%/evidence.json}"
+            safe_name="${safe_name//\//-}"
+            out_dir="reports/rendered/campaigns/${safe_name}"
+            python scripts/render_methodology_report.py \
+              --evidence "$evidence" \
+              --report reports/methodology-report.qmd \
+              --output-dir "$out_dir"
+          done
+
+      - name: Copy rendered reports into the site
+        shell: bash
+        run: |
+          shopt -s nullglob globstar
+          sample_html="$(find reports/rendered/sample -name 'methodology-report.html' -print -quit)"
+          if [ -z "$sample_html" ]; then
+            echo "rendered sample report not found under reports/rendered/sample" >&2
+            exit 1
+          fi
+          mkdir -p _site/reports/sample
+          cp "$sample_html" _site/reports/sample/methodology-report.html
+
+          for evidence in evidence/campaigns/**/evidence.json; do
+            safe_name="${evidence#evidence/campaigns/}"
+            safe_name="${safe_name%/evidence.json}"
+            safe_name="${safe_name//\//-}"
+            campaign_html="$(find "reports/rendered/campaigns/${safe_name}" -name '*.html' -print -quit)"
+            if [ -z "$campaign_html" ]; then
+              echo "rendered campaign report not found for ${safe_name}" >&2
+              exit 1
+            fi
+            mkdir -p "_site/reports/campaigns/${safe_name}"
+            cp "$campaign_html" "_site/reports/campaigns/${safe_name}/methodology-report.html"
+          done
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

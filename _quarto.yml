@@ -1,0 +1,27 @@
+project:
+  type: website
+  output-dir: _site
+  # Only the website pages render by default. The parameterized report at
+  # reports/methodology-report.qmd is deliberately NOT listed: it renders
+  # standalone via scripts/render_methodology_report.py with -P parameters.
+  render:
+    - index.qmd
+    - identity-domain.qmd
+
+website:
+  title: "Agentic-Coding Evaluation Lab"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: identity-domain.qmd
+        text: Identity domains
+    right:
+      - icon: github
+        href: https://github.com/verlyn13/eval-lab-methodology
+        aria-label: GitHub repository
+
+format:
+  html:
+    theme: cosmo
+    toc: true

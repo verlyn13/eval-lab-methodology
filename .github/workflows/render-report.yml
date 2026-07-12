@@ -30,16 +30,27 @@ jobs:
       - name: Validate sample evidence
         run: make validate-report EVIDENCE=evidence/sample-lab-report.json
 
+      - name: Render website
+        run: quarto render
+
       - name: Render sample report
-        uses: quarto-dev/quarto-actions/render@v2
-        with:
-          to: html
-          path: reports/methodology-report.qmd
+        run: |
+          python scripts/render_methodology_report.py \
+            --evidence evidence/sample-lab-report.json \
+            --report reports/methodology-report.qmd \
+            --output-dir reports/rendered/sample
 
       - name: Collect sample report artifact
+        shell: bash
         run: |
-          mkdir -p reports/rendered/sample
-          mv reports/methodology-report.html reports/rendered/sample/methodology-report.html
+          html_path="$(find reports/rendered/sample -name 'methodology-report.html' -print -quit)"
+          if [ -z "$html_path" ]; then
+            echo "rendered sample report not found under reports/rendered/sample" >&2
+            exit 1
+          fi
+          if [ "$html_path" != "reports/rendered/sample/methodology-report.html" ]; then
+            mv "$html_path" reports/rendered/sample/methodology-report.html
+          fi
 
       - name: Render campaign evidence reports
         shell: bash

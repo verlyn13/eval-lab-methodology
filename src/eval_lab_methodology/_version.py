@@ -5,13 +5,14 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-__core_version__ = "0.1.0"
+__core_version__ = "0.2.0"
 
 _HASHED_SOURCE_FILES = (
     "__init__.py",
     "_version.py",
     "decision.py",
     "estimators.py",
+    "identity_domain.py",
     "primitives.py",
     "schema_contract.py",
 )

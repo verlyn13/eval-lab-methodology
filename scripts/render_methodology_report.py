@@ -133,17 +133,38 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["PYTHONPATH"] = f"{SRC_PATH}{os.pathsep}{env['PYTHONPATH']}" if env.get("PYTHONPATH") else str(SRC_PATH)
+    # Render as a single document (no --output-dir: with the website project's
+    # _quarto.yml at the repo root, Quarto rejects --output-dir for documents
+    # that are not project render targets). The output lands next to the .qmd
+    # and is then moved into the requested output directory.
     command = [
         quarto,
         "render",
         str(report_path),
         "-P",
         f"evidence:{evidence_path}",
-        "--output-dir",
-        str(output_dir),
     ]
     completed = subprocess.run(command, cwd=REPO_ROOT, env=env, check=False)
-    return completed.returncode
+    if completed.returncode != 0:
+        return completed.returncode
+
+    rendered_html = report_path.with_suffix(".html")
+    if not rendered_html.exists():
+        raise SystemExit(f"Quarto succeeded but no output found at {display_path(rendered_html)}")
+    resources = report_path.parent / f"{report_path.stem}_files"
+    for source in (rendered_html, resources):
+        if not source.exists():
+            continue
+        target = output_dir / source.name
+        if target == source:
+            continue
+        if target.is_dir():
+            shutil.rmtree(target)
+        elif target.exists():
+            target.unlink()
+        shutil.move(str(source), str(target))
+    print(f"rendered report: {display_path(output_dir / rendered_html.name)}")
+    return 0
 
 
 if __name__ == "__main__":

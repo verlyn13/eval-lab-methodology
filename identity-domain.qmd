@@ -1,0 +1,170 @@
+---
+title: "Identity Domains"
+subtitle: "The normative comparability spec for the Agentic-Coding Evaluation Lab"
+jupyter: python3
+execute:
+  echo: false
+  warning: false
+  error: false
+---
+
+```{python}
+#| include: false
+import sys
+from pathlib import Path
+
+
+def find_repo_root(start: Path) -> Path:
+    for candidate in (start.resolve(), *start.resolve().parents):
+        if (candidate / "pyproject.toml").exists() and (candidate / "src").exists():
+            return candidate
+    raise RuntimeError("Could not locate repository root from Quarto execution directory")
+
+
+repo_root = find_repo_root(Path.cwd())
+src_path = repo_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+```
+
+## Why identity domains
+
+Serving stacks do not promise bitwise-identical numerics across engine
+versions, hardware, or launch configuration. A score produced on one stack and
+a score produced on another are not the same measurement, even for the same
+model weights. Treating them as comparable silently converts an infrastructure
+change into a fake model result.
+
+The identity domain makes that boundary explicit and machine-checkable. It is
+a structural fingerprint of everything that can change the numerics a run
+produces: the serving engine and its version, the serving image and base-image
+digests, the engine wheel hash, the GPU hardware, the model artifacts, and the
+launch configuration. Run-scoped identifiers — run ids and timestamps — are
+excluded by construction, so the domain is stable across runs on the same
+stack.
+
+Comparability is then an **admission decision**, and it fails closed:
+
+- Runs are score-comparable only when their `identity_domain_sha256` values
+  match exactly.
+- A comparison across differing domains is refused unless an explicit
+  **bridge authorization** — an operator-attested exception with a bridge id
+  and a reason — is recorded downstream in the evidence.
+- A run that cannot present a well-formed domain hash is not admitted at all.
+  Non-evaluable is not a pass.
+
+The evidence contract carries the admission verdict in every published
+manifest (`manifest.identity_domain`), so a reader can always see whether a
+reported comparison stayed inside one domain or crossed on a recorded bridge.
+
+## The canonical field set (v1)
+
+The field set below is rendered directly from the package constants in
+[`src/eval_lab_methodology/identity_domain.py`](https://github.com/verlyn13/eval-lab-methodology/blob/main/src/eval_lab_methodology/identity_domain.py),
+which is the single normative definition.
+
+```{python}
+#| output: asis
+from eval_lab_methodology import (
+    BASE_IMAGE_DIGEST_KEYS,
+    FORBIDDEN_KEYS,
+    IDENTITY_DOMAIN_SCHEMA_VERSION,
+    IDENTITY_DOMAIN_SECTIONS,
+    IDENTITY_DOMAIN_TOP_LEVEL_KEYS,
+)
+
+
+def keys_cell(keys) -> str:
+    return ", ".join(f"`{key}`" for key in keys)
+
+
+rows = [("(top level)", keys_cell(IDENTITY_DOMAIN_TOP_LEVEL_KEYS))]
+for section, keys in IDENTITY_DOMAIN_SECTIONS.items():
+    rows.append((f"`{section}`", keys_cell(keys)))
+    if section == "image":
+        rows.append(("`image.base_image_digest`", keys_cell(BASE_IMAGE_DIGEST_KEYS)))
+
+lines = ["| Section | Required keys |", "| --- | --- |"]
+lines.extend(f"| {section} | {keys} |" for section, keys in rows)
+print("\n".join(lines))
+print()
+print(f"`schema_version` must equal `{IDENTITY_DOMAIN_SCHEMA_VERSION}`, and")
+print("`reference_lane` must be a non-empty string.")
+print()
+print(
+    "Forbidden at every nesting level (run-scoped, excluded by construction): "
+    + keys_cell(sorted(FORBIDDEN_KEYS))
+    + "."
+)
+```
+
+Structural validation is fail-closed: `validate_identity_domain` rejects a
+domain with a wrong schema version, a missing section or key, a non-mapping
+section, or a forbidden run-scoped key anywhere in the tree. Value semantics
+beyond structure belong to the downstream builders that attest them.
+
+## The canonicalization rule
+
+Every implementation hashes the identity domain with exactly this rule — the
+prefix is required and the hex digits are lowercase:
+
+```python
+"sha256:" + hashlib.sha256(
+    json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+).hexdigest()
+```
+
+Hash strings match `^sha256:[0-9a-f]{64}$`. Key order cannot change the hash
+(`sort_keys=True`), whitespace cannot change the hash (compact separators),
+and non-ASCII text is escaped deterministically (`ensure_ascii=True`), so the
+same domain always produces the same bytes.
+
+## The conformance vector
+
+`CONFORMANCE_IDENTITY_DOMAIN` is a fully **synthetic**, public-safe fixture
+carrying the complete v1 field set; its digests are repeated-hex placeholders.
+The frozen constant `CONFORMANCE_IDENTITY_DOMAIN_SHA256` is the cross-repo
+conformance value. The cell below recomputes the hash live and asserts that it
+equals the frozen constant — rendering this page is itself a conformance
+proof.
+
+```{python}
+#| echo: true
+import json
+
+from eval_lab_methodology import (
+    CONFORMANCE_IDENTITY_DOMAIN,
+    CONFORMANCE_IDENTITY_DOMAIN_SHA256,
+    identity_domain_sha256,
+    validate_identity_domain,
+)
+
+assert validate_identity_domain(CONFORMANCE_IDENTITY_DOMAIN) == []
+recomputed = identity_domain_sha256(CONFORMANCE_IDENTITY_DOMAIN)
+assert recomputed == CONFORMANCE_IDENTITY_DOMAIN_SHA256
+
+print(json.dumps(CONFORMANCE_IDENTITY_DOMAIN, indent=2))
+print()
+print("CONFORMANCE_IDENTITY_DOMAIN_SHA256 =", recomputed)
+```
+
+## Versioning scope
+
+Reproducibility is version+hardware scoped. An engine bump, a serving-image
+change, a different GPU, or a changed launch configuration produces a new
+identity domain — and a new domain means a **re-baseline**, not a comparable
+run. The incumbent's recorded scores do not carry across the boundary; the
+comparison starts over inside the new domain. This is deliberate: it keeps
+infrastructure drift from ever being read as a model improvement or
+regression.
+
+## Downstream conformance
+
+This page is the normative definition; the private components conform to it
+functionally. The private deployment's serving entrypoint and session
+validator, and the evaluation lab's admission gate, each carry parity tests
+that reproduce this vector — the same fixture, the same canonicalization rule,
+the same frozen hash. A drift in any implementation fails its parity test
+before it can produce a misleadingly "comparable" number.
