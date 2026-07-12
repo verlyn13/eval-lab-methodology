@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:agentic-coding-evaluation-lab:evidence:1.0.0",
+  "$id": "urn:agentic-coding-evaluation-lab:evidence:1.1.0",
   "title": "Agentic-Coding Evaluation Lab Evidence Report",
-  "description": "Versioned public evidence contract: report model_dump() shape, raw per-task/per-replicate outcome arrays, and reproducibility manifest.",
+  "description": "Versioned public evidence contract: report model_dump() shape, raw per-task/per-replicate outcome arrays, and reproducibility manifest. Versioning policy: schema_version is const-pinned, so every contract change ships as a new pinned version and every bump is breaking by design; producers must target one exact version. Cross-field checks that JSON Schema cannot express (the matched-status hash-equality rule) are enforced by the reference validator, eval_lab_methodology.schema_contract.validate_evidence_report, which is stricter than this schema.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "core": {
       "type": "object",
@@ -291,6 +291,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "identity_domain",
         "seeds",
         "task_set",
         "models",
@@ -299,6 +300,123 @@
         "sanitization"
       ],
       "properties": {
+        "identity_domain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "identity_domain_sha256",
+            "candidate_identity_domain_sha256",
+            "incumbent_identity_domain_sha256",
+            "observed_identity_domain_sha256s",
+            "bridge_authorization",
+            "reason"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "matched"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "identity_domain_sha256": {
+                    "$ref": "#/$defs/sha256"
+                  },
+                  "bridge_authorization": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "bridge-authorized"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "bridge_authorization": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "matched",
+                "bridge-authorized"
+              ]
+            },
+            "identity_domain_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "candidate_identity_domain_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "incumbent_identity_domain_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "observed_identity_domain_sha256s": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/sha256"
+              }
+            },
+            "bridge_authorization": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "bridge_id",
+                    "reason"
+                  ],
+                  "properties": {
+                    "bridge_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "authorized_by": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
         "seeds": {
           "type": "object",
           "minProperties": 1,

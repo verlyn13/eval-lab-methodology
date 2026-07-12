@@ -24,6 +24,10 @@ functionally, not exposed.
 - `evidence/schema.json`: the versioned public evidence contract for report
   `model_dump()` output, raw per-task/per-replicate outcomes, and reproducibility
   manifests.
+- `reports/methodology-report.qmd`: the parameterized Quarto report that renders
+  a full campaign from an evidence JSON. Rendered example reports and the
+  methodology site are published at
+  <https://verlyn13.github.io/eval-lab-methodology/>.
 - `evidence/`: the sanitized recorded values behind the two worked examples, and
   the small data file the figures are generated from.
 - `figures/`: two figures generated reproducibly from `evidence/data.json`, plus
@@ -57,6 +61,22 @@ Local verification:
 PYTHONPATH=src python -m unittest discover -s tests -v
 python -m pip wheel . --no-deps -w /tmp/eval-lab-methodology-wheel
 ```
+
+### Identity domains
+
+Runs are score-comparable only when their `identity_domain_sha256` values match
+exactly (or an explicit bridge authorization is recorded downstream). An
+identity domain is a structural fingerprint of everything that can change
+numerics — engine and version, serving and base-image digests, engine wheel
+hash, GPU hardware, model artifacts, and launch configuration — with run ids
+and timestamps excluded by construction. The canonical rule is
+`"sha256:" + sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True))`.
+The normative definition, the fail-closed validator, and the frozen cross-repo
+conformance vector live in
+[`src/eval_lab_methodology/identity_domain.py`](src/eval_lab_methodology/identity_domain.py);
+the rendered spec page is at
+<https://verlyn13.github.io/eval-lab-methodology/identity-domain.html>. An
+engine or hardware bump is a re-baseline, not a comparable run.
 
 ## The problem
 

@@ -1,0 +1,61 @@
+---
+title: "Agentic-Coding Evaluation Lab"
+---
+
+This is the public methodology site for the Agentic-Coding Evaluation Lab: an
+evidence-gated way to decide whether to change a coding-agent default (which
+model, or which model-plus-harness combination, to deploy). A candidate
+replaces the incumbent only when a fixed, reproducible evaluation clears a
+conjunctive, fail-closed statistical promotion gate — and not otherwise. The
+single strongest result is a defensible no-go, not a speedup. No performance
+or alignment improvement deltas are claimed anywhere here.
+
+The full write-up lives in the repository
+[README](https://github.com/verlyn13/eval-lab-methodology). This site carries
+the normative specifications and the rendered example reports.
+
+## The methodology in brief
+
+- **Two measurement axes.** Reliability evaluations ask whether the agent can
+  do the plumbing correctly and repeatably; capability evaluations ask whether
+  it can accomplish task-class work at all. The axes trade against each other,
+  so they are never averaged into one number.
+- **Calibrated small-n statistics.** Wilson score intervals for proportions,
+  seeded bootstrap confidence intervals for paired deltas (2000 iterations,
+  fixed seed, exactly reproducible), and a two-sided paired sign test reported
+  alongside — never as the gate.
+- **A conjunctive, fail-closed promotion gate.** A candidate is promoted only
+  if every criterion holds; a criterion that cannot be evaluated is not a
+  pass. The gate is deliberately biased toward the incumbent because the costs
+  are asymmetric.
+- **Identity-domain comparability.** Runs are score-comparable only when they
+  come from the same [identity domain](identity-domain.qmd) — a structural
+  fingerprint of everything that can change numerics. Comparisons across
+  domains fail closed unless a bridge authorization is recorded.
+- **Evidence, not assertions.** Every published interval is recomputable from
+  a versioned evidence JSON that carries raw per-task outcomes and a
+  reproducibility manifest.
+
+## Specifications
+
+- [Identity domains](identity-domain.qmd) — the normative comparability spec,
+  the canonical field set and hashing rule, and the frozen cross-repo
+  conformance vector (recomputed live when this page renders).
+
+## Example reports
+
+Rendered from public evidence JSON by the parameterized Quarto report in this
+repository. All data below is **synthetic** — labeled as such in each
+artifact's manifest — and exists to demonstrate the reporting layer, not to
+claim results.
+
+- [Sample synthetic lab report](reports/sample/methodology-report.html)
+- [Campaign: synthetic-local-promotion-001](reports/campaigns/synthetic-local-promotion-001/methodology-report.html)
+
+## Honesty rules
+
+Every number published by this project traces to a produced artifact.
+Synthetic and representative data are labeled as synthetic or representative.
+Enforcing, advisory, and planned mechanisms are labeled as such, and the
+limitations (small n, wide intervals, confounds) are stated plainly — the
+honesty is the point of the artifact.
