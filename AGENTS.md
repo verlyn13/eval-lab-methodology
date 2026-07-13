@@ -50,7 +50,20 @@ first-class; the plumbing, secrets, and the real task fixtures stay private.
 - **Real-run reports:** run the sanitization pass below **before** committing. The
   report shows the statistics, the decision, the curves, and a reproducibility
   manifest (seeds, task-set hash, model versions) — **not** the plumbing.
-- Optional: render to GitHub Pages so reports are viewable in-browser.
+- The site **auto-deploys from `main`** via `.github/workflows/deploy-pages.yml`
+  to <https://jvjohnson.dev/eval-lab-methodology/>. Every merge to `main` is an
+  immediate public publication — there is no separate publish step at which to
+  catch a leak — so the sanitization contract below binds **at merge time**.
+
+## The identity-domain spec is normative
+
+`src/eval_lab_methodology/identity_domain.py` is a **normative
+cross-implementation spec**, not just library code: independent implementations
+canonicalize identity domains to byte-for-byte parity with it.
+`CONFORMANCE_IDENTITY_DOMAIN` and `CONFORMANCE_IDENTITY_DOMAIN_SHA256` are frozen
+published values that downstream parity tests pin — **never edit them in place**.
+A change to the spec's semantics is a **new `schema_version` (v2) with a new
+conformance vector**, published alongside the old one, never a mutation of v1.
 
 ## Sanitization contract (hard requirement — the redaction list)
 
@@ -62,7 +75,7 @@ git history):
   (`localhost:8811` is acceptable as an illustrative default; real hosts are not).
 - Provider account names/IDs; name providers only as generic "an OpenAI-compatible
   gateway / provider."
-- RunPod pod IDs, endpoints, object keys, bucket names, or billing/cost IDs.
+- GPU-cloud pod IDs, endpoints, object keys, bucket names, or billing/cost IDs.
 - The private task-suite fixtures themselves — **publishing them risks benchmark
   contamination** and exposes harness internals. Publish task-*class* descriptions
   and synthetic/representative examples, not the private fixtures.
@@ -78,6 +91,15 @@ bootstrap, GLMM, Quarto). The public alias "Agentic-Coding Evaluation Lab" is fi
 - Label enforcing vs advisory vs planned; state limitations (sample size, confounds)
   plainly. The honesty is the point of the artifact.
 - Seeded runs make intervals reproducible; keep it that way and say so.
+
+## Gates before commit
+
+Run all three from the repo root; every one must pass before a commit:
+
+- `PYTHONPATH=src python -m unittest discover -s tests -v`
+- `make validate-report EVIDENCE=evidence/sample-lab-report.json` — and repeat
+  for each `evidence/campaigns/**/evidence.json` file
+- `python -m pip wheel . --no-deps -w dist/`
 
 ## What agents may / may not do here
 
