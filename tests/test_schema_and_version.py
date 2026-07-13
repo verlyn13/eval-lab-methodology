@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import unittest
 from pathlib import Path
 
@@ -120,8 +121,13 @@ class SchemaAndVersionTests(unittest.TestCase):
         ):
             validate_evidence_report(invalid)
 
-    @unittest.skipUnless(jsonschema is not None, "jsonschema is not installed")
+    @unittest.skipIf(
+        jsonschema is None and os.environ.get("CI", "").lower() != "true",
+        "jsonschema is not installed outside CI",
+    )
     def test_schema_json_enforces_status_conditional_identity_domain_rules(self) -> None:
+        if jsonschema is None:
+            self.fail("jsonschema must be installed in CI for schema conditional-rule coverage")
         schema = json.loads((ROOT / "evidence" / "schema.json").read_text(encoding="utf-8"))
         validator = jsonschema.Draft202012Validator(schema)
 
