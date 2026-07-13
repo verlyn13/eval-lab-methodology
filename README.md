@@ -13,8 +13,10 @@ and machine-checked enforcement.
 
 This repository is a standalone artifact extracted from a larger private stack.
 The sibling services it coordinates with (an OpenAI-compatible LLM gateway for
-transport, an editing harness, and a durable evidence store) are described here
-functionally, not exposed.
+transport, an editing harness, and an operational trace/context state service)
+are described here functionally, not exposed. Durable campaign evidence is owned
+by the evaluation lab itself, and sanitized copies are published back here after
+review.
 
 ## What is in this repo
 
@@ -101,12 +103,13 @@ agent. Its output is a defensible go/no-go decision with the evidence attached.
 The lab is one service in a small local stack, and the boundaries are the point.
 Transport and control live in a separate OpenAI-compatible gateway that owns
 routing, provider resolution, and capability aliasing. Editing and diff
-application live in a separate harness, under evaluation. Durable evidence
-persistence lives in a separate state service. The lab itself only measures, and
-it writes its findings into that evidence store. Transport, editing, and evidence
-are separately-maintained components. The lab is the evaluation and evidence
-layer that composes with them. It is not a single program that owns routing,
-editing, and storage.
+application live in a separate harness, under evaluation. Operational traces and
+context live in a separate state service with bounded retention; durable
+campaign evidence belongs to the lab's own evidence layer as validated
+artifacts. The lab itself only measures, and it writes its findings into that
+evidence layer. Transport, editing, and trace storage are separately-maintained
+components. The lab is the evaluation and evidence layer that composes with
+them. It is not a single program that owns routing, editing, and trace storage.
 
 This separation is not tidiness for its own sake. It is a validity requirement.
 If the thing that measures a system is entangled with the thing being measured,
@@ -334,8 +337,8 @@ This was built solo, unfunded, on personal time. That is signal of
 self-direction, not an excuse, and not the headline. This repository is an
 extracted standalone artifact. The full system it comes from coordinates with
 separately-maintained private services (an OpenAI-compatible LLM gateway for
-transport and control, an editing harness under evaluation, and a durable
-state and evidence service), which are described here functionally rather than
+transport and control, an editing harness under evaluation, and an operational
+trace/context state service), which are described here functionally rather than
 exposed.
 
 ## Why this transfers

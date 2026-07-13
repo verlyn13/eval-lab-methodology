@@ -21,7 +21,7 @@ Anything here is world-readable. Treat every commit as a public release.
 | This repo (the methodology + core) | PUBLIC | Methodology + stats/report core + Quarto reports + sanitized results | — |
 | The evaluation lab | PRIVATE | The working lab: real task suite, wiring to the gateway/state/editing harness, real campaigns | Only functionally as "the evaluation lab"; never by repo name |
 | An OpenAI-compatible LLM gateway | PRIVATE | Transport/router; holds provider secrets | Only as "an OpenAI-compatible LLM gateway"; never by name |
-| A state service | PRIVATE | Durable run/evidence state | Only as "a state service"; never by name |
+| A state service | PRIVATE | Operational trace/context state, bounded retention; not the evidence authority | Only as "a state service"; never by name |
 | The editing harness (third-party OSS) | third-party OSS | The editing harness under evaluation | Cite as a dependency; do not fork/vendor |
 
 Do **not** pull code, config, task fixtures, or identifiers from the private repos
