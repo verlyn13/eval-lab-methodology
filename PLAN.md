@@ -1,18 +1,17 @@
 # Roadmap — the statistical + reporting core
 
-This repository is today a methodology write-up with reproducible figures. This
-file is the roadmap for what it becomes: an infra-agnostic **statistical and
-reporting core** for evidence-gated model/harness promotion — real, tested code
-plus a Quarto report — that anyone can run with no access to private
+This repository is the methodology write-up plus an infra-agnostic **statistical
+and reporting core** for evidence-gated model/harness promotion — real, tested
+code plus a Quarto report — that anyone can run with no access to private
 infrastructure. Read `AGENTS.md` first; it defines the boundary and the honesty and
-sanitization rules that gate every commit here. This file says what to build and in
-what order.
+sanitization rules that gate every commit here. This file records what has landed
+and what remains to build, in order.
 
 Everything here is world-readable. Treat every commit as a public release.
 
 ## Where things stand
 
-Present and working:
+Landed and working:
 
 - The methodology write-up (`README.md`), with a worked false-positive no-go and a
   worked live no-go, both carrying real recorded numbers.
@@ -21,17 +20,34 @@ Present and working:
 - `figures/generate.py` — a standard-library SVG generator that renders the figures
   from `evidence/data.json`. It performs **no statistics**; it draws numbers that
   already exist.
+- **Build-order step 1 is done.** The statistical core is importable, tested code
+  (`src/eval_lab_methodology/`, version 0.2.0), with packaging (`pyproject.toml`
+  plus the standard-library build backend) and CI that runs the unit tests and
+  builds the wheel on every push and pull request.
+- **Build-order step 2 is done.** The evidence-JSON schema is versioned
+  (`evidence/schema.json`, schema version 1.1.0) and carries raw per-task
+  outcomes; the Quarto report renders a full campaign from an evidence JSON; and
+  a synthetic-data example ships with it (`evidence/sample-lab-report.json` and
+  the synthetic campaign under `evidence/campaigns/`). The report and site are
+  live at <https://jvjohnson.dev/eval-lab-methodology/>, auto-deployed from
+  `main`.
+- **A landed normative addition:** the identity-domain spec
+  (`src/eval_lab_methodology/identity_domain.py`, documented in
+  `identity-domain.qmd`) defines how a model identity domain is canonicalized so
+  results are comparable across implementations. It ships with a **frozen
+  conformance vector** — `CONFORMANCE_IDENTITY_DOMAIN` and its published hash
+  `CONFORMANCE_IDENTITY_DOMAIN_SHA256` — that cross-implementation parity tests
+  pin. See `AGENTS.md` for the rule: the vector is never edited in place; a spec
+  change is a new schema version with a new vector.
 
-Not yet built (the work this roadmap covers):
+Still to build (the remaining roadmap):
 
-- The statistical core as importable, tested code (today the estimators exist only
-  as prose in the write-up).
-- A versioned evidence-JSON schema that carries **raw per-task outcomes**, so every
-  published interval is recomputable from the artifact rather than asserted.
-- A Quarto report that renders a full campaign from an evidence JSON.
 - A runnable `example/` a reviewer can clone and run against an open model or a
-  public API.
-- Packaging, a lockfile, and CI.
+  public API (build-order step 3).
+- Contributed sanitized real-run results and rendered reports (build-order
+  step 4).
+- One open packaging question: whether to publish a dev-extra lockfile so the
+  development environment is pinned, not only the runtime dependencies.
 
 ## The target
 
