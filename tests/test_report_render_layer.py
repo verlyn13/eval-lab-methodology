@@ -8,6 +8,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.publication_safety import (
+    assert_publication_content_is_safe,
+    normalized_name_sha256,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "render_methodology_report.py"
@@ -35,7 +39,13 @@ class ReportRenderLayerTests(unittest.TestCase):
             path = Path(tmpdir) / "non-public-safe.json"
             path.write_text(json.dumps(invalid), encoding="utf-8")
             completed = subprocess.run(
-                [sys.executable, str(SCRIPT), "--evidence", str(path), "--validate-only"],
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--evidence",
+                    str(path),
+                    "--validate-only",
+                ],
                 cwd=ROOT,
                 text=True,
                 capture_output=True,
@@ -43,6 +53,41 @@ class ReportRenderLayerTests(unittest.TestCase):
             )
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("public-safe", completed.stderr)
+
+    def test_validate_only_refuses_independent_content_leak(self) -> None:
+        sample = json.loads(SAMPLE.read_text(encoding="utf-8"))
+        sample["manifest"]["identity_domain"]["reason"] = (
+            "synthetic leak probe at https://example.internal/v1"
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "content-leak.json"
+            path.write_text(json.dumps(sample), encoding="utf-8")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--evidence",
+                    str(path),
+                    "--validate-only",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("independent recursive content scan", completed.stderr)
+
+    def test_content_scan_refuses_hash_only_private_name_match(self) -> None:
+        marker = "synthetic-public-boundary-marker"
+        with self.assertRaisesRegex(
+            ValueError, "hashed private-identifier denylist"
+        ) as raised:
+            assert_publication_content_is_safe(
+                {"text": marker},
+                private_name_sha256s=frozenset({normalized_name_sha256(marker)}),
+            )
+        self.assertNotIn(marker, str(raised.exception))
 
     def test_report_contains_required_verbatim_labels(self) -> None:
         qmd = REPORT.read_text(encoding="utf-8")

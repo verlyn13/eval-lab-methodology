@@ -34,6 +34,26 @@ every commit is world-readable and every merge to `main` is a publication act.
 - No enforcing test, replicate policy, or minimum practically important
   benefit has been selected for the next contract. Powered promotion remains
   unavailable until that coupled decision is made from a complete package.
+- Contract B `2.0.0-draft.1` is an immutable, repository-only normative draft
+  beside v1. It binds synthetic registration, reveal, schedule, attempts,
+  attrition, copied observation provenance, analysis, decision, and report
+  records and independently recomputes `NOT_EVALUABLE`. Its verifier, report
+  renderer, and publication-safety scanner are bound by an ordered file
+  manifest and aggregate digest. It is unreleased, outside package 0.2.0,
+  operationally non-authoritative, and selects no method.
+- Its synthetic observation cardinality is one Aider-owner descriptor-validation
+  receipt and one lab-owned completion receipt per attempt; one distinct gateway
+  open receipt, zero or more gateway call receipts, and one distinct gateway
+  closure receipt per invocation. Zero calls are admissible only for a retained
+  pre-dispatch failure; fallback is forbidden. The closure binds the open
+  receipt, count, ordered request IDs, and ordered owner call receipts. Actual
+  request-attempt counts and vectors remain gateway-owned. All owner receipt
+  schemas and provenance classes are explicitly unratified fixtures pending
+  frozen owner contracts.
+- Its registry binding uses the actual `eval-registry.registration-receipt.v1`
+  exact-byte and domain-separation contracts. Because the registry is at D2
+  scaffolding only, the copied verification result is non-authoritative and the
+  synthetic packet refuses signer, signature, or TSA authority.
 
 ## Scientific decision package still required
 
@@ -98,6 +118,11 @@ Acceptance: a fully synthetic v2 campaign renders a human report, exact
 recomputation agrees bit-for-bit, and mutation tests demonstrate refusal. This
 step records the selected method only after the coupled scientific ruling; it
 must not choose that method itself.
+
+Draft checkpoint: `2.0.0-draft.1` exercises the complete structural join and
+the fail-closed outcome while method authority is held. Adoption and any
+non-`NOT_EVALUABLE` decision semantics require a new reviewed contract version;
+the draft is never edited in place after publication.
 
 ### Step 3 — calibrated scientific design
 

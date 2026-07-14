@@ -42,6 +42,9 @@ jobs:
       - name: Verify experimental results artifact
         run: PYTHONPATH=src python -m analysis.run_method_tranche --check
 
+      - name: Verify Contract B v2 synthetic refusal artifact
+        run: PYTHONPATH=src python -m analysis.run_contract_v2 --check
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 

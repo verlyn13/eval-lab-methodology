@@ -58,8 +58,11 @@ powered campaign.
 
 The next contract raises this bar: the public methodology implementation must
 derive the enforcing result and decision from raw records and refuse a producer
-claim that does not match exactly. That Contract v2 work is planned, not yet
-released.
+claim that does not match exactly. Immutable draft `2.0.0-draft.1` now
+demonstrates that structural path on public synthetic records. It remains
+repository-only, unreleased, and operationally non-authoritative. Because the
+inferential basis and test, replication policy, and practical-benefit threshold
+remain undecided, its only valid outcome is `NOT_EVALUABLE`.
 
 ## Specifications
 
@@ -69,6 +72,9 @@ released.
 - [Experimental inference note](reports/experimental-inference-note.qmd) —
   executable synthetic decision input showing where exact computation does and
   does not establish inferential validity. It selects no method.
+- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) —
+  a synthetic registration-to-report join that independently recomputes or
+  refuses and cannot emit a promotion recommendation.
 
 ## Example reports
 

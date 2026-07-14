@@ -1,0 +1,553 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agentic-coding-evaluation-lab:evidence:2.0.0-draft.1",
+  "title": "Agentic-Coding Evaluation Lab Contract B v2 normative draft",
+  "description": "Immutable structural draft beside Evidence Contract 1.1.0. It selects no estimand, enforcing test, replicate policy, margin, or minimum practical benefit and can emit only NOT_EVALUABLE. Cross-artifact hashes, joins, reveal commitments, provenance preservation, attrition, analysis, decision, and report purity are enforced by analysis.contract_v2.verify_exact_bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_status",
+    "provenance",
+    "operational_authority",
+    "campaign",
+    "verifier",
+    "science_protocol",
+    "task_set_reveal",
+    "registration",
+    "assignment_schedule",
+    "attempts",
+    "attrition",
+    "gateway_invocation_opens",
+    "gateway_observations",
+    "gateway_invocation_closures",
+    "editing_harness_descriptor_validations",
+    "harness_completion_observations",
+    "analysis_result",
+    "decision_receipt",
+    "human_report",
+    "sanitization"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "agentic-coding-evaluation-lab.evidence.v2.0.0-draft.1"
+    },
+    "contract_status": {"const": "normative_draft"},
+    "provenance": {"const": "synthetic"},
+    "operational_authority": {"const": false},
+    "campaign": {"$ref": "#/$defs/campaign"},
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementation_version", "implementation_files", "implementation_bundle_sha256", "custody", "release_status"],
+      "properties": {
+        "implementation_version": {"const": "agentic-coding-evaluation-lab.contract-v2-verifier.v2.0.0-draft.1"},
+        "implementation_files": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/implementation_file"}
+        },
+        "implementation_bundle_sha256": {"$ref": "#/$defs/sha256"},
+        "custody": {"const": "repository-only"},
+        "release_status": {"const": "unreleased-draft"}
+      }
+    },
+    "science_protocol": {"$ref": "#/$defs/science_protocol"},
+    "task_set_reveal": {"$ref": "#/$defs/task_set_reveal"},
+    "registration": {"$ref": "#/$defs/registration"},
+    "assignment_schedule": {"$ref": "#/$defs/assignment_schedule"},
+    "attempts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/attempt"}
+    },
+    "attrition": {"$ref": "#/$defs/attrition"},
+    "gateway_invocation_opens": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Exactly one synthetic gateway-owner open receipt per editing-harness invocation; runtime verification enforces joins and global receipt uniqueness.",
+      "items": {"$ref": "#/$defs/gateway_invocation_open"}
+    },
+    "gateway_observations": {
+      "type": "array",
+      "description": "Zero or more synthetic gateway-owner call observations per editing-harness invocation; runtime verification enforces invocation joins, unique request IDs, and contiguous call ordinals.",
+      "items": {"$ref": "#/$defs/gateway_observation"}
+    },
+    "gateway_invocation_closures": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Exactly one synthetic gateway-owner closure receipt per invocation, binding the distinct open receipt and complete ordered request-ID set.",
+      "items": {"$ref": "#/$defs/gateway_invocation_closure"}
+    },
+    "editing_harness_descriptor_validations": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Exactly one synthetic editing-harness-owner descriptor-validation receipt per attempt; it proves configuration validity only and never process execution.",
+      "items": {"$ref": "#/$defs/harness_descriptor_validation"}
+    },
+    "harness_completion_observations": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Exactly one synthetic evaluation-harness completion receipt per attempt; it is separate from pre-launch editing-harness descriptor validation.",
+      "items": {"$ref": "#/$defs/harness_completion_observation"}
+    },
+    "analysis_result": {"$ref": "#/$defs/analysis_result"},
+    "decision_receipt": {"$ref": "#/$defs/decision_receipt"},
+    "human_report": {"$ref": "#/$defs/human_report"},
+    "sanitization": {"$ref": "#/$defs/sanitization"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "implementation_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "enum": [
+            "analysis/contract_v2/verification.py",
+            "analysis/contract_v2/report.py",
+            "scripts/publication_safety.py"
+          ]
+        },
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "hmac_sha256": {
+      "type": "string",
+      "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+    },
+    "nonempty": {"type": "string", "minLength": 1},
+    "held_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "specification"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.held-decision-input.v2.0.0-draft.1"},
+        "status": {"const": "held"},
+        "specification": {"type": "null"}
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "campaign_id", "campaign_type", "campaign_family_commitment", "attempt_ordinal"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.campaign.v2.0.0-draft.1"},
+        "campaign_id": {"$ref": "#/$defs/nonempty"},
+        "campaign_type": {"const": "synthetic_contract_check"},
+        "campaign_family_commitment": {"$ref": "#/$defs/hmac_sha256"},
+        "attempt_ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "science_protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "campaign_id",
+        "campaign_type",
+        "target_task_universe",
+        "outcome_definition",
+        "estimand",
+        "method",
+        "replicate_policy",
+        "margin",
+        "mpib",
+        "missingness_policy",
+        "assignment_schedule_sha256",
+        "task_set_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.science-protocol.v2.0.0-draft.1"},
+        "campaign_id": {"$ref": "#/$defs/nonempty"},
+        "campaign_type": {"const": "synthetic_contract_check"},
+        "target_task_universe": {"$ref": "#/$defs/nonempty"},
+        "outcome_definition": {"$ref": "#/$defs/nonempty"},
+        "estimand": {"$ref": "#/$defs/held_field"},
+        "method": {"$ref": "#/$defs/held_field"},
+        "replicate_policy": {"$ref": "#/$defs/held_field"},
+        "margin": {"$ref": "#/$defs/held_field"},
+        "mpib": {"$ref": "#/$defs/held_field"},
+        "missingness_policy": {"$ref": "#/$defs/nonempty"},
+        "assignment_schedule_sha256": {"$ref": "#/$defs/sha256"},
+        "task_set_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "task_set_reveal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "tasks"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.task-set-reveal.v2.0.0-draft.1"},
+        "tasks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["schema_version", "task_id", "task_class"],
+            "properties": {
+              "schema_version": {"const": "agentic-coding-evaluation-lab.task-descriptor.v2.0.0-draft.1"},
+              "task_id": {"$ref": "#/$defs/nonempty"},
+              "task_class": {"$ref": "#/$defs/nonempty"}
+            }
+          }
+        }
+      }
+    },
+    "registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "owner_contract", "receipt_copy", "originating_verification_copy", "reveal"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.registration-binding.v2.0.0-draft.1"},
+        "owner_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "registration_schema_version", "registration_schema_sha256", "verification_schema_version", "verification_schema_sha256", "operational_adapter_status"],
+          "properties": {
+            "schema_version": {"const": "agentic-coding-evaluation-lab.registry-contract-binding.v2.0.0-draft.1"},
+            "registration_schema_version": {"const": "eval-registry.registration-receipt.v1"},
+            "registration_schema_sha256": {"const": "sha256:0b8da51cd642ef04af884c2ceb70489be3843a8d562a44b16025d0ce6f632b2d"},
+            "verification_schema_version": {"const": "eval-registry.verification-result.v1"},
+            "verification_schema_sha256": {"const": "sha256:e7f1813769276deb8faa8dbfe3f8ded54eafceed611500bb7e94290c24a73bbc"},
+            "operational_adapter_status": {"const": "synthetic-non-authoritative"}
+          }
+        },
+        "receipt_copy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "exact_receipt_json_utf8", "registration_receipt_sha256", "custody", "provenance"],
+          "properties": {
+            "schema_version": {"const": "agentic-coding-evaluation-lab.exact-registration-receipt-copy.v2.0.0-draft.1"},
+            "exact_receipt_json_utf8": {"type": "string", "minLength": 1},
+            "registration_receipt_sha256": {"$ref": "#/$defs/sha256"},
+            "custody": {"const": "copied"},
+            "provenance": {"const": "attested"}
+          }
+        },
+        "originating_verification_copy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "exact_verification_json_utf8", "verification_result_sha256", "custody", "provenance"],
+          "properties": {
+            "schema_version": {"const": "agentic-coding-evaluation-lab.exact-verification-result-copy.v2.0.0-draft.1"},
+            "exact_verification_json_utf8": {"type": "string", "minLength": 1},
+            "verification_result_sha256": {"$ref": "#/$defs/sha256"},
+            "custody": {"const": "copied"},
+            "provenance": {"const": "attested"}
+          }
+        },
+        "reveal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "status", "plan_nonce_hex", "task_set_nonce_hex", "science_protocol_exact_json_utf8", "task_set_exact_json_utf8", "science_protocol_sha256", "task_set_sha256"],
+          "properties": {
+            "schema_version": {"const": "agentic-coding-evaluation-lab.registration-reveal.v2.0.0-draft.1"},
+            "status": {"const": "synthetic_commitments_verified"},
+            "plan_nonce_hex": {"type": "string", "pattern": "^[0-9a-f]+$"},
+            "task_set_nonce_hex": {"type": "string", "pattern": "^[0-9a-f]+$"},
+            "science_protocol_exact_json_utf8": {"type": "string", "minLength": 1},
+            "task_set_exact_json_utf8": {"type": "string", "minLength": 1},
+            "science_protocol_sha256": {"$ref": "#/$defs/sha256"},
+            "task_set_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    },
+    "assignment_schedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "assignment_mechanism", "units"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.assignment-schedule.v2.0.0-draft.1"},
+        "assignment_mechanism": {"$ref": "#/$defs/nonempty"},
+        "units": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["schema_version", "task_pair_id", "task_id", "session_id", "arm_order", "attempt_ids"],
+            "properties": {
+              "schema_version": {"const": "agentic-coding-evaluation-lab.assignment-unit.v2.0.0-draft.1"},
+              "task_pair_id": {"$ref": "#/$defs/nonempty"},
+              "task_id": {"$ref": "#/$defs/nonempty"},
+              "session_id": {"$ref": "#/$defs/nonempty"},
+              "arm_order": {
+                "oneOf": [
+                  {"const": ["incumbent", "candidate"]},
+                  {"const": ["candidate", "incumbent"]}
+                ]
+              },
+              "attempt_ids": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["schema_version", "incumbent", "candidate"],
+                "properties": {
+                  "schema_version": {"const": "agentic-coding-evaluation-lab.assignment-attempt-ids.v2.0.0-draft.1"},
+                  "incumbent": {"$ref": "#/$defs/nonempty"},
+                  "candidate": {"$ref": "#/$defs/nonempty"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "task_pair_id", "task_id", "session_id", "arm", "attempt_index", "attempt_position_in_pair", "status", "error_class"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.attempt.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "task_pair_id": {"$ref": "#/$defs/nonempty"},
+        "task_id": {"$ref": "#/$defs/nonempty"},
+        "session_id": {"$ref": "#/$defs/nonempty"},
+        "arm": {"enum": ["incumbent", "candidate"]},
+        "attempt_index": {"type": "integer", "minimum": 1},
+        "attempt_position_in_pair": {"enum": [1, 2]},
+        "status": {"enum": ["succeeded", "failed", "timeout", "oom", "gateway_error"]},
+        "error_class": {"type": ["string", "null"]}
+      }
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "field", "value", "provenance", "custody", "originating_observer", "originating_receipt_sha256", "source"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.provenance-fact.v2.0.0-draft.1"},
+        "field": {"$ref": "#/$defs/nonempty"},
+        "value": {"type": ["string", "integer", "boolean", "null", "array", "object"]},
+        "provenance": {"enum": ["measured", "derived", "attested"]},
+        "custody": {"const": "copied"},
+        "originating_observer": {"$ref": "#/$defs/nonempty"},
+        "originating_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "observer", "provenance", "receipt_sha256"],
+          "properties": {
+            "schema_version": {"const": "agentic-coding-evaluation-lab.source-provenance.v2.0.0-draft.1"},
+            "observer": {"$ref": "#/$defs/nonempty"},
+            "provenance": {"enum": ["measured", "derived", "attested"]},
+            "receipt_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    },
+    "gateway_invocation_open": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "invocation_id", "observer", "owner_receipt_schema_version", "owner_schema_status", "open_receipt_sha256", "facts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.gateway-invocation-open.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "invocation_id": {"$ref": "#/$defs/nonempty"},
+        "observer": {"const": "openai-compatible-gateway"},
+        "owner_receipt_schema_version": {"const": "synthetic.gateway.invocation-open.v1"},
+        "owner_schema_status": {"const": "synthetic-fixture-unratified"},
+        "open_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "gateway_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "invocation_id", "request_id", "call_ordinal", "observer", "owner_receipt_schema_version", "owner_schema_status", "observation_receipt_sha256", "facts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.gateway-observation.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "invocation_id": {"$ref": "#/$defs/nonempty"},
+        "request_id": {"$ref": "#/$defs/nonempty"},
+        "call_ordinal": {"type": "integer", "minimum": 1},
+        "observer": {"const": "openai-compatible-gateway"},
+        "owner_receipt_schema_version": {"const": "synthetic.gateway.call-observation.v1"},
+        "owner_schema_status": {"const": "synthetic-fixture-unratified"},
+        "observation_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "harness_descriptor_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "invocation_id", "observer", "owner_receipt_schema_version", "owner_schema_status", "validation_receipt_sha256", "facts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.editing-harness-descriptor-validation.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "invocation_id": {"$ref": "#/$defs/nonempty"},
+        "observer": {"const": "editing-harness-owner-validator"},
+        "owner_receipt_schema_version": {"const": "synthetic.editing-harness.descriptor-validation.v1"},
+        "owner_schema_status": {"const": "synthetic-fixture-unratified"},
+        "validation_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "harness_completion_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "invocation_id", "observer", "owner_receipt_schema_version", "owner_schema_status", "completion_receipt_sha256", "facts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.harness-completion-observation.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "invocation_id": {"$ref": "#/$defs/nonempty"},
+        "observer": {"const": "evaluation-harness"},
+        "owner_receipt_schema_version": {"const": "synthetic.evaluation-harness.completion.v1"},
+        "owner_schema_status": {"const": "synthetic-fixture-unratified"},
+        "completion_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "gateway_invocation_closure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "attempt_id", "invocation_id", "observer", "owner_receipt_schema_version", "owner_schema_status", "closure_receipt_sha256", "facts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.gateway-invocation-closure.v2.0.0-draft.1"},
+        "attempt_id": {"$ref": "#/$defs/nonempty"},
+        "invocation_id": {"$ref": "#/$defs/nonempty"},
+        "observer": {"const": "openai-compatible-gateway"},
+        "owner_receipt_schema_version": {"const": "synthetic.gateway.invocation-closure.v1"},
+        "owner_schema_status": {"const": "synthetic-fixture-unratified"},
+        "closure_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}}
+      }
+    },
+    "attrition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "scheduled_attempts", "observed_attempts", "terminal_status_counts", "failures", "excluded_attempt_ids", "retry_attempts"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.attrition.v2.0.0-draft.1"},
+        "scheduled_attempts": {"type": "integer", "minimum": 1},
+        "observed_attempts": {"type": "integer", "minimum": 0},
+        "terminal_status_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "failures": {"type": "array"},
+        "excluded_attempt_ids": {"type": "array", "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "retry_attempts": {"type": "integer", "minimum": 0}
+      }
+    },
+    "analysis_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "analysis_input_sha256", "status", "method_authority", "method_id", "statistics", "reason_codes"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.analysis-result.v2.0.0-draft.1"},
+        "analysis_input_sha256": {"$ref": "#/$defs/sha256"},
+        "status": {"const": "not_evaluable"},
+        "method_authority": {"const": "held"},
+        "method_id": {"type": "null"},
+        "statistics": {"type": "object", "maxProperties": 0},
+        "reason_codes": {"const": ["METHOD_AUTHORITY_HELD", "R1_R2_R4_HELD"]}
+      }
+    },
+    "decision_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "analysis_result_sha256", "outcome", "enforcing_rule", "promotion_recommendation", "reason_codes"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.decision-receipt.v2.0.0-draft.1"},
+        "analysis_result_sha256": {"$ref": "#/$defs/sha256"},
+        "outcome": {"const": "NOT_EVALUABLE"},
+        "enforcing_rule": {"type": "null"},
+        "promotion_recommendation": {"type": "null"},
+        "reason_codes": {"const": ["METHOD_AUTHORITY_HELD", "R1_R2_R4_HELD"]}
+      }
+    },
+    "human_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "title", "decision", "claim_boundary", "registration", "design", "attrition", "provenance", "analysis", "verification", "limitations"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.human-report.v2.0.0-draft.1"},
+        "title": {"$ref": "#/$defs/nonempty"},
+        "decision": {"const": "NOT_EVALUABLE"},
+        "claim_boundary": {"$ref": "#/$defs/nonempty"},
+        "registration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["receipt_sha256", "verification_result_sha256", "provenance"],
+          "properties": {
+            "receipt_sha256": {"$ref": "#/$defs/sha256"},
+            "verification_result_sha256": {"$ref": "#/$defs/sha256"},
+            "provenance": {"const": "copied-attested-synthetic"}
+          }
+        },
+        "design": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["campaign_type", "scheduled_attempts", "method_authority", "science_protocol_sha256", "task_set_sha256", "assignment_schedule_sha256"],
+          "properties": {
+            "campaign_type": {"const": "synthetic_contract_check"},
+            "scheduled_attempts": {"type": "integer", "minimum": 1},
+            "method_authority": {"const": "held"},
+            "science_protocol_sha256": {"$ref": "#/$defs/sha256"},
+            "task_set_sha256": {"$ref": "#/$defs/sha256"},
+            "assignment_schedule_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "attrition": {"$ref": "#/$defs/attrition"},
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gateway_open_receipts", "gateway_receipts", "gateway_closure_receipts", "editing_harness_validation_receipts", "harness_completion_receipts", "provenance_upgrades"],
+          "properties": {
+            "gateway_open_receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sha256"}},
+            "gateway_receipts": {"type": "array", "items": {"$ref": "#/$defs/sha256"}},
+            "gateway_closure_receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sha256"}},
+            "editing_harness_validation_receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sha256"}},
+            "harness_completion_receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sha256"}},
+            "provenance_upgrades": {"const": 0}
+          }
+        },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "statistics_emitted", "reason_codes"],
+          "properties": {
+            "status": {"const": "not_evaluable"},
+            "statistics_emitted": {"const": 0},
+            "reason_codes": {"const": ["METHOD_AUTHORITY_HELD", "R1_R2_R4_HELD"]}
+          }
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contract_schema_version", "contract_schema_sha256", "verifier_implementation_version", "verifier_implementation_bundle_sha256", "analysis_result_sha256", "decision_receipt_sha256"],
+          "properties": {
+            "contract_schema_version": {"const": "agentic-coding-evaluation-lab.evidence.v2.0.0-draft.1"},
+            "contract_schema_sha256": {"$ref": "#/$defs/sha256"},
+            "verifier_implementation_version": {"const": "agentic-coding-evaluation-lab.contract-v2-verifier.v2.0.0-draft.1"},
+            "verifier_implementation_bundle_sha256": {"$ref": "#/$defs/sha256"},
+            "analysis_result_sha256": {"$ref": "#/$defs/sha256"},
+            "decision_receipt_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "limitations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}}
+      }
+    },
+    "sanitization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "checked", "redactions_required", "notes"],
+      "properties": {
+        "schema_version": {"const": "agentic-coding-evaluation-lab.sanitization.v2.0.0-draft.1"},
+        "status": {"const": "public-safe"},
+        "checked": {"const": true},
+        "redactions_required": {"const": false},
+        "notes": {"$ref": "#/$defs/nonempty"}
+      }
+    }
+  }
+}

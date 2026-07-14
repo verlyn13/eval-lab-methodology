@@ -50,6 +50,10 @@ first-class; the plumbing, secrets, and the real task fixtures stay private.
 - **Real-run reports:** run the sanitization pass below **before** committing. The
   report shows the statistics, the decision, the curves, and a reproducibility
   manifest (seeds, task-set hash, model versions) — **not** the plumbing.
+- Report validation independently scans every evidence key and scalar before
+  rendering. Generic leak patterns remain reviewable in cleartext; private-name
+  matches use only normalized SHA-256 fingerprints. Producer `public-safe`
+  booleans remain required, but they are not treated as proof by themselves.
 - The site **auto-deploys from `main`** via `.github/workflows/deploy-pages.yml`
   to <https://jvjohnson.dev/eval-lab-methodology/>. Every merge to `main` is an
   immediate public publication — there is no separate publish step at which to
