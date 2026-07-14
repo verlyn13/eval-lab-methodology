@@ -5,16 +5,36 @@ title: "Agentic-Coding Evaluation Lab"
 This is the public methodology site for the Agentic-Coding Evaluation Lab: an
 evidence-gated way to decide whether to change a coding-agent default (which
 model, or which model-plus-harness combination, to deploy). A candidate
-replaces the incumbent only when a fixed, reproducible evaluation clears a
-conjunctive, fail-closed statistical promotion gate — and not otherwise. The
-single strongest result is a defensible no-go, not a speedup. No performance
-or alignment improvement deltas are claimed anywhere here.
+may replace the incumbent only after a registered, reproducible evaluation
+clears an independently recomputable, fail-closed scientific rule. The released
+0.2.0 package preserves the project's historical rule and worked examples; it
+is not authorization for a new powered claim. The successor estimand, test,
+replicate policy, and practical-benefit threshold remain under review. The
+single strongest result is a defensible refusal to overclaim, not a speedup. No
+performance or alignment improvement deltas are claimed anywhere here.
 
 The full write-up lives in the repository
 [README](https://github.com/verlyn13/eval-lab-methodology). This site carries
-the normative specifications and the rendered example reports.
+the normative specifications, experimental methods review, and rendered
+example reports.
 
-## The methodology in brief
+::: {.callout-important title="Current scientific result"}
+Exact arithmetic makes a calculation reproducible; it does not, by itself,
+make the inference exact. In the current synthetic study, one bit-exact
+sign-flip construction exceeds its nominal one-sided 5% level under part of the
+tested composite-null boundary. The alternative calibrated construction is
+defined only for a common i.i.d. trinomial model on a finite nuisance grid and
+has not been validated for the intended class-balanced task design. No
+successor method is selected.
+
+[Read the executable experimental inference note](reports/experimental-inference-note.qmd).
+:::
+
+## The released methodology in brief
+
+The bullets below describe the historical 0.2.0 core and synthetic examples.
+They remain reproducible records, but they are not the analysis plan for a new
+powered campaign.
 
 - **Two measurement axes.** Reliability evaluations ask whether the agent can
   do the plumbing correctly and repeatably; capability evaluations ask whether
@@ -36,11 +56,19 @@ the normative specifications and the rendered example reports.
   a versioned evidence JSON that carries raw per-task outcomes and a
   reproducibility manifest.
 
+The next contract raises this bar: the public methodology implementation must
+derive the enforcing result and decision from raw records and refuse a producer
+claim that does not match exactly. That Contract v2 work is planned, not yet
+released.
+
 ## Specifications
 
 - [Identity domains](identity-domain.qmd) — the normative comparability spec,
   the canonical field set and hashing rule, and the frozen cross-repo
   conformance vector (recomputed live when this page renders).
+- [Experimental inference note](reports/experimental-inference-note.qmd) —
+  executable synthetic decision input showing where exact computation does and
+  does not establish inferential validity. It selects no method.
 
 ## Example reports
 

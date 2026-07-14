@@ -2,14 +2,24 @@
 
 ## Abstract
 
-This is the methodology behind an evidence-gated way to decide whether to change
-a coding-agent default: which model, or which model-plus-harness combination, to
-deploy. A candidate replaces the incumbent only when a fixed, reproducible
-evaluation clears a conjunctive, fail-closed statistical promotion gate, and not
-otherwise. The single strongest result here is a defensible no-go, not a
+This repository documents an evidence-gated way to decide whether to change a
+coding-agent default: which model, or which model-plus-harness combination, to
+deploy. Its released 0.2.0 core implements the project's **historical** gate and
+worked examples. The next inferential method, replicate policy, and practical-
+benefit rule are under explicit scientific review and are not selected. The
+single strongest result here is a defensible refusal to overclaim, not a
 speedup. No performance or alignment improvement deltas are claimed anywhere in
 this document. The story is evidence discipline, reproducibility, provenance,
-and machine-checked enforcement.
+and machine-checked refusal.
+
+> **Current method status:** the bootstrap/margin gate below records historical
+> implementation truth; it is not authorized for a new powered scientific
+> claim. The public
+> [experimental inference note](reports/experimental-inference-note.qmd)
+> demonstrates that bit-exact enumeration does not itself guarantee valid
+> inference, narrows every claim to its stated synthetic model, and leaves the
+> enforcing method undecided. Its candidate code is repository-only and is not
+> shipped in the 0.2.0 wheel.
 
 This repository is a standalone artifact extracted from a larger private stack.
 The sibling services it coordinates with (an OpenAI-compatible LLM gateway for
@@ -29,7 +39,11 @@ review.
 - `reports/methodology-report.qmd`: the parameterized Quarto report that renders
   a full campaign from an evidence JSON. Rendered example reports and the
   methodology site are published at
-  <https://verlyn13.github.io/eval-lab-methodology/>.
+  <https://jvjohnson.dev/eval-lab-methodology/>.
+- `reports/experimental-inference-note.qmd`: a synthetic, executable methods
+  review that informs—but does not make—the next statistical decision.
+- `analysis/_method_tranche/`: repository-only candidate calculations for that
+  note. They are excluded from the released wheel and core hash.
 - `evidence/`: the sanitized recorded values behind the two worked examples, and
   the small data file the figures are generated from.
 - `figures/`: two figures generated reproducibly from `evidence/data.json`, plus
@@ -61,6 +75,7 @@ Local verification:
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
+PYTHONPATH=src python -m analysis.run_method_tranche --check
 python -m pip wheel . --no-deps -w /tmp/eval-lab-methodology-wheel
 ```
 
@@ -77,7 +92,7 @@ The normative definition, the fail-closed validator, and the frozen cross-repo
 conformance vector live in
 [`src/eval_lab_methodology/identity_domain.py`](src/eval_lab_methodology/identity_domain.py);
 the rendered spec page is at
-<https://verlyn13.github.io/eval-lab-methodology/identity-domain.html>. An
+<https://jvjohnson.dev/eval-lab-methodology/identity-domain.html>. An
 engine or hardware bump is a re-baseline, not a comparable run.
 
 ## The problem
@@ -122,27 +137,40 @@ than to a change in how it measured. Independence of measurement from the
 measured is what lets a result be read as evidence about the model instead of an
 artifact of the test rig.
 
-## What is measured
+## What the historical worked examples measured
 
 Evaluation is split along two axes, because a single number hides the tradeoff
 that actually drives deployment risk.
 
-- Reliability evaluations (12 tasks) ask whether the agent can do the plumbing
+- The historical reliability battery (12 tasks) asks whether the agent can do
+  the plumbing
   correctly and repeatably: native tool-call reliability, and edit/diff
   reliability. These are the failure modes that silently corrupt work. A
   malformed tool call. A diff that does not apply cleanly. Reliability is the
   floor.
-- Capability evaluations (20 tasks, five per task-class across four classes:
-  small edits, multi-file refactors, repo reasoning, and fixing a failing test)
-  ask whether the agent can accomplish task-class work at all. This is the
-  ceiling, organized by class of task rather than a single aggregate score.
+- The historical capability battery (20 tasks, five per task-class across four
+  classes: small edits, multi-file refactors, repo reasoning, and fixing a
+  failing test) asks whether the agent can accomplish task-class work at all.
+  This is the ceiling, organized by class of task rather than a single aggregate
+  score.
 
 Both axes matter because they trade against each other. A more capable model
 that is less reliable can be a net regression in practice. A rock-solid harness
 that cannot complete the task class is useless. Measuring them separately keeps
 the tradeoff visible to the decision instead of averaging it away.
 
-## The statistical promotion gate
+Those counts describe the released examples, not a current powered design. A
+future class-balanced suite, its task-selection record, and its inferential
+basis remain in preparation and cannot support a powered claim until the
+scientific decision package is complete.
+
+## The historical statistical promotion gate
+
+The section below describes the released 0.2.0 implementation and preserves
+the methods used by the recorded worked examples. It is historical, not the
+current authority for a new powered claim. The experimental inference note and
+its later complete package must be reviewed before a successor rule can be
+selected.
 
 The intellectual core of the lab is the promotion gate. It turns per-task
 outcomes into a go/no-go decision using methods chosen for what small-n

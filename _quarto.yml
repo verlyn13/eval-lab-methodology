@@ -7,6 +7,7 @@ project:
   render:
     - index.qmd
     - identity-domain.qmd
+    - reports/experimental-inference-note.qmd
 
 website:
   title: "Agentic-Coding Evaluation Lab"
@@ -16,6 +17,8 @@ website:
         text: Overview
       - href: identity-domain.qmd
         text: Identity domains
+      - href: reports/experimental-inference-note.qmd
+        text: Experimental inference
     right:
       - icon: github
         href: https://github.com/verlyn13/eval-lab-methodology
