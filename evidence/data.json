@@ -1,9 +1,9 @@
 {
-  "_note": "Sanitized recorded values behind the two worked examples. This file is the single source the figures are generated from. No private paths, hostnames, or identifiers appear here. Model names are public (Qwen family). Provenance labels are explicit: 'representative' means produced with a stubbed editing harness on representative data (design behavior, not a live A/B); 'live' means executed end to end, small-n.",
+  "_note": "Sanitized recorded values behind two historical worked examples. This file is the single source for the figures. 'Representative' means stubbed-harness input, not a live A/B. 'Live' means an operator-recorded small-n smoke summary; its raw per-attempt outcomes are not published.",
   "bootstrap": {
     "iterations": 2000,
     "seed": 12345,
-    "note": "Seeded percentile bootstrap over paired per-task success deltas. Fixed seed makes reported intervals exactly reproducible."
+    "note": "Seeded percentile bootstrap over paired per-task success deltas. A fixed seed makes recomputation deterministic when raw paired outcomes are available."
   },
   "tolerance_band": 0.10,
   "capability_representative": {
@@ -19,15 +19,15 @@
       "by_class": [0.90, 0.80, 0.70, 0.90],
       "overall": 0.82
     },
-    "role_recommendation": {
-      "margin": 0.12,
-      "confidence": "confident",
-      "note": "The capability layer recommends the switch. A capability-only decision would flip the default."
+    "capability_summary": {
+      "overall_delta": 0.12,
+      "status": "representative_only",
+      "note": "Descriptive representative input only; no role change is authorized."
     }
   },
   "promotion_gate_cases": [
     {
-      "name": "representative false-positive",
+      "name": "representative refusal",
       "provenance": "representative (stubbed editing harness)",
       "paired_delta": 0.250,
       "ci_low": 0.0,
@@ -35,7 +35,7 @@
       "sign_test": "2W / 0L / 2T (p=0.5, two-sided, reported only)",
       "decision": "NO-GO",
       "failing": ["beats_incumbent_beyond_band"],
-      "reason": "Mean paired delta clears the 0.10 band, but the bootstrap CI lower bound is 0, so the gain is not statistically distinguishable from zero. The significance floor caught the false positive."
+      "reason": "Historical helper refuses because the bootstrap CI lower bound, 0, does not exceed the configured 0.10 margin. No error-control or model-quality claim is made."
     },
     {
       "name": "live smoke",
@@ -47,7 +47,7 @@
       "sign_test": "0W / 3L / 1T (p=0.25, two-sided, reported only)",
       "decision": "NO-GO",
       "failing": ["beats_incumbent_beyond_band", "latency_slo", "no_regression_must_not_break"],
-      "reason": "Candidate significantly worse (CI entirely below 0). latency_slo n/a (0 successes -> not a pass). Regressions on the must-not-break subset. The 0% task success was partly transport_blocked (the local Ollama adapter dropped tool calls), later addressed upstream in the gateway."
+      "reason": "Historical path returned NO-GO; latency_slo was n/a and the must-not-break check failed. The summary is small-n, transport-confounded, and lacks public raw attempts, so no model-quality inference is made."
     }
   ]
 }

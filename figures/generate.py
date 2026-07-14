@@ -4,8 +4,7 @@
 Two figures:
   1. promotion-gate-decision.svg — paired success delta (candidate minus
      incumbent) with the seeded bootstrap CI, for both worked examples. Shows
-     why each is a NO-GO: the representative case's interval touches zero; the
-     live case's interval sits entirely below zero.
+     why the historical helper returned NO-GO for each stored summary.
   2. capability-by-class.svg — the representative capability ranking, incumbent
      vs candidate, per task-class plus overall.
 
@@ -76,7 +75,7 @@ def gate_figure() -> str:
         return x0 + (delta + 1.0) / 2.0 * (x1 - x0)
 
     body: list[str] = []
-    body.append(text(left, 34, "Promotion gate decision", size=18, weight="bold"))
+    body.append(text(left, 34, "Historical promotion-rule examples", size=18, weight="bold"))
     body.append(text(left, 56, "Paired success delta (candidate minus incumbent) with seeded bootstrap 95% CI",
                      size=13, fill="#52606d"))
 
@@ -90,7 +89,7 @@ def gate_figure() -> str:
     body.append(text(px(0.0), top - 8, "0", size=12, anchor="middle", fill=ZERO, weight="bold"))
     for b in (band, -band):
         body.append(line(px(b), top, px(b), h - bot, stroke="#9aa5b1", width=1.0, dash="4 3"))
-    body.append(text(px(band), h - bot + 38, "band +0.10 (promote requires delta > band AND CI low > 0)",
+    body.append(text(px(band), h - bot + 38, "historical rule: bootstrap CI lower bound > +0.10 margin",
                      size=11, anchor="middle", fill="#7b8794"))
 
     cases = DATA["promotion_gate_cases"]
@@ -117,8 +116,8 @@ def capability_figure() -> str:
     inc = cap["incumbent"]["by_class"] + [cap["incumbent"]["overall"]]
     cand = cap["candidate"]["by_class"] + [cap["candidate"]["overall"]]
 
-    w, h = 780, 380
-    left, right, top, bot = 60, 30, 96, 96
+    w, h = 780, 400
+    left, right, top, bot = 60, 30, 112, 96
     x0, x1, y0, y1 = left, w - right, top, h - bot
 
     def py(val: float) -> float:
@@ -152,8 +151,8 @@ def capability_figure() -> str:
     body.append(text(left + 20, ly + 2, cap["incumbent"]["label"], size=12))
     body.append(rect(left + 250, ly - 10, 14, 14, CANDIDATE))
     body.append(text(left + 270, ly + 2, cap["candidate"]["label"], size=12))
-    rr = cap["role_recommendation"]
-    body.append(text(x1, 56, f"role rec: switch, +{rr['margin']:g} ({rr['confidence']})",
+    summary = cap["capability_summary"]
+    body.append(text(x1, 80, f"overall delta +{summary['overall_delta']:g}; no recommendation",
                      size=12, anchor="end", fill="#b45309"))
     return svg(w, h, body)
 

@@ -35,8 +35,8 @@ envelopes are evidence pointers, never verification inputs.
 The verifier implementation is repository-only under `analysis/contract_v2/`.
 The fixture binds the exact schema bytes and separately binds an ordered
 path-and-byte-digest manifest plus aggregate digest for the verifier, human
-report renderer, and publication-safety scanner. None is part of the released
-0.2.0 wheel.
+report renderer, and publication-safety scanner. None is part of the
+wheel-buildable repository package version 0.2.0.
 
 The single exact-byte verification entry point requires `jsonschema` and
 validates this fixture with Draft 2020-12 before independent recomputation. The
@@ -47,7 +47,8 @@ schema violation is a normalized verification refusal, never a skipped test.
 
 `delivery-manifest.v1.json` is the immutable, canonical-JSON delivery contract
 for copying this repository-only draft into a private evaluation deployment. It
-pins the public source commit and tree, the unchanged 0.2.0 core identity, the
+pins the public source commit and tree, the unchanged repository core identity
+at version 0.2.0, the
 exact schema/verifier/report/publication-safety bytes, their required relative
 layout, the `jsonschema` runtime requirement, and the synthetic conformance
 fixture and golden report. The runtime-file aggregate is computed over the

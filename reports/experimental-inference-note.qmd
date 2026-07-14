@@ -33,7 +33,7 @@ and `analysis/_method_tranche/dependence.py` — and is read at render time from
 the committed artifact `analysis/method-tranche-results.json`. The externally
 supplied comparison value is labeled as such and recorded in that artifact;
 it is not a package result. These modules
-are deliberately excluded from the released 0.2.0 statistical core while the
+are deliberately excluded from the repository-versioned 0.2.0 statistical core while the
 method decision remains open. This document refuses to render if the
 artifact's honesty labels or decision-input citations have drifted.
 :::

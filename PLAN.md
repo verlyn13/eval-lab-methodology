@@ -9,16 +9,19 @@ every commit is world-readable and every merge to `main` is a publication act.
 
 ## Current status
 
-### Released and historical
+### Repository-versioned and historical
 
-- The dependency-free `eval_lab_methodology` package is released as **0.2.0**.
-  Its content hash and frozen identity-domain conformance vector are public
-  compatibility contracts.
+- The dependency-free `eval_lab_methodology` core is versioned **0.2.0** in the
+  repository and builds as a wheel. It has no Git tag, GitHub release, or
+  package-registry publication. Its content hash and frozen identity-domain
+  conformance vector are public compatibility contracts.
 - Evidence Contract 1.1.0, the parameterized Quarto report, and synthetic
   example reports are live at <https://jvjohnson.dev/eval-lab-methodology/>.
-- The released package preserves the estimators and promotion gate used by the
-  recorded worked examples: Wilson intervals, a seeded percentile bootstrap,
-  a reported-only paired sign test, and a conjunctive fail-closed decision.
+- The repository package preserves the estimators and superiority component
+  used by the historical report path: Wilson intervals, a seeded percentile
+  bootstrap, a reported-only paired sign test, and a `CI lower bound > margin`
+  rule. The broader historical deployment decision is not implemented as one
+  public-core function.
 - Those methods are **historical implementation truth**, not authorization for
   a new powered scientific claim.
 
@@ -27,7 +30,7 @@ every commit is world-readable and every merge to `main` is a publication act.
 - `reports/experimental-inference-note.qmd` is a synthetic, executable review
   of candidate finite-suite constructions. It is decision input, not a ruling.
 - Its implementation lives under `analysis/_method_tranche/`, outside the
-  released package and outside the 0.2.0 content hash.
+  installable package and outside the 0.2.0 content hash.
 - The committed results artifact is regenerated and compared byte-for-byte in
   CI. Exact computation is therefore reproducible; inferential validity still
   depends on the stated design and assumptions.
@@ -39,13 +42,13 @@ every commit is world-readable and every merge to `main` is a publication act.
   attrition, copied observation provenance, analysis, decision, and report
   records and independently recomputes `NOT_EVALUABLE`. Its verifier, report
   renderer, and publication-safety scanner are bound by an ordered file
-  manifest and aggregate digest. It is unreleased, outside package 0.2.0,
+  manifest and aggregate digest. It is unreleased, outside repository package 0.2.0,
   operationally non-authoritative, and selects no method.
 - Its canonical delivery manifest freezes the exact repository layout and bytes
   needed for hash-checked downstream mirroring, plus the source commit/tree,
   unchanged core identity, runtime dependency, and synthetic conformance pair.
   This is a repository delivery contract, not a package release or operational
-  adoption; the released 0.2.0 wheel remains unchanged.
+  adoption; the wheel-buildable 0.2.0 package contents remain unchanged.
 - Its synthetic observation cardinality is one Aider-owner descriptor-validation
   receipt and one lab-owned completion receipt per attempt; one distinct gateway
   open receipt, zero or more gateway call receipts, and one distinct gateway
@@ -102,7 +105,7 @@ Until these are resolved, the scientifically correct outcome is
 
 ### Step 1 — publish the experimental inference note
 
-- Keep candidate code repository-only and keep package 0.2.0 unchanged.
+- Keep candidate code repository-only and keep package version 0.2.0 unchanged.
 - Render the note on the public site with a plain-language result card.
 - Verify the committed synthetic result bytes in tests and CI.
 - Record limitations and disagreements without selecting a method.

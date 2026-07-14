@@ -2,94 +2,65 @@
 title: "Agentic-Coding Evaluation Lab"
 ---
 
-This is the public methodology site for the Agentic-Coding Evaluation Lab: an
-evidence-gated way to decide whether to change a coding-agent default (which
-model, or which model-plus-harness combination, to deploy). A candidate
-may replace the incumbent only after a registered, reproducible evaluation
-clears an independently recomputable, fail-closed scientific rule. The released
-0.2.0 package preserves the project's historical rule and worked examples; it
-is not authorization for a new powered claim. The successor estimand, test,
-replicate policy, and practical-benefit threshold remain under review. The
-single strongest result is a defensible refusal to overclaim, not a speedup. No
-performance or alignment improvement deltas are claimed anywhere here.
+This site publishes statistical methods, evidence contracts, and report tooling for comparing
+coding-agent configurations. It is a methodology and verification project, not an operational
+benchmark or leaderboard.
 
-The full write-up lives in the repository
-[README](https://github.com/verlyn13/eval-lab-methodology). This site carries
-the normative specifications, experimental methods review, and rendered
-example reports.
+## Current status
+
+| Surface | Status |
+|---|---|
+| Core `0.2.0` | Repository-versioned and wheel-buildable; not tagged or published to a package registry |
+| Successor method | Under review; no enforcing test, replicate policy, or practical-benefit rule selected |
+| Contract B `2.0.0-draft.1` | Repository-only synthetic draft; independently recomputes `NOT_EVALUABLE`; no operational authority |
+| Real evidence | No powered, scientifically admissible model comparison published |
+
+The historical four-task live example is a transport-confounded, summary-only smoke diagnostic; its
+raw attempt records are not published. The representative example is synthetic. Neither supports a
+model-selection claim.
 
 ::: {.callout-important title="Current scientific result"}
-Exact arithmetic makes a calculation reproducible; it does not, by itself,
-make the inference exact. In the current synthetic study, one bit-exact
-sign-flip construction exceeds its nominal one-sided 5% level under part of the
-tested composite-null boundary. The alternative calibrated construction is
-defined only for a common i.i.d. trinomial model on a finite nuisance grid and
-has not been validated for the intended class-balanced task design. No
-successor method is selected.
+Exact arithmetic makes a calculation reproducible; it does not establish inferential validity. The
+experimental note shows that one exactly enumerated sign-flip construction exceeds its nominal
+one-sided 5% level under part of the tested composite-null boundary. The alternative construction is
+calibrated only for a narrower synthetic model. No successor method is selected.
 
 [Read the executable experimental inference note](reports/experimental-inference-note.qmd).
 :::
 
-## The released methodology in brief
+## Published specifications
 
-The bullets below describe the historical 0.2.0 core and synthetic examples.
-They remain reproducible records, but they are not the analysis plan for a new
-powered campaign.
+- [Identity domains](identity-domain.qmd) — frozen v1 structural fields, canonicalization, and a
+  cross-implementation conformance vector. Equality is necessary, not sufficient, for numerical
+  comparability.
+- [Experimental inference note](reports/experimental-inference-note.qmd) — executable synthetic
+  decision input. It selects no method.
+- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) — synthetic
+  registration-to-report verification that recomputes or refuses and cannot recommend promotion.
 
-- **Two measurement axes.** Reliability evaluations ask whether the agent can
-  do the plumbing correctly and repeatably; capability evaluations ask whether
-  it can accomplish task-class work at all. The axes trade against each other,
-  so they are never averaged into one number.
-- **Calibrated small-n statistics.** Wilson score intervals for proportions,
-  seeded bootstrap confidence intervals for paired deltas (2000 iterations,
-  fixed seed, exactly reproducible), and a two-sided paired sign test reported
-  alongside — never as the gate.
-- **A conjunctive, fail-closed promotion gate.** A candidate is promoted only
-  if every criterion holds; a criterion that cannot be evaluated is not a
-  pass. The gate is deliberately biased toward the incumbent because the costs
-  are asymmetric.
-- **Identity-domain comparability.** Runs are score-comparable only when they
-  come from the same [identity domain](identity-domain.qmd) — a structural
-  fingerprint of everything that can change numerics. Comparisons across
-  domains fail closed unless a bridge authorization is recorded.
-- **Evidence, not assertions.** Every published interval is recomputable from
-  a versioned evidence JSON that carries raw per-task outcomes and a
-  reproducibility manifest.
+## Historical report examples
 
-The next contract raises this bar: the public methodology implementation must
-derive the enforcing result and decision from raw records and refuse a producer
-claim that does not match exactly. Immutable draft `2.0.0-draft.1` now
-demonstrates that structural path on public synthetic records. It remains
-repository-only, unreleased, and operationally non-authoritative. Because the
-inferential basis and test, replication policy, and practical-benefit threshold
-remain undecided, its only valid outcome is `NOT_EVALUABLE`.
-
-## Specifications
-
-- [Identity domains](identity-domain.qmd) — the normative comparability spec,
-  the canonical field set and hashing rule, and the frozen cross-repo
-  conformance vector (recomputed live when this page renders).
-- [Experimental inference note](reports/experimental-inference-note.qmd) —
-  executable synthetic decision input showing where exact computation does and
-  does not establish inferential validity. It selects no method.
-- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) —
-  a synthetic registration-to-report join that independently recomputes or
-  refuses and cannot emit a promotion recommendation.
-
-## Example reports
-
-Rendered from public evidence JSON by the parameterized Quarto report in this
-repository. All data below is **synthetic** — labeled as such in each
-artifact's manifest — and exists to demonstrate the reporting layer, not to
-claim results.
+The rendered reports below exercise the reporting layer. Their evidence manifests identify them as
+synthetic. They are not performance results.
 
 - [Sample synthetic lab report](reports/sample/methodology-report.html)
-- [Campaign: synthetic-local-promotion-001](reports/campaigns/synthetic-local-promotion-001/methodology-report.html)
+- [Synthetic campaign report](reports/campaigns/synthetic-local-promotion-001/methodology-report.html)
 
-## Honesty rules
+## Evidence rules
 
-Every number published by this project traces to a produced artifact.
-Synthetic and representative data are labeled as synthetic or representative.
-Enforcing, advisory, and planned mechanisms are labeled as such, and the
-limitations (small n, wide intervals, confounds) are stated plainly — the
-honesty is the point of the artifact.
+- Every published number must trace to committed evidence bytes.
+- Synthetic, representative, smoke, and measured evidence remain distinct.
+- Copied facts retain their originating provenance and receipt.
+- Missing or contradictory inputs produce refusal.
+- Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its
+  bound public payload separately. No whole-repository scan is claimed.
+
+## Remaining work
+
+Before a powered claim is admissible, the project must complete the scientific design, owner-issued
+runtime receipts, operational registration verification, grader validation, governed task selection,
+A/A independence and noise-floor calibration, and operating-characteristic analysis.
+
+See the repository [status](https://github.com/verlyn13/eval-lab-methodology/blob/main/STATUS.md),
+[roadmap](https://github.com/verlyn13/eval-lab-methodology/blob/main/PLAN.md), and
+[source](https://github.com/verlyn13/eval-lab-methodology) for details.

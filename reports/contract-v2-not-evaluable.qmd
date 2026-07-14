@@ -14,8 +14,8 @@ execute:
 
 ::: {.callout-important}
 This page is a structural contract demonstration, not model evidence. The
-contract and verifier are unreleased repository-only drafts outside package
-0.2.0. The inferential basis and enforcing test, replication policy, and
+contract and verifier are unreleased repository-only drafts outside repository
+package version 0.2.0. The inferential basis and enforcing test, replication policy, and
 practical-benefit threshold remain undecided and unauthorized, so the only
 permitted outcome is `NOT_EVALUABLE`.
 :::
