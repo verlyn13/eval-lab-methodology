@@ -30,6 +30,9 @@ jobs:
       - name: Verify experimental results artifact
         run: PYTHONPATH=src python -m analysis.run_method_tranche --check
 
+      - name: Verify Contract B v2 synthetic refusal artifact
+        run: PYTHONPATH=src python -m analysis.run_contract_v2 --check
+
       - name: Build wheel
         run: python -m pip wheel . --no-deps -w dist/
 

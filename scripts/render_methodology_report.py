@@ -25,7 +25,8 @@ SRC_PATH = REPO_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from eval_lab_methodology import validate_evidence_report
+from eval_lab_methodology import validate_evidence_report  # noqa: E402
+from publication_safety import assert_publication_content_is_safe  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -75,6 +76,10 @@ def load_and_validate(evidence_path: Path) -> dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise SystemExit(f"Evidence JSON is not valid JSON: {exc}") from exc
 
+    try:
+        assert_publication_content_is_safe(document)
+    except ValueError as exc:
+        raise SystemExit(f"Refusing to render: {exc}") from exc
     validate_evidence_report(document)
     sanitization = document["manifest"].get("sanitization", {})
     if sanitization.get("status") != "public-safe":

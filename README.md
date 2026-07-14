@@ -21,6 +21,20 @@ and machine-checked refusal.
 > enforcing method undecided. Its candidate code is repository-only and is not
 > shipped in the 0.2.0 wheel.
 
+> **Contract B v2 status:** immutable draft `2.0.0-draft.1` is a
+> synthetic-only, repository-level demonstration of registration binding,
+> assignment and attempt integrity, copied observation provenance, independent
+> recomputation, refusal, and human reporting. Its synthetic observation join
+> separates owner descriptor validation from lab-observed completion and binds
+> zero-or-more gateway calls between distinct owner open/closure receipts,
+> including an ordered request/owner-receipt binding; fallback is forbidden.
+> Retry vectors remain gateway-owned. The registry copy uses actual v1 domains
+> and exact-byte receipt hashing but its D2 verification result refuses. Owner
+> observation schemas remain unratified synthetic fixtures. It is outside
+> package 0.2.0 and has no operational authority. While the scientific rulings remain held, it
+> emits no statistic or promotion recommendation and can only recompute
+> `NOT_EVALUABLE`.
+
 This repository is a standalone artifact extracted from a larger private stack.
 The sibling services it coordinates with (an OpenAI-compatible LLM gateway for
 transport, an editing harness, and an operational trace/context state service)
@@ -36,6 +50,8 @@ review.
 - `evidence/schema.json`: the versioned public evidence contract for report
   `model_dump()` output, raw per-task/per-replicate outcomes, and reproducibility
   manifests.
+- `evidence/schema-v2.0.0-draft.1.json`: the immutable Contract B v2
+  structural draft, published beside and without changing v1.
 - `reports/methodology-report.qmd`: the parameterized Quarto report that renders
   a full campaign from an evidence JSON. Rendered example reports and the
   methodology site are published at
@@ -44,6 +60,10 @@ review.
   review that informs—but does not make—the next statistical decision.
 - `analysis/_method_tranche/`: repository-only candidate calculations for that
   note. They are excluded from the released wheel and core hash.
+- `analysis/contract_v2/`: repository-only v2 draft verifier and report
+  renderer; separately versioned and bound with the publication-safety scanner
+  by an ordered file manifest and aggregate digest, unreleased, and excluded
+  from the 0.2.0 wheel.
 - `evidence/`: the sanitized recorded values behind the two worked examples, and
   the small data file the figures are generated from.
 - `figures/`: two figures generated reproducibly from `evidence/data.json`, plus
@@ -76,6 +96,7 @@ Local verification:
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 PYTHONPATH=src python -m analysis.run_method_tranche --check
+PYTHONPATH=src python -m analysis.run_contract_v2 --check
 python -m pip wheel . --no-deps -w /tmp/eval-lab-methodology-wheel
 ```
 

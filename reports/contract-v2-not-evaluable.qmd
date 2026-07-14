@@ -1,0 +1,34 @@
+---
+title: "Contract B v2 — independent refusal example"
+subtitle: "Synthetic-only normative draft; no scientific method or promotion rule selected"
+format:
+  html:
+    toc: true
+    standalone: true
+    theme: cosmo
+jupyter: python3
+execute:
+  echo: false
+  warning: false
+---
+
+::: {.callout-important}
+This page is a structural contract demonstration, not model evidence. The
+contract and verifier are unreleased repository-only drafts outside package
+0.2.0. The inferential basis and enforcing test, replication policy, and
+practical-benefit threshold remain undecided and unauthorized, so the only
+permitted outcome is `NOT_EVALUABLE`.
+:::
+
+```{python}
+#| output: asis
+from pathlib import Path
+
+from analysis.contract_v2 import verify_exact_bytes
+from analysis.contract_v2.report import render_markdown
+
+root = Path.cwd()
+evidence = root / "evidence" / "contract-v2" / "synthetic-not-evaluable.json"
+verified = verify_exact_bytes(evidence.read_bytes())
+print(render_markdown(verified.human_report, evidence_sha256=verified.evidence_sha256))
+```
