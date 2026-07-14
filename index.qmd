@@ -2,11 +2,108 @@
 title: "Agentic-Coding Evaluation Lab"
 ---
 
+<!-- project-card: agentic-coding-evaluation-lab -->
+### Agentic-Coding Evaluation Lab
+
+Evidence-based evaluation for models and coding-agent configurations
+
+**What is this?**
+A model-evaluation framework for deciding whether a candidate model or coding-agent configuration
+should replace the current default.
+
+**What is it for?**
+It replaces informal model selection with a repeatable, evidence-backed decision. The framework
+tests reliability and task performance while checking that the comparison itself is valid.
+
+**How is it used?**
+A team evaluates the current and candidate systems on the same task set. The framework records the
+raw outcomes, checks that the runs are comparable, applies predefined decision criteria, and
+recommends either changing the default, retaining it, or withholding judgment when the evidence is
+insufficient. That is the workflow this repository implements and demonstrates; its current
+demonstrations use synthetic and representative data.
+
+**Why does it matter?**
+It helps prevent incomplete experiments, infrastructure problems, or attractive headline scores
+from driving production model changes. It also produces a reproducible record that engineering,
+safety, and model-risk reviewers can inspect.
+
+**Evidence and status**
+Published methodology and tested statistical and reporting code. Synthetic, representative, and
+historical live evidence are kept strictly distinct. There is currently no defensible powered
+real-model result and no promotion recommendation.
+
+[Explore the methodology, worked examples, and evidence →](https://github.com/verlyn13/eval-lab-methodology)
+<!-- /project-card -->
+
+- **Status:** Prototype — public methodology and verification code; repository-versioned, with no distributed release
+- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no admissible real-model comparison
+- **Decision:** No promotion recommendation — the draft evidence contract recomputes `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn from its evidence
+- **Demonstrates:** Independent, fail-closed evaluation reporting on synthetic evidence
+- **Does not demonstrate:** Performance of any real model
+- **Relevant to:** Model testing, challenger evaluation, and model-risk review
+
 This site publishes statistical methods, evidence contracts, and report tooling for comparing
 coding-agent configurations. It is a methodology and verification project, not an operational
 benchmark or leaderboard.
 
-## Current status
+## The problem
+
+Model and coding-agent defaults are often changed on informal impressions — a promising demo, a
+benchmark headline, one good week. Those changes are rarely reproducible and rarely auditable.
+This project builds and tests the machinery for making that decision from evidence instead, and
+for refusing to decide when the evidence cannot support a decision.
+
+## What I built
+
+- [Identity domains](identity-domain.qmd) — the comparability specification: frozen v1 structural
+  fields, canonicalization, and a cross-implementation conformance vector. Equality is necessary,
+  not sufficient, for numerical comparability.
+- [Experimental inference note](reports/experimental-inference-note.qmd) — an executable synthetic
+  review of candidate statistical methods. It is decision input only; it selects no method.
+- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) — a draft evidence and
+  reporting contract demonstrated on synthetic records: a separate verifier recomputes the
+  published result or refuses, and cannot recommend promotion.
+
+## What this demonstrates
+
+- A separate verifier recomputes a published result from the frozen evidence bytes and refuses on
+  any mutation, mismatch, or missing prerequisite — demonstrated on synthetic evidence.
+- The reporting layer declines to make a model decision when the study design is incomplete: the
+  only outcome it can produce is `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn.
+- Exact, reproducible computation is not the same thing as valid inference — the experimental note
+  demonstrates the difference on synthetic data.
+
+## Why it matters
+
+In a company model-testing workflow, the same pattern can prevent an incomplete experiment, an
+infrastructure problem, or an attractive headline score from triggering a change from the current
+model to a challenger. It also creates an auditable record explaining why no decision was made and
+what evidence is still required.
+
+## What this does not demonstrate
+
+The historical four-task live example is a transport-confounded, summary-only smoke diagnostic; its
+raw attempt records are not published. The representative example is synthetic. Neither supports a
+model-selection claim, and no page on this site claims the performance of any real model.
+
+## Evidence and reproduction
+
+The rendered reports below exercise the reporting layer. Their evidence manifests identify them as
+synthetic. They are not performance results.
+
+- [Sample synthetic lab report](reports/sample/methodology-report.html)
+- [Synthetic campaign report](reports/campaigns/synthetic-local-promotion-001/methodology-report.html)
+
+Evidence rules that bind every published number:
+
+- Every published number must trace to committed evidence bytes.
+- Synthetic, representative, smoke, and measured evidence remain distinct.
+- Copied facts retain their originating provenance and receipt.
+- Missing or contradictory inputs produce refusal.
+
+## Technical details
+
+### Status by surface
 
 | Surface | Status |
 |---|---|
@@ -15,47 +112,22 @@ benchmark or leaderboard.
 | Contract B `2.0.0-draft.1` | Repository-only synthetic draft; independently recomputes `NOT_EVALUABLE`; no operational authority |
 | Real evidence | No powered, scientifically admissible model comparison published |
 
-The historical four-task live example is a transport-confounded, summary-only smoke diagnostic; its
-raw attempt records are not published. The representative example is synthetic. Neither supports a
-model-selection claim.
+### Current scientific result
 
-::: {.callout-important title="Current scientific result"}
 Exact arithmetic makes a calculation reproducible; it does not establish inferential validity. The
-experimental note shows that one exactly enumerated sign-flip construction exceeds its nominal
-one-sided 5% level under part of the tested composite-null boundary. The alternative construction is
-calibrated only for a narrower synthetic model. No successor method is selected.
+experimental note shows that one exactly enumerated sign-flip construction — a candidate
+statistical test — exceeds its nominal one-sided 5% level (it is wrong more often than it claims)
+under part of the tested composite-null boundary. The alternative construction is calibrated only
+for a narrower synthetic model. No successor method is selected.
 
 [Read the executable experimental inference note](reports/experimental-inference-note.qmd).
-:::
 
-## Published specifications
+### Publication-scan scope
 
-- [Identity domains](identity-domain.qmd) — frozen v1 structural fields, canonicalization, and a
-  cross-implementation conformance vector. Equality is necessary, not sufficient, for numerical
-  comparability.
-- [Experimental inference note](reports/experimental-inference-note.qmd) — executable synthetic
-  decision input. It selects no method.
-- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) — synthetic
-  registration-to-report verification that recomputes or refuses and cannot recommend promotion.
+Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its
+bound public payload separately. No whole-repository scan is claimed.
 
-## Historical report examples
-
-The rendered reports below exercise the reporting layer. Their evidence manifests identify them as
-synthetic. They are not performance results.
-
-- [Sample synthetic lab report](reports/sample/methodology-report.html)
-- [Synthetic campaign report](reports/campaigns/synthetic-local-promotion-001/methodology-report.html)
-
-## Evidence rules
-
-- Every published number must trace to committed evidence bytes.
-- Synthetic, representative, smoke, and measured evidence remain distinct.
-- Copied facts retain their originating provenance and receipt.
-- Missing or contradictory inputs produce refusal.
-- Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its
-  bound public payload separately. No whole-repository scan is claimed.
-
-## Remaining work
+### Remaining work
 
 Before a powered claim is admissible, the project must complete the scientific design, owner-issued
 runtime receipts, operational registration verification, grader validation, governed task selection,

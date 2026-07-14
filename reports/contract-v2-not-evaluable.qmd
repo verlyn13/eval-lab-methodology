@@ -1,6 +1,6 @@
 ---
-title: "Contract B v2 — independent refusal example"
-subtitle: "Synthetic-only normative draft; no scientific method or promotion rule selected"
+title: "Fail-closed evaluation reporting (Contract B v2)"
+subtitle: "A synthetic-only draft demonstration; no scientific method or promotion rule is selected"
 format:
   html:
     toc: true
@@ -12,13 +12,80 @@ execute:
   warning: false
 ---
 
-::: {.callout-important}
-This page is a structural contract demonstration, not model evidence. The
-contract and verifier are unreleased repository-only drafts outside repository
-package version 0.2.0. The inferential basis and enforcing test, replication policy, and
-practical-benefit threshold remain undecided and unauthorized, so the only
-permitted outcome is `NOT_EVALUABLE`.
-:::
+<!-- project-card: fail-closed-evidence-validation -->
+### Fail-closed evidence validation
+
+Preventing incomplete evaluations from producing unsupported conclusions
+
+**What is this?**
+A prototype verifier that recomputes an evaluation's published result from its frozen evidence
+bytes and refuses when the evidence is mutated, mismatched, or missing a required prerequisite.
+
+**What is it for?**
+It prevents an incomplete study from being mistaken for a valid model result.
+
+**How is it used?**
+The verifier checks whether the statistical method, replication requirements, and minimum useful
+improvement have been defined. If any required element is missing, it returns `NOT_EVALUABLE` —
+no scientific conclusion can be drawn — and issues no model recommendation.
+
+**Why does it matter?**
+A trustworthy evaluation system must know when not to decide. This behavior helps model-testing
+teams avoid false confidence and creates an auditable record of what remains unresolved.
+
+**Evidence and status**
+Synthetic prototype demonstrating contract validation and independent refusal behavior. It does
+not measure a real model.
+
+[Examine the evidence contract and verifier →](https://github.com/verlyn13/eval-lab-methodology/tree/main/evidence/contract-v2)
+<!-- /project-card -->
+
+- **Status:** Prototype
+- **Evidence:** Synthetic
+- **Decision:** `NOT_EVALUABLE` — no scientific conclusion permitted
+- **Demonstrates:** Independent, fail-closed evaluation reporting
+- **Does not demonstrate:** Performance of any real model
+- **Relevant to:** Model testing, challenger evaluation, and model-risk review
+
+## The problem
+
+This prototype tests whether an evaluation system can decline to make a model decision when the
+study design is incomplete, instead of manufacturing a pass-or-fail result.
+
+## What I built
+
+A draft evidence and reporting contract (Contract B v2, `2.0.0-draft.1`) that binds a complete
+synthetic evaluation record — registration, schedule, attempts, observations, analysis, decision,
+and report — together with a separate verifier that recomputes the published result from the
+frozen evidence bytes and refuses on any mutation, mismatch, or missing prerequisite.
+
+## What this demonstrates
+
+Using synthetic data, the report below and the verifier confirm that the statistical method,
+required repetitions, and minimum useful improvement have not yet been approved. The system
+therefore returns `NOT_EVALUABLE` — no scientific conclusion can be drawn from this evidence —
+instead of a pass-or-fail result.
+
+## What this does not demonstrate
+
+This page is a structural contract demonstration, not model evidence; it does not measure the
+performance of any real model. The contract and verifier are unreleased repository-only drafts
+outside repository package version 0.2.0. The inferential basis and enforcing test (the test that
+determines whether evidence supports a decision), replication policy (how many repeated trials are
+required), and practical-benefit threshold (the minimum improvement worth changing models for)
+remain undecided and unauthorized, so the only permitted outcome is `NOT_EVALUABLE`.
+
+## Why it matters
+
+In a company model-testing workflow, the same pattern can prevent an incomplete experiment from
+triggering a change from the current model to a challenger. It also creates an auditable record
+explaining why no decision was made and what evidence is still required.
+
+## Technical details
+
+The report below is the machine-verified artifact. Each time this page renders, the verifier
+(`verify_exact_bytes`) recomputes it from the frozen synthetic evidence bytes; the text that
+follows is generated, not hand-written.
 
 ```{python}
 #| output: asis
