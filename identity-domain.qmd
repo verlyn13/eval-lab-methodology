@@ -27,6 +27,12 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 ```
 
+Two scores produced on different serving stacks are not the same measurement, even for identical
+model weights. Comparing them as if they were silently turns an infrastructure change into a fake
+model result. An identity domain is this project's guard against that mistake: a fingerprint of
+the declared serving stack that decides which runs may be compared at all. Hash equality is
+necessary, not sufficient, for numerical comparability.
+
 ## Why identity domains
 
 Serving stacks do not promise bitwise-identical numerics across engine
@@ -36,9 +42,10 @@ model weights. Treating them as comparable silently converts an infrastructure
 change into a fake model result.
 
 The identity domain makes known stack boundaries explicit and machine-checkable.
-Its v1 preimage covers the serving engine and version, serving and base-image
-digests, engine wheel hash, GPU hardware, model artifacts, and a fixed launch
-field set. Run ids and timestamps are excluded by construction.
+Its v1 preimage — the exact set of declared fields that get hashed — covers the
+serving engine and version, serving and base-image digests, engine wheel hash,
+GPU hardware, model artifacts, and a fixed launch field set. Run ids and
+timestamps are excluded by construction.
 
 Equality is necessary, not sufficient, for numerical comparability. V1 does not
 record every source of variation. Prefix-cache state, batch context and
@@ -47,13 +54,15 @@ residual state can differ while the hash remains unchanged. Those factors
 require separate controls and measurement; a later wider field set requires a
 new schema version.
 
-Identity-domain matching is one **admission decision**, and it fails closed:
+Identity-domain matching is one **admission decision** — a check that determines
+whether two runs may enter the same comparison at all — and it fails closed:
 
 - Runs are not admitted as score-comparable when their
   `identity_domain_sha256` values differ.
 - A comparison across differing domains is refused unless an explicit
-  **bridge authorization** — an operator-attested exception with a bridge id
-  and a reason — is recorded downstream in the evidence.
+  **bridge authorization** — a deliberate, recorded human sign-off (an
+  operator-attested exception with a bridge id and a reason) — is recorded
+  downstream in the evidence.
 - A run that cannot present a well-formed domain hash is not admitted at all.
   Non-evaluable is not a pass.
 
