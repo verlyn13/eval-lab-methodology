@@ -22,12 +22,31 @@ permitted outcome is `NOT_EVALUABLE`.
 
 ```{python}
 #| output: asis
+import sys
 from pathlib import Path
+
+start = Path.cwd().resolve()
+root = next(
+    (
+        candidate
+        for candidate in (start, *start.parents)
+        if (candidate / "analysis" / "contract_v2" / "verification.py").is_file()
+        and (
+            candidate
+            / "evidence"
+            / "contract-v2"
+            / "synthetic-not-evaluable.json"
+        ).is_file()
+    ),
+    None,
+)
+if root is None:
+    raise RuntimeError("repository root for Contract B v2 report not found")
+sys.path.insert(0, str(root))
 
 from analysis.contract_v2 import verify_exact_bytes
 from analysis.contract_v2.report import render_markdown
 
-root = Path.cwd()
 evidence = root / "evidence" / "contract-v2" / "synthetic-not-evaluable.json"
 verified = verify_exact_bytes(evidence.read_bytes())
 print(render_markdown(verified.human_report, evidence_sha256=verified.evidence_sha256))

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -276,6 +278,21 @@ class ContractV2Tests(unittest.TestCase):
         qmd = (ROOT / report_path).read_text(encoding="utf-8")
         self.assertIn("verify_exact_bytes", qmd)
         self.assertIn("NOT_EVALUABLE", qmd)
+
+    def test_human_report_cell_executes_from_report_directory(self) -> None:
+        qmd = (ROOT / "reports" / "contract-v2-not-evaluable.qmd").read_text(
+            encoding="utf-8"
+        )
+        cell = qmd.split("```{python}", 1)[1].split("```", 1)[0]
+        completed = subprocess.run(
+            [sys.executable, "-c", cell],
+            cwd=ROOT / "reports",
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("**NOT_EVALUABLE**", completed.stdout)
 
     def test_duplicate_json_keys_refuse(self) -> None:
         payload = FIXTURE.read_bytes().replace(
