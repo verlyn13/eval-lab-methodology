@@ -43,6 +43,32 @@ validates this fixture with Draft 2020-12 before independent recomputation. The
 CLI, Quarto page, and acceptance tests all use that path. A missing validator or
 schema violation is a normalized verification refusal, never a skipped test.
 
+## Frozen repository delivery surface
+
+`delivery-manifest.v1.json` is the immutable, canonical-JSON delivery contract
+for copying this repository-only draft into a private evaluation deployment. It
+pins the public source commit and tree, the unchanged 0.2.0 core identity, the
+exact schema/verifier/report/publication-safety bytes, their required relative
+layout, the `jsonschema` runtime requirement, and the synthetic conformance
+fixture and golden report. The runtime-file aggregate is computed over the
+ordered canonical list of `{path, sha256}` records; a downstream lock also pins
+the exact manifest bytes and the exact resolved validator dependency version.
+
+The public Git commit is published and reviewable. The Contract B implementation
+remains an unreleased, repository-only normative draft with no operational
+authority and is not part of the 0.2.0 wheel. A consumer must verify every file
+before import, preserve the listed paths because schema discovery is relative to
+the verifier, and refuse on any missing, changed, duplicate, or unexpected
+entry. The import surface is `analysis.contract_v2:verify_exact_bytes`; Markdown
+rendering is `analysis.contract_v2.report:render_markdown`. The existing
+`python -m analysis.run_contract_v2 --check` command remains the repository
+conformance command and is not required in the minimal runtime mirror.
+
+The published `2.0.0-draft.1` contract, schema, verifier, report renderer, and
+publication-safety bytes are never edited in place. A change to any of those
+bytes requires a new reviewed Contract B version. A transport-only change to a
+future delivery manifest requires a new delivery revision and downstream review.
+
 ## Sanitization-hardening provenance
 
 The durable, public provenance for the independent recursive content scan is

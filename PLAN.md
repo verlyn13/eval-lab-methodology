@@ -41,6 +41,11 @@ every commit is world-readable and every merge to `main` is a publication act.
   renderer, and publication-safety scanner are bound by an ordered file
   manifest and aggregate digest. It is unreleased, outside package 0.2.0,
   operationally non-authoritative, and selects no method.
+- Its canonical delivery manifest freezes the exact repository layout and bytes
+  needed for hash-checked downstream mirroring, plus the source commit/tree,
+  unchanged core identity, runtime dependency, and synthetic conformance pair.
+  This is a repository delivery contract, not a package release or operational
+  adoption; the released 0.2.0 wheel remains unchanged.
 - Its synthetic observation cardinality is one Aider-owner descriptor-validation
   receipt and one lab-owned completion receipt per attempt; one distinct gateway
   open receipt, zero or more gateway call receipts, and one distinct gateway
