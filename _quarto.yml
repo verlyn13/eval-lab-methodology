@@ -21,7 +21,7 @@ website:
       - href: reports/experimental-inference-note.qmd
         text: Experimental inference
       - href: reports/contract-v2-not-evaluable.qmd
-        text: Contract v2 refusal
+        text: Fail-closed reporting
     right:
       - icon: github
         href: https://github.com/verlyn13/eval-lab-methodology

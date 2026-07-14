@@ -1,11 +1,70 @@
 # Contract B v2 synthetic fixture
 
+<!-- project-card: fail-closed-evidence-validation -->
+### Fail-closed evidence validation
+
+Preventing incomplete evaluations from producing unsupported conclusions
+
+**What is this?**
+A prototype verifier that recomputes an evaluation's published result from its frozen evidence
+bytes and refuses when the evidence is mutated, mismatched, or missing a required prerequisite.
+
+**What is it for?**
+It prevents an incomplete study from being mistaken for a valid model result.
+
+**How is it used?**
+The verifier checks whether the statistical method, replication requirements, and minimum useful
+improvement have been defined. If any required element is missing, it returns `NOT_EVALUABLE` —
+no scientific conclusion can be drawn — and issues no model recommendation.
+
+**Why does it matter?**
+A trustworthy evaluation system must know when not to decide. This behavior helps model-testing
+teams avoid false confidence and creates an auditable record of what remains unresolved.
+
+**Evidence and status**
+Synthetic prototype demonstrating contract validation and independent refusal behavior. It does
+not measure a real model.
+
+[Examine the evidence contract and verifier →](https://jvjohnson.dev/eval-lab-methodology/reports/contract-v2-not-evaluable.html)
+<!-- /project-card -->
+
+- **Status:** Prototype
+- **Evidence:** Synthetic
+- **Decision:** `NOT_EVALUABLE` — no scientific conclusion permitted
+- **Demonstrates:** Independent, fail-closed evaluation reporting
+- **Does not demonstrate:** Performance of any real model
+- **Relevant to:** Model testing, challenger evaluation, and model-risk review
+
+## What this directory holds
+
 `synthetic-not-evaluable.json` is a public-safe structural fixture for the
-immutable `2.0.0-draft.1` schema. It contains no real task, model, response,
-grader, provider, host, endpoint, credential, or deployment fact. It selects no
-inferential method and can only recompute to `NOT_EVALUABLE`.
-`synthetic-not-evaluable-report.md` is the byte-checked human-readable rendering
-of the independently recomputed report model.
+immutable `2.0.0-draft.1` schema of Contract B — a draft evidence and reporting
+contract. It contains no real task, model, response, grader, provider, host,
+endpoint, credential, or deployment fact. It selects no inferential method and
+can only recompute to `NOT_EVALUABLE`. `synthetic-not-evaluable-report.md` is
+the byte-checked human-readable rendering of the independently recomputed
+report model.
+
+## What this demonstrates
+
+Using synthetic data, the fixture and a separate verifier confirm that the
+statistical method, required repetitions, and minimum useful improvement have
+not yet been approved, so the recomputed outcome is `NOT_EVALUABLE` rather than
+a manufactured pass-or-fail result. This does not measure the performance of a
+real model. It demonstrates the evaluation framework: preserve the evidence,
+verify the decision prerequisites independently, and refuse unsupported
+conclusions.
+
+In a company model-testing workflow, the same pattern can prevent an incomplete
+experiment from triggering a change from the current model to a challenger, and
+it creates an auditable record explaining why no decision was made and what
+evidence is still required.
+
+Technical status: an unreleased Contract B v2 prototype outside the
+repository-versioned 0.2.0 statistical core. It demonstrates contract structure
+and independent refusal behavior only.
+
+## Technical details
 
 The registration copy follows the immutable public
 `eval-registry.registration-receipt.v1` shape and domains. Its digest covers the
@@ -35,19 +94,20 @@ envelopes are evidence pointers, never verification inputs.
 The verifier implementation is repository-only under `analysis/contract_v2/`.
 The fixture binds the exact schema bytes and separately binds an ordered
 path-and-byte-digest manifest plus aggregate digest for the verifier, human
-report renderer, and publication-safety scanner. None is part of the released
-0.2.0 wheel.
+report renderer, and publication-safety scanner. None is part of the
+wheel-buildable repository package version 0.2.0.
 
 The single exact-byte verification entry point requires `jsonschema` and
 validates this fixture with Draft 2020-12 before independent recomputation. The
 CLI, Quarto page, and acceptance tests all use that path. A missing validator or
 schema violation is a normalized verification refusal, never a skipped test.
 
-## Frozen repository delivery surface
+### Frozen repository delivery surface
 
 `delivery-manifest.v1.json` is the immutable, canonical-JSON delivery contract
 for copying this repository-only draft into a private evaluation deployment. It
-pins the public source commit and tree, the unchanged 0.2.0 core identity, the
+pins the public source commit and tree, the unchanged repository core identity
+at version 0.2.0, the
 exact schema/verifier/report/publication-safety bytes, their required relative
 layout, the `jsonschema` runtime requirement, and the synthetic conformance
 fixture and golden report. The runtime-file aggregate is computed over the
@@ -69,7 +129,7 @@ publication-safety bytes are never edited in place. A change to any of those
 bytes requires a new reviewed Contract B version. A transport-only change to a
 future delivery manifest requires a new delivery revision and downstream review.
 
-## Sanitization-hardening provenance
+### Sanitization-hardening provenance
 
 The durable, public provenance for the independent recursive content scan is
 fully in-repository: `scripts/publication_safety.py` contains the shared scanner,

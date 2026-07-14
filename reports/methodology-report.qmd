@@ -14,6 +14,18 @@ params:
   evidence: "../evidence/sample-lab-report.json"
 ---
 
+This page is an automatically rendered view of a single validated, public-safe evidence file — a
+demonstration of the reporting layer, not a hand-written document. Before anything renders, the
+evidence is independently re-validated and re-scanned, and rendering refuses if any required
+honesty label has drifted.
+
+**What this demonstrates:** deterministic report rendering, label checking, and refusal behavior
+on one validated evidence file.
+
+**What this does not demonstrate:** any claim beyond that one evidence file. The campaign header
+below records the file's provenance; every example report published on the public site is
+synthetic and demonstrates the reporting layer, not model performance.
+
 ```{python}
 #| tags: [parameters]
 evidence = "../evidence/sample-lab-report.json"

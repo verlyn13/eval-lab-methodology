@@ -12,14 +12,32 @@ execute:
   warning: false
 ---
 
+- **Status:** Executable methods review — synthetic decision input
+- **Evidence:** Synthetic only — no live model outputs and no campaign data
+- **Decision:** None — this note informs a pending methods ruling and selects nothing
+- **Demonstrates:** That a bit-exact, fully reproducible calculation can still exceed its nominal
+  error rate — reproducibility is not validity
+- **Does not demonstrate:** Performance of any real model, or a validated statistical design
+- **Relevant to:** Statistical method review for model evaluation
+
+Before this project commits to a statistical rule for deciding between models, the candidate
+rules themselves are being tested — on invented data, with every calculation committed and
+byte-checked. The central finding so far: a rule can be perfectly reproducible and still be wrong
+more often than it claims. That is why no rule has been adopted yet.
+
 ::: {.callout-important}
 ## Scope: this package informs a decision it does not make
 
-The evaluation lab's rulings R1 (inferential basis and enforcing test), R2
-(replicate and nondeterminism semantics), and R4 (margin) are **held as one
-coupled decision**. Held means **not decided**. Nothing in this note selects,
+The evaluation lab's rulings R1 (the inferential basis and enforcing test —
+the statistical footing and the test that determines whether evidence supports
+a decision), R2 (replicate and nondeterminism semantics — how many repeated
+trials are required and how run-to-run randomness is treated), and R4 (the
+margin — the minimum improvement worth acting on) are **held as one
+coupled decision**. Held means **not decided**: the rulings are still awaiting
+an explicit decision, in either direction. Nothing in this note selects,
 installs, or enforces an inferential basis, a test construction, a replicate
-policy, a margin, or an MPIB value. Every preference expressed here is
+policy, a margin, or an MPIB value (the minimum practically important
+benefit — the smallest improvement worth changing models for). Every preference expressed here is
 labeled as a **recommendation to the coupled R1/R2/R4 ruling**; only that
 ruling — an operator signature, not this package — can select. Until a rule
 is selected, every simulation below compares **candidate rules**; none of
@@ -33,7 +51,7 @@ and `analysis/_method_tranche/dependence.py` — and is read at render time from
 the committed artifact `analysis/method-tranche-results.json`. The externally
 supplied comparison value is labeled as such and recorded in that artifact;
 it is not a package result. These modules
-are deliberately excluded from the released 0.2.0 statistical core while the
+are deliberately excluded from the repository-versioned 0.2.0 statistical core while the
 method decision remains open. This document refuses to render if the
 artifact's honesty labels or decision-input citations have drifted.
 :::
@@ -53,8 +71,8 @@ nuisance grid. That mismatch is a result of this review, not a detail to hide.
 
 ## What this tranche is
 
-This is the **interim decision-input tranche** of a commissioned public
-method package. It covers the commission's required content 1 (inferential-
+This is the **interim decision-input tranche** — the first installment — of a
+commissioned public method package. It covers the commission's required content 1 (inferential-
 basis comparison), 3 (assignment unit and mechanism), 4 (assumption audit),
 5 (the weak-null problem and the enumerator/exactness distinction), 6 (the
 three candidate constructions), 8 (superiority at zero versus MPIB), and 9
@@ -975,7 +993,9 @@ consistently with them:
   assumed bitwise deterministic**: the candidate policy would require
   **batch-invariance
   evidence where available** (recorded in `batch_invariant`), or an
-  **E1-measured-and-bounded nondeterminism floor** $\varepsilon$. The
+  **E1-measured-and-bounded nondeterminism floor** $\varepsilon$ (E1,
+  specified below, is the planned study measuring how much the apparatus
+  itself varies between identical runs). The
   apparatus alarm threshold comes **from that measured floor, never from
   zero**.
 - **Stochastic intent.** Under the candidate policy, seeds would be
