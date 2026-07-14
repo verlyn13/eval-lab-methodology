@@ -1,133 +1,147 @@
-# Roadmap — the statistical + reporting core
+# Roadmap — public methodology and independent verification
 
-This repository is the methodology write-up plus an infra-agnostic **statistical
-and reporting core** for evidence-gated model/harness promotion — real, tested
-code plus a Quarto report — that anyone can run with no access to private
-infrastructure. Read `AGENTS.md` first; it defines the boundary and the honesty and
-sanitization rules that gate every commit here. This file records what has landed
-and what remains to build, in order.
+This repository is the public methodology authority for an evidence-gated
+model-and-harness evaluation system. It owns statistical specifications,
+versioned public evidence contracts, independent recomputation, and sanitized
+human-readable reports. It does not own model routing, editing, deployment,
+private campaign custody, or operational trace storage. Read `AGENTS.md` first:
+every commit is world-readable and every merge to `main` is a publication act.
 
-Everything here is world-readable. Treat every commit as a public release.
+## Current status
 
-## Where things stand
+### Released and historical
 
-Landed and working:
+- The dependency-free `eval_lab_methodology` package is released as **0.2.0**.
+  Its content hash and frozen identity-domain conformance vector are public
+  compatibility contracts.
+- Evidence Contract 1.1.0, the parameterized Quarto report, and synthetic
+  example reports are live at <https://jvjohnson.dev/eval-lab-methodology/>.
+- The released package preserves the estimators and promotion gate used by the
+  recorded worked examples: Wilson intervals, a seeded percentile bootstrap,
+  a reported-only paired sign test, and a conjunctive fail-closed decision.
+- Those methods are **historical implementation truth**, not authorization for
+  a new powered scientific claim.
 
-- The methodology write-up (`README.md`), with a worked false-positive no-go and a
-  worked live no-go, both carrying real recorded numbers.
-- `evidence/data.json` — the sanitized values the figures render from — and two
-  prose worked-example write-ups.
-- `figures/generate.py` — a standard-library SVG generator that renders the figures
-  from `evidence/data.json`. It performs **no statistics**; it draws numbers that
-  already exist.
-- **Build-order step 1 is done.** The statistical core is importable, tested code
-  (`src/eval_lab_methodology/`, version 0.2.0), with packaging (`pyproject.toml`
-  plus the standard-library build backend) and CI that runs the unit tests and
-  builds the wheel on every push and pull request.
-- **Build-order step 2 is done.** The evidence-JSON schema is versioned
-  (`evidence/schema.json`, schema version 1.1.0) and carries raw per-task
-  outcomes; the Quarto report renders a full campaign from an evidence JSON; and
-  a synthetic-data example ships with it (`evidence/sample-lab-report.json` and
-  the synthetic campaign under `evidence/campaigns/`). The report and site are
-  live at <https://jvjohnson.dev/eval-lab-methodology/>, auto-deployed from
-  `main`.
-- **A landed normative addition:** the identity-domain spec
-  (`src/eval_lab_methodology/identity_domain.py`, documented in
-  `identity-domain.qmd`) defines how a model identity domain is canonicalized so
-  results are comparable across implementations. It ships with a **frozen
-  conformance vector** — `CONFORMANCE_IDENTITY_DOMAIN` and its published hash
-  `CONFORMANCE_IDENTITY_DOMAIN_SHA256` — that cross-implementation parity tests
-  pin. See `AGENTS.md` for the rule: the vector is never edited in place; a spec
-  change is a new schema version with a new vector.
+### Experimental and not selected
 
-Still to build (the remaining roadmap):
+- `reports/experimental-inference-note.qmd` is a synthetic, executable review
+  of candidate finite-suite constructions. It is decision input, not a ruling.
+- Its implementation lives under `analysis/_method_tranche/`, outside the
+  released package and outside the 0.2.0 content hash.
+- The committed results artifact is regenerated and compared byte-for-byte in
+  CI. Exact computation is therefore reproducible; inferential validity still
+  depends on the stated design and assumptions.
+- No enforcing test, replicate policy, or minimum practically important
+  benefit has been selected for the next contract. Powered promotion remains
+  unavailable until that coupled decision is made from a complete package.
 
-- A runnable `example/` a reviewer can clone and run against an open model or a
-  public API (build-order step 3).
-- Contributed sanitized real-run results and rendered reports (build-order
-  step 4).
-- One open packaging question: whether to publish a dev-extra lockfile so the
-  development environment is pinned, not only the runtime dependencies.
+## Scientific decision package still required
 
-## The target
+The experimental note narrows the problem but deliberately leaves these items
+open:
 
-An importable package that implements, on run-level binary outcomes with replicates
-nested in tasks:
+1. **Estimand and design.** State whether the target is a fixed finite suite or
+   a task superpopulation; define the four-class weighting; define arm-order
+   assignment; and state the unit and source of replication.
+2. **Applicable validity argument.** Establish a theorem or calibrated design
+   for the actual class-balanced, paired, potentially non-identically
+   distributed task setting. Results for randomized treatment assignment do not
+   automatically validate arm-order randomization.
+3. **Nuisance-boundary control.** Replace the current finite `0.01` grid
+   judgment with a justified continuous-boundary argument or an explicitly
+   conservative bound.
+4. **Dependence.** Bound cross-task correlation induced by shared serving state,
+   session-by-arm interactions, batch composition, and prefix caching. Retain
+   session and task-pair identifiers so the assumption is auditable.
+5. **Level-matched comparison.** Compare candidate procedures at the same
+   demonstrated Type I level; do not attribute unmatched power gaps to one
+   mechanism.
+6. **Replicate operating characteristics.** Extend the one-replicate synthetic
+   calculations to the registered two- and three-replicate lattices, with a
+   deployment-grounded replicate interpretation.
+7. **Bounded-mean alternative.** Complete the authorized bounded-mean/betting
+   interval frontier and compare its assumptions and operating characteristics.
+8. **Outcome and missingness.** Fix the grader definition, measurement-error
+   study, retry/error/timeout policy, attrition table, and protected-task rule.
+9. **Practical benefit.** Justify any nonzero margin from calibration,
+   feasibility, and cost/benefit evidence; a preregistered arbitrary constant is
+   not a scientific justification.
+10. **Independent recomputation.** Define Contract v2 so the public core derives
+    the result and decision from raw records, refusing any producer claim that
+    does not match exactly.
 
-- **Wilson score intervals** for the marginal per-model, per-class proportions.
-- A **two-stage (hierarchical) bootstrap** — resample tasks, then resample
-  replicates within each task — so within-task replicate noise is propagated rather
-  than collapsed. Seeded.
-- **Wilcoxon signed-rank** on the per-task deltas — magnitude-aware, replacing the
-  direction-only sign test as the primary paired test.
-- A **mixed-effects logistic regression (GLMM)** wrapper, `success ~ model + (1 |
-  task)`, as the primary model that uses every run.
-- A **superiority-by-margin** decision rule: promote iff the interval's lower bound
-  exceeds the practically-important margin δ0. This is a single clean rule.
-- A **simulation-based power analysis** — power vs number of tasks at a few
-  replicate counts — so run sizes are chosen, not guessed.
-- Optional, later: a Bayesian posterior `P(Δ > δ0)` with a ROPE, and an IRT
-  (Rasch / 2PL) treatment of task difficulty vs model ability.
+Until these are resolved, the scientifically correct outcome is
+`NOT_EVALUABLE`, not promotion.
 
-Plus unit tests against textbook cases, the Quarto report, the runnable `example/`,
-and CI.
+## Delivery roadmap
 
-## The evidence-JSON contract
+### Step 1 — publish the experimental inference note
 
-One schema is the interface between the analysis code, the reports, and any
-deployment that produces data. It is a superset of today's `evidence/data.json`:
+- Keep candidate code repository-only and keep package 0.2.0 unchanged.
+- Render the note on the public site with a plain-language result card.
+- Verify the committed synthetic result bytes in tests and CI.
+- Record limitations and disagreements without selecting a method.
 
-- **Raw per-task outcome arrays** (per model, per task, per replicate), so the
-  estimators are reproducible from published data.
-- A **reproducibility manifest**: seeds, task-set hash, model versions, and — when a
-  run used real hardware — the hardware type, cost, and a **pre-flight
-  model-resolution result** confirming each model actually served (not a silent
-  fallback).
+Acceptance: full unit suite, byte-for-byte result check, evidence-report
+validation, wheel inspection, Quarto render, and public-boundary review are all
+green. A merge is a separate reviewed publication act.
 
-The schema is versioned and lives in this repo (`evidence/schema.json`). Both the
-estimators and the Quarto report validate against it. Synthetic-data instances are
-fully public; any real-run instance is sanitized before it lands here.
+### Step 2 — Contract v2 and independent verifier
 
-## Build order
+Add a new immutable contract beside v1. It must represent the analysis plan,
+registration binding, assignment schedule, raw attempts and attrition,
+provenance-preserving observations, analysis result, and decision receipt. The
+public implementation recomputes the enforcing result from raw records and
+refuses on any mismatch, stale version, missing receipt, or provenance upgrade.
 
-1. **Core + tests.** Stand up the package; implement Wilson, the two-stage
-   bootstrap, Wilcoxon, the GLMM wrapper, the superiority-by-margin rule, and the
-   power simulation. Unit-test each against known cases. Add packaging, a lockfile,
-   and CI. Acceptance: `pip install` + `pytest` green from a clean clone.
-2. **Evidence schema + Quarto report.** Define `evidence/schema.json`; build the
-   report (`report.qmd` + `_quarto.yml`) rendering, per campaign: the manifest, the
-   capability table with Wilson CIs, a per-class forest plot, Δ with the δ0 margin
-   line and its interval, the reliability/latency/cost distributions, the power
-   curve, and the decision under the pre-registered rule. Ship a **synthetic-data
-   example report** — fully public, no scrub needed. Acceptance: `quarto render`
-   produces the report from a synthetic evidence JSON.
-3. **Runnable example.** A minimal reproducible eval against an open-source model or
-   a public API, with a lockfile, a "how to run," and seeded output. Acceptance: it
-   runs from a clean clone and reproduces its published numbers.
-4. **Real-run results (contributed).** Sanitized results and rendered reports from a
-   real hardware campaign, produced by the private deployment that this core serves,
-   arrive after the deployment's own review and the sanitization pass in `AGENTS.md`.
-   They augment the synthetic example so the lead example becomes a real result.
+Acceptance: a fully synthetic v2 campaign renders a human report, exact
+recomputation agrees bit-for-bit, and mutation tests demonstrate refusal. This
+step records the selected method only after the coupled scientific ruling; it
+must not choose that method itself.
 
-## Two invariants the roadmap must preserve
+### Step 3 — calibrated scientific design
 
-These are recorded facts about the worked examples. Contributors must not silently
-change them:
+Complete grader validation, the frozen 40-task balanced suite and selection
+record, the independence/noise-floor study, and operating-characteristic
+simulation for the actual rule. Publish sanitized method artifacts only after
+their originating evidence and registration receipts are independently
+verifiable.
 
-- The paired **sign test is two-sided and reported alongside** the decision — it
-  does **not** gate promotion. The significance mechanism in the worked gate is the
-  **seeded bootstrap CI lower bound relative to zero (and, going forward, to the
-  margin)**. Do not describe the sign test as one-sided or as the gating test.
-- The live worked example has **no latency overrun**. Its `latency_slo` is **n/a**
-  because the candidate produced zero successes, so there was no latency to
-  measure — the fail-closed "non-evaluable is not a pass" rule. The SLO itself is
-  60,000 ms per success.
+Acceptance: measured Type I error, power, dependence sensitivity, feasibility,
+grader agreement, and residual threats are reported for the exact planned
+design. Simulation is not a substitute for the empirical calibration inputs it
+claims to use.
 
-## Upgrade forward; do not rewrite history
+### Step 4 — reproducible public example
 
-The write-up's recorded results were computed with a direction-only **sign test**
-and a **single-stage** seeded percentile bootstrap. The estimators above (two-stage
-bootstrap, Wilcoxon, GLMM) are **additions**, applied to new analyses and labeled as
-such. Do not retroactively relabel the published examples as if they used methods
-they did not. Adding capability never licenses restating past results as stronger
-than they were — the honesty rules in `AGENTS.md` are the point of this artifact.
+Provide a clone-and-run, zero-cost example using an open model or public-safe
+synthetic fixture. It must exercise registration, observation joins,
+recomputation, refusal, and report rendering without private infrastructure.
+
+### Step 5 — sanitized real campaign
+
+Accept a real campaign only after the producing systems satisfy their own
+charters and the public boundary is independently scanned. The report must name
+the finite target, assumptions, operating characteristics, attrition, prior
+attempt count, identity domain, and residual validity threats. A no-go or
+not-evaluable result is a first-class publishable outcome.
+
+## Stable public contract
+
+The versioned evidence contract is the interface between private producers and
+this public verifier. Copies preserve the originating receipt and provenance;
+no plane may upgrade an attested value to measured. Frozen v1 constants are
+never edited in place. Any incompatible semantics require a new schema version,
+new conformance fixtures, and a versioned package release.
+
+## Historical invariants
+
+The worked examples must remain described exactly as they were computed:
+
+- the paired sign test is two-sided and reported only;
+- the historical gate uses the seeded single-stage bootstrap lower bound;
+- the live worked example's latency criterion is `n/a`, not an overrun; and
+- representative or synthetic values are never relabeled as measured results.
+
+New methods apply prospectively. They do not rewrite old evidence or strengthen
+old claims.

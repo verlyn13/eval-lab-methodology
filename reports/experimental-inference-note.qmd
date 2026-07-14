@@ -1,0 +1,1275 @@
+---
+title: "Experimental inference note — exact computation is not exact inference"
+subtitle: "Synthetic decision input on estimands, candidate tests, repeatability, dependence, and feasibility. No method is selected."
+format:
+  html:
+    toc: true
+    standalone: true
+    theme: cosmo
+jupyter: python3
+execute:
+  echo: false
+  warning: false
+---
+
+::: {.callout-important}
+## Scope: this package informs a decision it does not make
+
+The evaluation lab's rulings R1 (inferential basis and enforcing test), R2
+(replicate and nondeterminism semantics), and R4 (margin) are **held as one
+coupled decision**. Held means **not decided**. Nothing in this note selects,
+installs, or enforces an inferential basis, a test construction, a replicate
+policy, a margin, or an MPIB value. Every preference expressed here is
+labeled as a **recommendation to the coupled R1/R2/R4 ruling**; only that
+ruling — an operator signature, not this package — can select. Until a rule
+is selected, every simulation below compares **candidate rules**; none of
+them is an operating characteristic of an accepted enforcing rule.
+
+This note is **design-only and synthetic-only**: no live model outputs, no
+campaign data, and no claim about any real system. Every package-derived
+number is produced by committed, seeded, repository-only experimental code —
+`analysis/run_method_tranche.py`, `analysis/_method_tranche/paired_trinomial.py`,
+and `analysis/_method_tranche/dependence.py` — and is read at render time from
+the committed artifact `analysis/method-tranche-results.json`. The externally
+supplied comparison value is labeled as such and recorded in that artifact;
+it is not a package result. These modules
+are deliberately excluded from the released 0.2.0 statistical core while the
+method decision remains open. This document refuses to render if the
+artifact's honesty labels or decision-input citations have drifted.
+:::
+
+::: {.callout-warning}
+## Headline result
+
+Deterministic enumeration can reproduce a reference distribution and every
+reported probability bit-for-bit while the resulting rule still exceeds its
+nominal Type I error under the stated composite-null model. Exact arithmetic
+is therefore a reproducibility property, not a validity guarantee.
+
+The calculations below also do **not** validate the intended class-balanced
+task design. They use a common i.i.d. paired-trinomial model and a finite
+nuisance grid. That mismatch is a result of this review, not a detail to hide.
+:::
+
+## What this tranche is
+
+This is the **interim decision-input tranche** of a commissioned public
+method package. It covers the commission's required content 1 (inferential-
+basis comparison), 3 (assignment unit and mechanism), 4 (assumption audit),
+5 (the weak-null problem and the enumerator/exactness distinction), 6 (the
+three candidate constructions), 8 (superiority at zero versus MPIB), and 9
+(replicate and nondeterminism semantics), together with six scenario
+families: null-boundary behavior, heterogeneous effects, margin feasibility
+(with the falsifiable cross-check), superiority/MPIB operating
+characteristics, nondeterminism-floor propagation, and cross-task dependence
+under session layouts. The replicate-lattice demonstration required by the
+commission is included with the weak-null section.
+
+The complete package will add the remaining content: the full formal
+estimand treatment, the finite-sample bounded-mean (betting/confidence-
+sequence) constructions of Waudby-Smith and Ramdas, and full report and
+figure treatment. Nothing in this tranche presumes what that bounded-mean
+evaluation will show; in particular, nothing here presumes it overturns —
+or fails to overturn — the feasibility picture presented below.
+
+**No numeric gate is recommended anywhere in this tranche** — no margin, no
+MPIB value, no alarm threshold, no sample size. The scenario families state
+consequences; gates come later, if at all, and only after their operating-
+characteristic scenarios have been reviewed through the coupled ruling.
+
+```{python}
+#| include: false
+import json
+import hashlib
+import sys
+from fractions import Fraction
+from pathlib import Path
+from typing import Any
+
+
+def find_repo_root(start: Path) -> Path:
+    for candidate in (start.resolve(), *start.resolve().parents):
+        if (candidate / "pyproject.toml").exists() and (
+            candidate / "analysis" / "method-tranche-results.json"
+        ).exists():
+            return candidate
+    raise RuntimeError("Could not locate repository root from Quarto execution directory")
+
+
+repo_root = find_repo_root(Path.cwd())
+results_path = repo_root / "analysis" / "method-tranche-results.json"
+artifact_bytes = results_path.read_bytes()
+EXPECTED_RESULTS_SHA256 = "07efd22aca11dff100f39f3eedc5275a041d21ffd215764def376dd03fed6e7c"
+if hashlib.sha256(artifact_bytes).hexdigest() != EXPECTED_RESULTS_SHA256:
+    raise RuntimeError("Refusing to render: committed results artifact digest drifted")
+results = json.loads(artifact_bytes)
+
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+from analysis.run_method_tranche import SEED, compute_results
+
+recomputed_bytes = (
+    json.dumps(compute_results(SEED), indent=2, sort_keys=True) + "\n"
+).encode("utf-8")
+if recomputed_bytes != artifact_bytes:
+    raise RuntimeError("Refusing to render: committed results do not match current code")
+
+# Fail closed: refuse to render if the committed artifact's honesty labels
+# or decision-input citations have drifted from the pinned expectations.
+EXPECTED_LABELS = {
+    "design_only": True,
+    "synthetic_only": True,
+    "informs_never_selects": True,
+    "no_claim_about_any_real_system": True,
+    "delta0_0_10": "retired as enforcing target; mechanics only",
+    "enumeration_is_not_exactness": True,
+    "ruling_status": "R1/R2/R4 held; held means not decided",
+}
+EXPECTED_CITATIONS = [
+    {
+        "name": "science-layer-consult-r1-r5.md",
+        "sha256": "60409acec91e6aa02d4d39f8cfd4bc1f43b17031b1752da24f2f2e67f8aa896a",
+    },
+    {
+        "name": "suite_power.py",
+        "sha256": "bb534d7d908f64e01e45d2a039806fba22b54c994af9beb8713395f9ec53ff5a",
+    },
+]
+if results["labels"] != EXPECTED_LABELS:
+    raise RuntimeError("Refusing to render: results artifact honesty labels drifted")
+if results["citations"] != EXPECTED_CITATIONS:
+    raise RuntimeError("Refusing to render: decision-input citations drifted")
+if results["schema"] != "method-tranche-results/v1":
+    raise RuntimeError("Refusing to render: unexpected results schema")
+
+scenarios = results["scenarios"]
+
+
+def table(headers: list[str], rows: list[list[Any]]) -> str:
+    def cell(value: Any) -> str:
+        return str(value).replace("|", "\\|").replace("\n", "<br>")
+
+    header = "| " + " | ".join(cell(item) for item in headers) + " |"
+    separator = "| " + " | ".join("---" for _ in headers) + " |"
+    body = ["| " + " | ".join(cell(item) for item in row) + " |" for row in rows]
+    return "\n".join([header, separator, *body])
+
+
+def p5(record: dict[str, Any]) -> str:
+    return f"{record['value']:.5f}"
+
+
+def p4(record: dict[str, Any]) -> str:
+    return f"{record['value']:.4f}"
+
+
+def frac_of(record: dict[str, Any]) -> Fraction:
+    return Fraction(record["exact"])
+```
+
+## Notation, model, and provenance of package-derived numbers
+
+Per task $i$, the paired difference of aggregated task successes is
+$d_i \in \{-1, 0, +1\}$ with $P(d_i = +1) = p_+$, $P(d_i = -1) = p_-$, and
+$P(d_i = 0) = 1 - p_+ - p_-$. Two derived parameters index every scenario:
+the mean difference $\Delta = p_+ - p_-$ and the discordance probability
+$\pi_d = p_+ + p_-$. The suite statistic is $S = \sum_i d_i = n_+ - n_-$.
+Throughout, $\alpha = 1/20$ one-sided, and suite sizes $N \in \{20, 40, 60\}$
+are examined.
+
+This trinomial model is itself an **assumption** — an i.i.d. (or, in the
+heterogeneity family, independent-but-heterogeneous) sampling model for
+per-task differences. Section [The two inferential bases] states which basis
+gives such a model a referent. Every probability below is either
+
+- **deterministically enumerated**: an integer dynamic program (DP) over the
+  outcome lattice computes the finite distribution with exact
+  `fractions.Fraction` arithmetic — no Monte Carlo iterations, no seeds, no
+  tail-simulation error (the committed JSON records the exact rationals); or
+- **seeded Monte Carlo**: the cross-task-dependence family simulates a
+  stated synthetic mixture model with pinned seeds (base seed 20260713, one
+  derived seed per cell) and reports binomial Monte Carlo standard errors.
+
+Reproduction, from the repository root:
+
+```text
+PYTHONPATH=src python3 -m analysis.run_method_tranche --check  # refuses if committed bytes drift
+python3 -m unittest discover -s tests -v                # includes byte-level reproducibility tests for the artifact
+```
+
+::: {.callout-warning}
+## Normative rule: enumeration is not exactness
+
+Two claims are kept separate everywhere in this note — in prose, in table
+captions, and in the committed code's comments and test names.
+
+- **Computation claim.** "Deterministic integer-DP enumeration" says the
+  reference or sampling distribution was computed exactly, with rational
+  arithmetic, eliminating simulation error. It is a statement about
+  arithmetic.
+- **Inference claim.** "Finite-sample valid at level $\alpha$" says a rule's
+  rejection probability never exceeds $\alpha$ under the null, *under stated
+  sampling assumptions*. It is a statement about inference.
+
+The first never implies the second. Fisher-style randomization tests are
+finite-sample exact for compatible **sharp** nulls; the weak (composite
+average-effect) null $H_0\!: \Delta_{\text{suite}} \le \delta_0$ requires
+additional construction or assumptions (Wu and Ding 2021; Zhao and Ding
+2021). The null-boundary family below demonstrates the gap numerically: a
+shifted sign-flip rule whose reference distribution is enumerated exactly —
+exact *arithmetic* — nevertheless exceeds the nominal level on the composite
+boundary at $\delta_0 = 1/10$.
+:::
+
+## The two inferential bases (required content 1)
+
+The candidate estimand under review — **not an accepted or recommended
+choice** — is the equal-class-weighted mean difference in task success over
+the frozen 40-task suite, with equal
+task weight inside each of four registered classes, per-task success
+aggregated over registered replicates, difference between arms. With
+complete data and equal class sizes (ten tasks per class) the equal-class-
+weighted mean equals the unweighted task mean
+$\Delta_{\text{suite}} = \tfrac{1}{40}\sum_{i=1}^{40} d_i$ of the per-task
+differences in aggregated success; missingness breaks that identity,
+follows the registered attrition rule, and is never silently dropped. The
+candidate scientific null under review is the
+**weak (composite average-effect) null**
+$H_0\!: \Delta_{\text{suite}} \le \delta_0$ — a statement about the suite
+mean, not a sharp task-level statement. None of this is yet accepted: R1 is
+held, and this section is input to it.
+
+Two inferential bases must be compared without presupposing either:
+
+| | Task superpopulation over four classes | Frozen-suite census |
+|---|---|---|
+| **Target** | The superpopulation mean difference $\Delta_{\text{super}} = \tfrac{1}{4}\sum_k E[\delta(T) \mid \text{class } k]$, where tasks are treated as drawn (stratified by class) from a larger population of tasks of the four registered kinds | The suite quantity $\Delta_{\text{suite}}$ itself — a computed, described number over exactly the frozen tasks |
+| **Uncertainty admitted** | Between-task variation *is* sampling variation; plus any registered stochastic components | No task-sampling uncertainty at all. Residual uncertainty, if any, comes only from registered stochastic components (stochastic decoding over a frozen seed schedule; measured apparatus nondeterminism). Under fully deterministic service there may be none to model |
+| **Assumptions required** | A stated and defended sampling model: the frozen tasks behave like a stratified draw from a definable population; per-task differences independent across tasks (audited below) | Correct computation and the registered attrition rule; nothing else |
+| **Claim licensed** | An inferential statement about tasks *of these kinds*, with size/power meaningfully defined | A descriptive statement about *exactly these tasks*, with no generalization and no error rates to control |
+
+Two consequences shape everything downstream:
+
+1. **Every operating characteristic in this note is basis-dependent.** Size
+   and power are probabilities under a sampling model. The trinomial model
+   above is a superpopulation-style model (or a census model with registered
+   stochastic components). Under a pure census basis with fully
+   deterministic service, "Type I error" has no referent: there is nothing
+   random, and the suite mean is simply a number to report.
+2. **The census report is unconditional.** Whatever basis the coupled ruling
+   selects, every downstream report must carry the frozen-suite census
+   **descriptively** alongside any inferential result. This tranche treats
+   that commitment as binding on the package regardless of the ruling's
+   outcome.
+
+::: {.callout-important}
+## The calculations do not yet match the intended four-class design
+
+Every enumerated operating characteristic in this tranche uses either a
+common i.i.d. paired-trinomial model or one of five hand-specified
+heterogeneous diagnostics. None is a proof for independent non-identically
+distributed tasks, equal class weighting, or a class-stratified test.
+Consequently, no rule evaluated here is yet eligible to enforce the intended
+four-class estimand. A later package must supply a stratified/non-i.i.d.
+guarantee or narrow the inferential claim.
+:::
+
+::: {.callout-note}
+## Recommendation to the coupled R1/R2/R4 ruling (a recommendation, not a selection)
+
+Report the frozen-suite census descriptively in every downstream report —
+unconditionally. If an inferential layer is wanted at all, license it
+explicitly: either (a) adopt the task-superpopulation-over-four-classes
+basis, stating and defending the stratified sampling model and the
+independence assumptions audited below, or (b) remain on the census basis
+and confine inference to registered stochastic components (seed schedules,
+measured apparatus nondeterminism), accepting that with fully deterministic
+service there is nothing left to test and description is complete. What the
+package cannot honestly offer is task-level inference *without* the
+superpopulation assumptions — that combination is what the operator's hold
+identified as unsupported.
+:::
+
+## Assignment unit and mechanism (required content 3)
+
+The design is paired within task: **both arms run every task**. What is
+randomized (or balanced) is **arm order** at the registered assignment unit
+— not task membership, and not which arm a task receives.
+
+What the mechanism licenses, exactly:
+
+- Arm-order randomization **controls period and order effects** — a
+  confound-control function. Within-pair differencing cancels a **session
+  main effect** (anything that shifts both arms of a pair equally, such as
+  shared warm-up state at that point in a session) and balances order- and
+  cache-warmth effects across arms in expectation.
+- Arm-order randomization **does not generate the randomization distribution
+  of the model contrast**. Permuting arm order does not resample tasks and
+  does not flip the sign of a task's true effect; there is no design-induced
+  reference distribution for $S$ or for any statistic of the $d_i$. Any
+  sign-flip or permutation reference distribution must therefore be
+  justified by an explicitly stated assumption — for example, symmetry or
+  exchangeability of paired differences under the null — and never
+  attributed to the randomization actually performed.
+- The mechanism does **not** cancel a **session-by-arm interaction**:
+  anything that pushes the two arms of a pair apart in a session-correlated
+  way survives differencing and induces correlated per-task differences.
+  The cross-task-dependence family quantifies the consequence.
+
+Accordingly, every reference or sampling distribution used in this note is
+licensed by a stated assumption, never by the assignment mechanism:
+
+| Rule / computation | Reference distribution generated by | Stated assumption that licenses it |
+|---|---|---|
+| Grid-boundary-calibrated rule $S \ge c$ | Integer-DP enumeration of the common-trinomial suite distribution on a finite null-boundary grid | Common i.i.d. paired-trinomial sampling, independence across tasks, and a claim limited to the enumerated nuisance grid; not the intended stratified design |
+| Shifted sign-flip rule | Integer-DP enumeration of $\sum_i \varepsilon_i \lvert d_i - \delta_0\rvert$ over uniform $\varepsilon \in \{-1,+1\}^N$ | Symmetry of the centered differences $d_i - \delta_0$ under the null (a sharp/symmetry hypothesis) |
+| Normal-approximation $z$ rule | Asymptotic normal reference for the studentized mean | Independence across tasks plus large-$N$ asymptotics |
+| Conditional (McNemar-style) constructions | Binomial reference conditional on the discordant count | Common discordance parameter / exchangeability of discordant pairs |
+| Cross-task-dependence Monte Carlo | Seeded simulation of a stated session-mixture model | The synthetic mixture model itself (stated in full in `analysis/_method_tranche/dependence.py`) |
+
+## The weak null, the enumerator, and the replicate lattice (required content 5)
+
+$H_0\!: \Delta_{\text{suite}} \le \delta_0$ is a **composite average-effect
+(weak) null**: it constrains a mean, not each task's effect. Sharp-null
+randomization inference does not automatically transfer to it. A sign-flip
+test is finite-sample exact when the null makes the flipped sample
+distributionally equivalent to the observed one — a **sharp symmetry**
+statement. Under the weak null, task effects may be heterogeneous with mean
+at the boundary, and no distributional symmetry of $d_i - \delta_0$ follows;
+The cited studentized/prepivoted Fisher-randomization results (Wu and Ding
+2021; Zhao and Ding 2021) concern randomized treatment-assignment designs.
+This study runs both systems on every task and randomizes only arm order, so
+those theorems do not transfer automatically. A task-sampling or
+distributional theorem specific to this design is still required.
+
+The integer DP used throughout is a **legitimate deterministic enumerator**
+of whatever reference distribution is selected — and the preferred one,
+whenever the selected reference distribution is itself legitimate under the
+selected basis, because it removes Monte Carlo iterations, seeds, and tail
+simulation error. What it does not do is make any rule exact for the weak
+null. Computation claims and inference claims are stated separately in every
+sentence and caption of this note; the numerical demonstration is in the
+null-boundary family below.
+
+### The replicate lattice, and the retired $\delta_0 = 1/10$
+
+With binary outcomes and $m$ replicates per arm, per-task success
+proportions live on $\{0, 1/m, \dots, 1\}$ and per-task mean differences on
+the lattice $\{-1, \dots, -1/m, 0, 1/m, \dots, 1\}$. A **constant task-level
+shift of $1/10$ is off this lattice for $m \in \{1, 2, 3\}$**: the nearest
+attainable point is exactly $1/10$ away in every case. ($\delta_0 = 1/10$ is
+retired as an enforcing or powered-promotion target; this family studies
+lattice mechanics only, not any margin's justification.)
+
+```{python}
+#| output: asis
+lattice = scenarios["lattice"]
+lattice_rows = [
+    [
+        entry["m"],
+        ", ".join(v["exact"] for v in next(
+            (l["values"] for l in lattice["lattices"] if l["m"] == entry["m"]),
+            [],
+        )) or "-1, 0, +1",
+        "yes" if entry["attainable"] else "no",
+        entry["min_abs_gap"]["exact"],
+    ]
+    for entry in lattice["constant_shift_attainability"]
+]
+print(table(
+    ["Replicates m", "Per-task mean-difference lattice", "Shift 1/10 attainable?", "Min |gap| (exact)"],
+    lattice_rows,
+))
+```
+
+*Lattice membership computed exactly by the committed code. A statement
+about lattice geometry only — it neither justifies nor criticizes any
+margin choice, and no margin is recommended here.*
+
+How each candidate construction handles the off-lattice shift: the
+grid-boundary-calibrated rule and the $z$ rule address the **mean**, and a mean of
+$1/10$ is attainable as an average across tasks even though no single task
+can realize it. The sign-flip construction's implicit sharp model — a
+constant task-level shift of exactly $\delta_0$ — has **no on-lattice
+realization** at $\delta_0 = 1/10$ for $m \le 3$: the sharp hypothesis it is
+exact for cannot even be instantiated on the replicate lattice. This is the
+lattice half of the do-not-sign finding carried in the held R1 ruling; the
+symmetry half is demonstrated numerically below.
+
+**Scope of this family in the tranche.** Only lattice-*membership*
+mechanics are computed here. No operating characteristic in this tranche is
+computed on the $m \in \{2, 3\}$ replicate-proportion lattices: every
+enumerated size and power in this note uses one replicate per arm
+($d_i \in \{-1, 0, +1\}$). Lattice-valued operating characteristics are
+deferred to the complete package.
+
+## Assumption audit for conditional, sign, and McNemar constructions (required content 4)
+
+Every conditional, sign-test, or McNemar-style construction considered by
+the package carries this audit. Consequences are quantified in the named
+scenario families.
+
+| Assumption | Exact form | Scope | Plausibility | Consequence of failure |
+|---|---|---|---|---|
+| Common $\theta$ / exchangeability | Discordant pairs share a common $\theta = P(d_i = +1 \mid d_i \ne 0)$, or are exchangeable, so the conditional binomial reference applies | Suite-wide, unless a stratified variant is used | Doubtful suite-wide: four registered task classes plausibly differ in both $\pi_d$ and $\theta$ | The conditional binomial is the wrong reference; with $\delta_0 > 0$ the induced $\theta_0 = (\pi_d + \delta_0)/(2\pi_d)$ depends on the nuisance $\pi_d$, so a composite-null conditional test inherits the same least-favorable-configuration problem the unconditional rule is calibrated for |
+| Class/stratum homogeneity | Task-level parameters constant within (or across) the four registered classes; equal class weights | Suite-wide vs within-class | Within-class more plausible than suite-wide; not testable at 10 tasks per class with useful power | Suite-wide constructions average over class heterogeneity (heterogeneity family); stratified variants shrink per-stratum counts to $\approx 10$, where the null-boundary family shows severe discreteness |
+| Independence across tasks | $d_1, \dots, d_N$ independent | All unconditional and conditional constructions here | **Load-bearing and unproven.** The serving stack can remember prior work through at least batch composition and prefix-cache state; a session-by-arm interaction survives pairing | Size distortion quantified in the cross-task-dependence family: at $\rho = 0.10$ with all pairs in one session, the boundary-calibrated rule is clearly above nominal level; the $\rho = 0.05$ point estimate is above nominal but its Monte Carlo uncertainty includes 0.05 |
+| Effect homogeneity | Task effects constant (sharp constructions) or irrelevant beyond the mean (weak-null constructions) | Sharp constructions assume it; weak-null constructions must survive without it | Implausible: task classes are registered precisely because tasks differ | Sharp-null tests can misbehave under heterogeneity with the mean at the boundary (heterogeneity family); at $\delta_0 = 1/10$ the sign-flip rule already exceeds nominal level at the *homogeneous* boundary |
+| Missingness | Outcomes missing only per the registered attrition rule, ignorably with respect to arm | All constructions | Design-controllable but not automatic | Missingness breaks the equal-class-weight identity with the unweighted mean; arm-correlated attrition biases the paired-difference distribution in a way no reference distribution repairs — it must be reported, never silently dropped |
+
+**Concrete dependence mechanisms.** Three named mechanisms make the
+independence threat material rather than hypothetical: (i) **batch
+composition** — co-batched work can influence numerics unless the serving
+stack is batch-invariant; (ii) **prefix-cache state** — cache hits make a
+task's compute path depend on what preceded it; in vLLM v0.25.0 the
+`CacheConfig.enable_prefix_caching` field default is `True`, and effective
+behavior depends on model support, so possible history-dependent numerics
+are an **empirical threat to observe, not a fact inferred from the
+default**; (iii) **session-by-arm interaction** — the registered within-task
+AB/BA design cancels a session main effect and balances order/cache-warmth
+effects, but it does **not** cancel a session-by-arm interaction, which
+induces correlated per-task differences.
+
+**Required observations.** The evidence contract must record, per run:
+`batch_invariant`, `enable_prefix_caching`, `session_id`, and
+`task_pair_id`. The indivisible co-location unit is the **task pair**, not
+the campaign: both arms for one `task_pair_id` must remain within one
+`session_id` — **no task pair may cross a session boundary** — while
+different pairs may be randomized across sessions. These four fields are
+what later allow the dependence assumptions above to be checked rather than
+assumed.
+
+## The three candidate constructions (required content 6)
+
+All three constructions are evaluated as candidates for the coupled ruling;
+none is selected here. Each is assessed on its guarantee (with source), the
+basis under which the guarantee holds, applicability to binary outcomes with
+2–3 replicates on a 40-task suite, the claim narrowing it implies, and its
+compatibility with the DP enumerator.
+
+### Construction 1 — randomization test aimed at the weak null
+
+Studentized (prepivoted) sign-flip/permutation ideas aimed at a weak null.
+
+- **Guarantee:** **not established for this design.** Wu and Ding (2021) and
+  Zhao and Ding (2021) establish sharp-null exactness and weak-null
+  asymptotics for randomized treatment-assignment experiments. Here both
+  systems run on every task and only arm order is randomized. No theorem in
+  this tranche maps that mechanism to the proposed task-level reference
+  distribution.
+- **Basis:** potentially a defended task-superpopulation sampling model, but
+  an applicable theorem and its independence/heterogeneity conditions must
+  be supplied before this is more than a research direction.
+- **Applicability at $N = 40$, binary, 2–3 replicates:** strained. The
+  outcome lattice is coarse, studentization is unstable at small counts, and
+  no finite-sample size guarantee applies at the boundary; the asymptotic
+  regime the guarantee lives in is not obviously reached.
+- **Claim narrowing:** none — it targets the weak null as stated.
+- **DP compatibility:** computationally compatible. Under hypothetical sign
+  flips the residuals
+  $\lvert d_i - \delta_0 \rvert$ take at most three values, so any statistic
+  that depends on the flip vector only through per-group flip counts —
+  including studentized statistics — can be enumerated deterministically
+  over polynomially many count configurations rather than $2^N$ flips:
+  $O(N^3)$ in general for $\delta_0 > 0$ (at most
+  $(n_+ + 1)(n_0 + 1)(n_- + 1)$ per-group flip-count triples), and $O(N^2)$
+  at $\delta_0 = 0$, where the zero-residual group drops out.
+
+### Construction 2 — grid-boundary calibration under a common i.i.d. model
+
+The **grid-boundary-calibrated rule** evaluated throughout this note: reject when
+$S \ge c$, with $c$ calibrated so that the supremum of the exact rejection
+probability over a grid on the null boundary $\Delta = \delta_0$,
+$\pi_d \in \{\delta_0 \vee 0.01, \dots, 1\}$ (step $1/100$), is at most
+$\alpha$. The least-favorable configuration (LFC) is **found by grid
+supremum, never assumed** — and, as the null-boundary family shows, it is
+usually *not* at maximum discordance.
+
+- **Guarantee:** finite-sample calibrated (conservative) at level $\alpha$
+  only on the enumerated nuisance grid, **under the common i.i.d.
+  paired-trinomial sampling model** —
+  by construction, since every boundary distribution is enumerated exactly.
+  Source: derivation in this package (`lfc_calibrate` in
+  `analysis/_method_tranche/paired_trinomial.py` and this note). Interior null points on each grid
+  line are covered by a derivation, not only by spot checks: for fixed
+  $\pi_d$, $P(S \ge c)$ is nondecreasing in $\Delta$ — increasing $\Delta$
+  at fixed $\pi_d$ moves cell probability mass from the $-1$ cell to the
+  $+1$ cell with the $0$ cell unchanged, so a direct coupling (one shared
+  uniform draw per task) makes $S$ pointwise no smaller — hence the boundary
+  size bound extends to every $\Delta \le \delta_0$ on that grid line (the
+  argument is stated with `lfc_calibrate` and verified exactly in the
+  committed tests; the computed near-boundary offsets are consistent with
+  it). The honest caveat that remains: adequacy of the $1/100$ grid in
+  $\pi_d$ for the continuous boundary is a design judgment the enumeration
+  does not settle.
+- **Basis:** a common-distribution task-superpopulation model. The current
+  derivation does not cover the intended equal-class-weighted stratified
+  superpopulation or independent non-identically distributed tasks.
+- **Applicability:** computationally direct for this outcome type and these
+  suite sizes, but scientifically incomplete for the intended class-balanced
+  design and continuous nuisance boundary. Conservatism on the examined grid
+  is quantified below.
+- **Claim narrowing:** none in the null. The examined rule is conservative at
+  several grid points, but the non-level-matched comparisons below do not
+  identify the cause or a general power cost.
+- **DP compatibility:** total — calibration and every operating
+  characteristic are DP enumerations.
+
+### Construction 3 — sharp-null / symmetry estimand
+
+Deliberately narrow the scientific claim to one for which a sign-flip
+reference is distributionally justified: an explicitly assumed joint sign
+symmetry of the centered paired differences.
+
+- **Guarantee:** finite-sample exact for the assumed joint sign-symmetry
+  model. This is a distributional symmetry guarantee, **not** a Fisher
+  randomization guarantee generated by this study's arm-order assignment.
+- **Basis:** the symmetry assumption can be stated under either basis, but
+  note the assignment mechanism does not generate it (Section
+  [Assignment unit and mechanism]); it must be assumed about the differences
+  themselves.
+- **Applicability:** mechanically fine at $N = 40$; the reference
+  distribution enumerates exactly.
+- **Claim narrowing:** severe, and this is the construction's defining cost.
+  A rejection licenses only "task-level effects are not symmetrically null";
+  it says nothing about the suite mean exceeding any margin, and a shifted
+  variant at $\delta_0 = 1/10$ posits a sharp hypothesis with no on-lattice
+  realization for $m \le 3$ (lattice table above). The scientific claim
+  becomes strictly smaller than the held R1 estimand language.
+- **DP compatibility:** total (`signflip_pvalue` is an integer-DP
+  enumeration).
+
+::: {.callout-note}
+## Recommendation to the coupled R1/R2/R4 ruling (a recommendation, not a selection)
+
+No construction in this tranche is ready to enforce the intended
+class-balanced design. Construction 1 lacks an applicable theorem;
+construction 2 is finite-sample calibrated only for a common i.i.d. model on
+a finite nuisance grid; construction 3 is coherent only under an assumed
+symmetry model that narrows the claim. The complete package must either close
+those gaps or recommend descriptive census reporting with no inferential
+gate. This tranche exposes the trade; it selects nothing.
+:::
+
+## Scenario family: null-boundary behavior
+
+Type I behavior at and near the boundary of the composite null, where
+validity is most stressed. The grid-boundary-calibrated critical values and their
+boundary-grid suprema, for each $N$ and each $\delta_0 \in \{0, 1/10\}$:
+
+```{python}
+#| output: asis
+null_boundary = scenarios["null_boundary"]
+calibration_rows = []
+for rec in null_boundary:
+    cal = rec["calibration"]
+    calibration_rows.append([
+        rec["n"],
+        rec["delta0"]["exact"],
+        cal["critical_value"],
+        p5(cal["sup_size"]),
+        cal["lfc_pi_d"]["exact"],
+    ])
+print(table(
+    ["N", "delta0", "Critical value c", "Sup boundary size (grid)", "Least-favorable pi_d (found)"],
+    calibration_rows,
+))
+```
+
+*Calibration by deterministic enumeration over the boundary grid. The
+supremum is a computed property of the stated trinomial model on that grid;
+it is not an exactness claim for the weak null on the continuous boundary.*
+
+Findings:
+
+- **The least-favorable $\pi_d$ is a lattice-parity effect near, but not
+  always at, 1** (24/25, 97/100, 1, 49/50 across the six calibrations).
+  Whether boundary mass lands usably at the critical value depends on the
+  parity of attainable $S$ values, so the supremum moves between interior
+  grid points and the endpoint. The grid supremum was attained at an
+  interior grid point, not at maximum discordance, in five of the six
+  calibrations — assuming the maximum-discordance point is least favorable
+  would have misplaced the supremum on this grid.
+- **Discreteness makes the calibrated rule under-shoot $\alpha$**, severely
+  at $N = 20$ (sup size $\approx 0.024$, half the nominal level).
+
+Boundary size of the three candidate rules, across discordance levels.
+Sign-flip boundary sizes are committed on their own grid for every
+$N \in \{20, 40, 60\}$; the $N = 40$ table is rendered here, and the
+$N \in \{20, 60\}$ grids are summarized in the findings below.
+
+```{python}
+#| output: asis
+for rec in null_boundary:
+    if rec["n"] != 40:
+        continue
+    lfc_sizes = {
+        cell["pi_d"]["exact"]: p5(cell["size"])
+        for cell in rec["calibration"]["boundary_sizes_on_summary_grid"]
+    }
+    z_sizes = {}
+    for offset in rec["near_boundary_rejection"]:
+        if offset["offset"]["exact"] != "0/1":
+            continue
+        for cell in offset["cells"]:
+            if not cell.get("skipped"):
+                z_sizes[cell["pi_d"]["exact"]] = p5(cell["normal_approx_rejection"])
+    sf_sizes = {
+        cell["pi_d"]["exact"]: p5(cell["size"])
+        for cell in rec.get("signflip_size_at_boundary", [])
+    }
+    rows = [
+        [pi_d, lfc_sizes[pi_d], z_sizes.get(pi_d, "—"), sf_sizes.get(pi_d, "—")]
+        for pi_d in lfc_sizes
+    ]
+    print(f"**Boundary $\\Delta = \\delta_0 = {rec['delta0']['exact']}$, $N = 40$, $\\alpha = 1/20$:**")
+    print()
+    print(table(
+        ["pi_d", "Grid-boundary-calibrated rule", "Normal-approx z rule", "Shifted sign-flip rule"],
+        rows,
+    ))
+    print()
+```
+
+*All entries are exact enumerations (rationals in the committed artifact)
+under the stated i.i.d. trinomial boundary model. "Exceeds 0.05" is a
+computed property under that model, not a statement about any real system.*
+
+Findings, all at $N = 40$:
+
+- **The calibrated rule is very conservative at moderate discordance**: size
+  0.00120 at $\pi_d = 0.3$ ($\delta_0 = 0$) against a nominal 0.05. This
+  quantifies the rule's local conservatism but does not, by itself, identify
+  which part of the construction caused it.
+- **The normal-approximation $z$ rule over-rejects at the boundary**: 0.06046
+  at $\pi_d = 0.1$ and 0.05311 at $\pi_d = 0.3$ ($\delta_0 = 0$); at the
+  shifted boundary it reaches 0.07506 at $\pi_d = 1$. Its guarantee is
+  asymptotic, and $N = 40$ with low discordance is not the asymptotic
+  regime.
+- **Enumeration is not exactness, demonstrated:** the shifted sign-flip
+  rule — whose reference distribution is enumerated deterministically, with
+  zero simulation error — **exceeds the nominal level on the composite
+  boundary at $\delta_0 = 1/10$**: size 0.05232 at $\pi_d = 1/2$ and 0.05231
+  at $\pi_d = 7/10$. This occurs at the *homogeneous* boundary: no
+  heterogeneity is needed, because $d_i - \delta_0$ is simply not symmetric
+  under the trinomial boundary model. The exceedance is not an $N = 40$
+  artifact: the committed grids show maxima 0.05652 at $N = 20$
+  ($\pi_d = 7/10$) and 0.05073 at $N = 60$ ($\pi_d = 7/10$). At
+  $\delta_0 = 0$, where the boundary model *is* symmetric, the same
+  enumeration stays below nominal at every committed suite size (maxima
+  0.02962 / 0.04035 / 0.04623 at $N = 20/40/60$) — exactly the
+  sharp-versus-weak distinction in operation.
+- **Interior of the null:** at every computed offset below the boundary
+  ($\Delta = \delta_0 - 1/20$ and $\delta_0 - 1/10$), both the calibrated
+  rule and the $z$ rule reject less than at the boundary in every cell
+  (committed in the artifact's `near_boundary_rejection` records) — for the
+  calibrated rule this is also implied by the fixed-$\pi_d$ monotonicity
+  derivation stated with construction 2.
+
+## Scenario family: heterogeneous effects
+
+Task-level effects vary across tasks while the suite mean sits exactly at
+the null value — the regime where sharp-null tests are known to be able to
+over-reject weak nulls. Five committed 40-task profiles (blocks give
+$(\text{tasks} \times (p_+, p_-))$):
+
+```{python}
+#| output: asis
+het_rows = []
+for rec in scenarios["heterogeneity"]:
+    blocks = " + ".join(
+        f"{b['tasks']}×({b['p_plus']['exact']}, {b['p_minus']['exact']})"
+        for b in rec["blocks"]
+    )
+    het_rows.append([
+        rec["profile"],
+        rec["delta0"]["exact"],
+        blocks,
+        p5(rec["lfc_calibrated"]["rejection_probability"]),
+        p5(rec["signflip_shifted"]["rejection_probability"]),
+        p5(rec["normal_approx"]["rejection_probability"]),
+    ])
+print(table(
+    ["Profile", "delta0", "Blocks (tasks × (p+, p-))", "Grid-boundary-calibrated", "Shifted sign-flip", "Normal-approx z"],
+    het_rows,
+))
+```
+
+*Rejection probabilities at the suite-mean null value, computed by exact
+enumeration under each stated heterogeneous model ($N = 40$,
+$\alpha = 1/20$). Computed operating characteristics of candidate rules —
+no validity claim for any null is implied.*
+
+Findings, reported as computed:
+
+- **No examined profile makes the grid-boundary-calibrated rule anti-conservative**
+  (maximum rejection 0.00134 across all five profiles).
+- The $z$ rule mildly over-rejects at the *homogeneous* $\delta_0 = 1/10$
+  boundary (0.05488) — but in these profiles **heterogeneity makes all
+  three rules more conservative**, not less: the $z$ rule falls to 0.03331
+  (two-block) and 0.01199 (extreme); the sign-flip falls from 0.04649
+  (homogeneous) to 0.03192 and 0.01152; at $\delta_0 = 0$ the $z$ rule falls
+  from 0.05311 to 0.03097.
+- **Honest limitation:** these block profiles do not exhaust the space of
+  heterogeneous configurations, and the absence of anti-conservatism here is
+  a property of the examined profiles, not a validity result. The
+  demonstrated weak-null failure of the sign-flip rule in this model family
+  is at the homogeneous shifted boundary (previous family), where symmetry —
+  not homogeneity — is what breaks.
+
+## Scenario family: margin feasibility, and the falsifiable cross-check
+
+The feasibility frontier — power as a function of true effect $\Delta$,
+discordance $\pi_d$, and $N$ — is committed for **every construction
+evaluated in this tranche**: the grid-boundary-calibrated rule in the table below,
+and the shifted sign-flip and normal-approximation $z$ rules in the
+comparator tables that follow. The bounded-mean methods are the one
+construction family whose frontier is deferred — together with the rest of
+required content 7 — to the complete package. Both frontiers cover the
+superiority null at zero and the retired $1/10$ margin. ($\delta_0 = 1/10$
+appears because its feasibility must be studied; it remains retired as an
+enforcing or powered-promotion target, and nothing here re-installs it.)
+
+```{python}
+#| output: asis
+frontier = scenarios["margin_feasibility"]["frontier"]
+columns = []
+power_maps = []
+for rec in frontier:
+    columns.append(f"N={rec['n']}, δ0={rec['delta0']['exact']} (c={rec['critical_value']})")
+    cell_map = {}
+    for cell in rec["power_cells"]:
+        if cell.get("skipped"):
+            continue
+        cell_map[(cell["true_delta"]["exact"], cell["pi_d"]["exact"])] = p4(cell["power"])
+    power_maps.append(cell_map)
+keys = sorted(
+    {key for cell_map in power_maps for key in cell_map},
+    key=lambda pair: (Fraction(pair[0]), Fraction(pair[1])),
+)
+frontier_rows = [
+    [delta, pi_d, *[cell_map.get((delta, pi_d), "—") for cell_map in power_maps]]
+    for delta, pi_d in keys
+]
+print(table(["True Δ", "pi_d", *columns], frontier_rows))
+```
+
+*Exact enumerated power of the grid-boundary-calibrated rule under the stated i.i.d.
+trinomial model. "Exact" describes the arithmetic; whether any rule should
+gate anything is the held ruling's question, not this table's.*
+
+Findings:
+
+- **With the retired $1/10$ margin, power is poor at the examined grid
+  points.** At
+  $N = 40$ ($c = 15$): 0.1926 at $(\Delta, \pi_d) = (0.30, 0.30)$ and only
+  0.6826 even at $(0.40, 0.40)$. At $N = 60$ ($c = 19$): 0.4368 at
+  $(0.30, 0.30)$. At $N = 20$: 0.0171 at $(0.30, 0.30)$ — essentially no
+  power. This independently reproduces, from this package's own committed
+  code, the decision-input finding that a confirmatory $0.10$ margin is
+  infeasible at $N = 40$ under the examined paired-binary model.
+- The superiority-at-zero columns are analyzed in the next family.
+
+### Comparator frontiers: shifted sign-flip and normal-approximation rules
+
+The same frontier, committed for the other two constructions evaluated in
+this tranche, on the same alternatives and the same $(N, \delta_0)$ grid:
+
+```{python}
+#| output: asis
+comparators = [
+    ("signflip_shifted_power", "Shifted sign-flip rule"),
+    ("normal_approx_power", "Normal-approximation z rule"),
+]
+for key, title in comparators:
+    comparator_maps = []
+    for rec in frontier:
+        cell_map = {}
+        for cell in rec["power_cells"]:
+            if cell.get("skipped"):
+                continue
+            cell_map[(cell["true_delta"]["exact"], cell["pi_d"]["exact"])] = p4(cell[key])
+        comparator_maps.append(cell_map)
+    rows = [
+        [delta, pi_d, *[cell_map.get((delta, pi_d), "—") for cell_map in comparator_maps]]
+        for delta, pi_d in keys
+    ]
+    print(f"**{title}:**")
+    print()
+    print(table(["True Δ", "pi_d", *columns], rows))
+    print()
+```
+
+*Exact enumerated rejection probabilities under the same stated i.i.d.
+trinomial alternatives — computed operating characteristics of candidate
+rules. **Not a like-for-like ranking of level-$\alpha$ rules:** on the
+composite boundary at $\delta_0 = 1/10$ the shifted sign-flip rule exceeds
+the nominal level (committed grid maxima 0.05652 / 0.05232 / 0.05073 at
+$N = 20/40/60$ — null-boundary family), and the $z$ rule exceeds it too
+(up to 0.07506 at $N = 40$, $\pi_d = 1$; 0.05488 already at $\pi_d = 3/10$).
+Their power must be read next to those boundary sizes, not against the
+calibrated rule's.*
+
+Findings:
+
+- **A large, non-level-matched power gap.**
+  At $N = 40$, $\delta_0 = 1/10$, $(\Delta, \pi_d) = (0.30, 0.30)$: the
+  grid-boundary-calibrated rule has power 0.1926 versus 0.8890 for both comparators.
+  At this alternative's discordance the sign-flip boundary size is 0.04649,
+  the $z$ rule's is 0.05488, and the calibrated rule's is 0.00120. Because
+  the candidates are not level-matched over the same null, these numbers do
+  **not** identify the cause of the power gap. They are consistent with
+  conservatism from grid-wide protection but cannot attribute the gap to it.
+  (At alternatives with $\pi_d = \Delta$,
+  $p_- = 0$ and both comparator rules reduce to thresholds on the count of
+  positive differences, which is why their powers can coincide exactly.)
+- **The examined-model feasibility direction is unchanged.** Even rules
+  with no finite-sample guarantee for the composite null leave the retired
+  $0.10$ margin under-powered at $N = 20$ (0.5836 at $(0.30, 0.30)$ for
+  both comparators), and at $N = 40$ the high-power entries in this family
+  belong only to rules whose committed boundary size exceeds the nominal
+  level somewhere on the composite boundary. This is not a universal
+  feasibility result for stratified, bounded-mean, or multi-replicate methods.
+
+### The falsifiable cross-check (reported, never tuned)
+
+The commission names a comparison value: power **0.193** for a construction
+described there as an exact LFC-calibrated test of
+$H_0\!: \Delta \le 0.10$ at $N = 40$, one replicate,
+$\alpha = 0.05$ one-sided, true $\Delta = 0.30$, $\pi_d = 0.30$, with the
+comparison construction described as calibrated at the maximum-discordance
+boundary point. This tranche derived the operating point **independently**
+— the decision-input artifacts were not opened, and no code was adjusted
+toward the target:
+
+```{python}
+#| output: asis
+cross_check = scenarios["margin_feasibility"]["cross_check"]
+max_disc = cross_check["max_discordance_only_calibration"]
+print(table(
+    ["Quantity", "Value"],
+    [
+        ["Design", f"N={cross_check['n']}, δ0={cross_check['delta0']['exact']}, α={cross_check['alpha']['exact']}, true Δ={cross_check['true_delta']['exact']}, π_d={cross_check['pi_d']['exact']}"],
+        ["Critical value (grid-supremum calibration)", cross_check["critical_value"]],
+        ["Critical value (max-discordance-only recomputation, committed)", max_disc["critical_value"]],
+        ["Boundary size at π_d = 1 (max-discordance-only recomputation)", f"{max_disc['size_at_pi_d_1']['value']:.5f}"],
+        ["Independently derived power (float of the exact rational)", f"{cross_check['derived_power']['value']:.17f}"],
+        ["Comparison value (from the cited decision inputs)", cross_check["comparison_value"]],
+        ["Absolute discrepancy", f"{cross_check['abs_difference']:.6f}"],
+    ],
+))
+```
+
+*The committed artifact records the derived power as an exact rational; the
+enumeration is deterministic. Deterministic derivation of the number is a
+computation claim only.*
+
+Two differences from the comparison construction, reported as found:
+
+1. **Calibration route.** This package calibrates by grid supremum over the
+   whole null boundary and finds the supremum at $\pi_d = 97/100$ — *not*
+   assumed at maximum discordance. Recomputing the commission-described
+   maximum-discordance-only calibration **from this package's own committed
+   code** (`lfc_calibrate` restricted to $\pi_d = 1$; the artifact's
+   `max_discordance_only_calibration` record) also yields the critical value
+   $c = 15$, with boundary size 0.03859 at $\pi_d = 1$. The two routes agree
+   on $c = 15$ at this design point; nothing is asserted about the contents
+   of the unconsulted decision inputs.
+2. **The value.** The derived power is 0.19255 (exact rational in the
+   artifact), versus the cited 0.193: an absolute discrepancy of
+   $4.5 \times 10^{-4}$. This is consistent with 0.193 being a three-decimal
+   rounding of the same operating point (0.19255 rounds to 0.193), but it is
+   reported here as a disagreement of $4.5 \times 10^{-4}$, not smoothed
+   over and not tuned away.
+
+The decision-input artifacts are cited by name and SHA-256 only, per the
+public boundary; their contents are not reproduced here and were not
+consulted in deriving the numbers above:
+
+- `science-layer-consult-r1-r5.md` — SHA-256
+  `60409acec91e6aa02d4d39f8cfd4bc1f43b17031b1752da24f2f2e67f8aa896a`
+- `suite_power.py` — SHA-256
+  `bb534d7d908f64e01e45d2a039806fba22b54c994af9beb8713395f9ec53ff5a`
+
+## Scenario family: superiority at zero, and the MPIB rule (required content 8)
+
+Per the held R4 amendment requirement, this scenario evaluates a candidate
+separation between a **superiority null at zero**
+($H_0\!: \Delta \le 0$) and a separately stated **minimum practically
+important benefit (MPIB)** rule. Statistical evidence of superiority and the
+judgment of practical importance are different questions; folding an
+unjustified margin into the test's null conflates them. This is an illustrative
+candidate joint rule, not an accepted gate, and the package recommends neither
+its test nor any MPIB value.
+
+**The two illustrative components, stated separately:**
+
+1. **Candidate superiority component:** under the common i.i.d. model and
+   finite nuisance grid, reject $H_0\!: \Delta \le 0$ at $N = 40$ when
+   $S \ge 11$ (grid-supremum boundary size 0.04512, attained at
+   $\pi_d = 97/100$).
+2. **Candidate practical-benefit component:** additionally require the point
+   estimate $\bar d = S/40$ to be at least a candidate MPIB. The MPIB grid
+   below states consequences only; no value or component is recommended.
+
+Power of the candidate superiority component alone (from the $N=40$,
+$\delta_0 = 0$ column
+of the frontier table): 0.6913 at $(\Delta, \pi_d) = (0.30, 0.30)$, 0.2174
+at $(0.20, 0.30)$, 0.9648 at $(0.40, 0.40)$; at $N = 60$ ($c = 14$) the
+rule reaches 0.9000 at $(0.30, 0.30)$. Boundary sizes across $\pi_d$ appear
+in the null-boundary family.
+
+Joint behavior of test-plus-MPIB-rule at $N = 40$, $\pi_d = 0.3$, across the
+candidate MPIB grid:
+
+```{python}
+#| output: asis
+superiority = scenarios["superiority_mpib"]
+joint_rows = []
+for cell in superiority["joint_with_mpib_rule"]:
+    joint_rows.append([
+        cell["true_delta"]["exact"],
+        cell["mpib"]["exact"],
+        cell["point_estimate_threshold"],
+        cell["joint_threshold"],
+        p4(cell["p_joint_pass"]),
+        p4(cell["p_point_estimate_only"]),
+    ])
+print(table(
+    ["True Δ", "Candidate MPIB", "Point-estimate threshold (S ≥)", "Joint threshold (S ≥)", "P(joint pass)", "P(point-estimate component alone)"],
+    joint_rows,
+))
+```
+
+*Exact enumerated pass probabilities under the stated trinomial model
+($N = 40$, $\pi_d = 3/10$, superiority critical value 11). The grid states
+consequences only; the MPIB value is an operator input and none is
+recommended.*
+
+Findings:
+
+- **The candidate significance component is the binding threshold for every
+  examined MPIB up to 0.25** at
+  this design point: every MPIB in $\{0.05, \dots, 0.25\}$ gives a
+  point-estimate threshold $\lceil 40 \cdot \text{MPIB} \rceil \in
+  \{2, \dots, 10\}$, all below the superiority critical value 11 — so the
+  joint pass probability is constant across the whole grid and equals the
+  reject-at-zero power (0.0012 at $\Delta = 0$; 0.0281 at 0.1; 0.2174 at
+  0.2; 0.6913 at 0.3).
+- **The point-estimate component alone is not a substitute for a calibrated
+  test**: used without the candidate superiority component it false-passes at
+  $\Delta = 0$ with
+  probability 0.3318 / 0.1551 / 0.0555 / 0.0150 / 0.0030 for MPIB 0.05 /
+  0.10 / 0.15 / 0.20 / 0.25. The scenario separates the two questions so a
+  later ruling can evaluate them without conflation; it does not install
+  either component.
+
+## Replicate and nondeterminism semantics (required content 9), with the floor-propagation family
+
+The following **candidate replicate semantics** are decision input to held R2;
+they are not an accepted policy. Every scenario in this note is constructed
+consistently with them:
+
+- **Greedy/deterministic intent.** Repeats are an **apparatus-repeatability
+  diagnostic**, not extra inferential task $N$. Greedy serving is **not
+  assumed bitwise deterministic**: the candidate policy would require
+  **batch-invariance
+  evidence where available** (recorded in `batch_invariant`), or an
+  **E1-measured-and-bounded nondeterminism floor** $\varepsilon$. The
+  apparatus alarm threshold comes **from that measured floor, never from
+  zero**.
+- **Stochastic intent.** Under the candidate policy, seeds would be
+  **randomly drawn once and then frozen**;
+  the frozen seed schedule is part of the tested system, and task-level
+  outcomes aggregate over it.
+- **In both candidate modes, replicates never inflate inferential task $N$.** Batch
+  composition, arm order, process restarts, and pod instantiation are design
+  factors, not unnamed replicates. In every construction above, the
+  replicate count $m$ changes the per-task outcome lattice and the meaning
+  of per-task success — never the task count $N$ that enters the reference
+  distribution.
+- **Interaction with the candidate constructions.** All three constructions
+  consume per-task aggregated outcomes, so all three inherit these
+  semantics identically: under greedy intent their inputs are single
+  measured outcomes (with repeats policing the apparatus), and under
+  stochastic intent their inputs are aggregates over the frozen schedule.
+  A nonzero floor changes the *distribution* of those inputs — quantified
+  next — and the lattice family already showed how $m$ changes what
+  per-task values are attainable.
+
+### Floor propagation (synthetic floor values)
+
+A measured floor $\varepsilon$ (each arm's recorded binary outcome
+independently flipped with probability $\varepsilon$, the stated synthetic
+channel model) propagates three ways: it attenuates the mean difference —
+**linearly**, $\Delta' = (1 - 2\varepsilon)\Delta$ under this channel — it
+perturbs the effective outcome cells, and it sets the apparatus alarm
+threshold. Base synthetic cells:
+$(p_{11}, p_{10}, p_{01}, p_{00}) = (2/5, 3/10, 0, 3/10)$,
+i.e. $\Delta = 0.3$, $\pi_d = 0.3$.
+
+```{python}
+#| output: asis
+floor = scenarios["nondeterminism_floor"]
+floor_rows = []
+for cell in floor["cells"]:
+    thresholds = {t["n_repeat_pairs"]: t for t in cell["alarm_thresholds"]}
+    floor_rows.append([
+        cell["epsilon"]["exact"],
+        f"{cell['linear_attenuated_delta']['value']:.4f}",
+        f"{cell['implied']['delta']['value']:.4f}",
+        f"{cell['implied']['pi_d']['value']:.4f}",
+        p4(cell["superiority_power_at_c0"]),
+        f"{cell['repeat_disagreement_probability']['value']:.4f}",
+        " / ".join(
+            str(thresholds[n]["floor_derived_threshold"]) for n in (40, 80, 120)
+        ),
+        " / ".join(
+            str(thresholds[n]["from_zero_threshold"]) for n in (40, 80, 120)
+        ),
+    ])
+print(table(
+    [
+        "Floor ε",
+        "Linear attenuation (1−2ε)Δ of Δ=0.3",
+        "Cell-transform implied Δ′",
+        "Implied π_d′",
+        "Superiority power at c=11",
+        "Repeat-disagreement prob.",
+        "Floor-derived alarm k (40/80/120 pairs)",
+        "From-zero alarm k (40/80/120 pairs)",
+    ],
+    floor_rows,
+))
+```
+
+*Exact rational arithmetic under the stated synthetic floor model; the
+alarm threshold is the smallest disagreement count whose false-alarm
+probability under the floor is ≤ 1/20 (exact binomial tail). Computed model
+properties — whether the floor model fits a given apparatus is an
+empirical question for E1, and no threshold is recommended here.*
+
+Findings:
+
+- **Attenuation is linear in the mean; discordance inflates.** Under the
+  stated per-arm flip channel the mean difference attenuates **linearly**:
+  $\Delta' = (1 - 2\varepsilon)\Delta$ = 0.2940/0.2880/0.2700 at
+  $\varepsilon = 0.01/0.02/0.05$ — exactly the cell-transform implied
+  $\Delta'$ column (the two committed columns agree identically; the
+  identity is verified exactly in the committed tests). The quadratic
+  factor $(1 - 2\varepsilon)^2$ = 0.9604/0.9216/0.8100 (committed as
+  `covariance_attenuation_factor`) is the attenuation factor a
+  covariance-type quantity would suffer under the same channel; it is
+  **not** the attenuation of $\Delta$, and no stated model in this package
+  attenuates $\Delta$ quadratically. Meanwhile discordance *inflates* to
+  $\pi_d' = 0.3079/0.3157/0.3380$ — the floor manufactures spurious
+  discordance, changing the effective cells every construction consumes.
+- **Power erosion.** Superiority power at $c = 11$ falls from 0.6913
+  (no floor) to 0.6582/0.6259/0.5339.
+- **Alarm thresholds must come from the floor.** With per-pair repeat
+  disagreement probability $2\varepsilon(1-\varepsilon)$ =
+  0.0198/0.0392/0.0950, the floor-derived alarm thresholds at
+  $\alpha = 1/20$ for 40/80/120 repeat pairs are 3/5/6 ($\varepsilon=0.01$),
+  5/7/9 ($\varepsilon=0.02$), and 8/13/18 ($\varepsilon=0.05$). The
+  from-zero policy's threshold is **1 at every $n$** — any single
+  disagreement alarms — which under any nonzero floor mistakes routine
+  floor-level disagreement for an apparatus fault. This is the contrast the
+  held R2 amendments rule out: thresholds are derived from the measured
+  floor, never from zero.
+
+### What E1 must deliver (specification only; no measurement is authorized here)
+
+E1 — the apparatus repeatability *and independence* study — is specified as
+an input this package must accommodate; running it is separately gated
+later work. To support the semantics above and the dependence family below,
+E1 must:
+
+- **vary session position and batch context**, not merely re-run
+  back-to-back repeats — back-to-back repeatability alone cannot bound
+  history-dependence;
+- **keep every task pair intact within one session** (no task pair crosses
+  a session boundary) while allocating pairs across **enough independent
+  sessions** to justify the claimed empirical **upper bound on
+  within-session correlation $\rho$**;
+- record the four audit fields (`batch_invariant`, `enable_prefix_caching`,
+  `session_id`, `task_pair_id`) so the bound is checkable; and
+- come with a stated **admission consequence**: if E1's upper bound on
+  $\rho$ is too large for a candidate construction's operating-
+  characteristic target — the next family shows, for example, a clearly
+  elevated point estimate for the boundary-calibrated rule at $\rho = 0.10$
+  in a one-session layout — then that construction may not rely
+  on cross-task independence under that layout, and admission must require
+  a layout (more, smaller sessions) under which the measured bound is
+  compatible with the target, or the claim must not be made.
+
+## Scenario family: cross-task dependence and session layout
+
+Cross-task independence is load-bearing for every construction above and is
+unproven. This family quantifies the cost of losing it, under a stated
+synthetic mixture model: with probability $\lambda$ a pair's difference
+copies a session-level sign (a session-by-arm interaction that pairing does
+not cancel), otherwise it is an independent trinomial draw at the
+$\Delta = 0$ boundary with $\pi_d = 0.3$; $\lambda$ is solved in closed form
+so the within-session correlation equals a target $\rho$. The model
+preserves $\Delta = 0$ exactly and (documented property) inflates marginal
+discordance above $\pi_d$. The design-effect identity
+$\text{DEFF} = 1 + (m - 1)\rho$ for $m$ pairs per session:
+
+```{python}
+#| output: asis
+dependence = scenarios["cross_task_dependence"]
+rhos = sorted({entry["rho"] for entry in dependence["design_effect_table"]})
+ms = sorted({entry["pairs_per_session"] for entry in dependence["design_effect_table"]})
+deff_map = {
+    (entry["pairs_per_session"], entry["rho"]): entry["deff"]
+    for entry in dependence["design_effect_table"]
+}
+deff_rows = [
+    [f"{rho:.2f}", *[f"{deff_map[(m, rho)]:.2f}" for m in ms]] for rho in rhos
+]
+print(table(["rho", *[f"m = {m} pairs/session" for m in ms]], deff_rows))
+```
+
+*Closed-form variance-inflation identity of the stated exchangeable
+dependence model — a model property, not a test-validity claim.*
+
+Rejection rate at the $\Delta = 0$ boundary (nominal $\alpha = 0.05$) of two
+candidate rules under this model, by $\rho$ and session layout — 5000
+seeded simulations per cell, Monte Carlo standard error in parentheses.
+"Grid-boundary-calibrated ($c = 11$)" names the critical value computed by
+deterministic enumeration **under cross-task independence**; simulating it
+under dependence measures how far that independence-derived size travels,
+and claims no validity for the rule under dependence.
+
+```{python}
+#| output: asis
+layouts = [(1, 40), (2, 20), (4, 10)]
+rule_titles = {
+    "exact_critical": "Grid-boundary-calibrated rule, c = 11 (critical value derived under independence)",
+    "normal_approx": "Normal-approximation z rule",
+}
+for rule_name in dependence["rules"]:
+    cell_map = {}
+    for cell in dependence["cells"]:
+        if cell["rule"] != rule_name:
+            continue
+        note = " *" if cell.get("independent_verification_cell") else ""
+        cell_map[(cell["rho"], cell["sessions"], cell["pairs_per_session"])] = (
+            f"{cell['rejection_rate']:.4f} (±{cell['mc_standard_error']:.4f}){note}"
+        )
+    rows = [
+        [f"{rho:.2f}", *[cell_map[(rho, s, p)] for s, p in layouts]]
+        for rho in rhos
+    ]
+    print(f"**{rule_titles[rule_name]}:**")
+    print()
+    print(table(
+        ["rho", "1 session × 40 pairs", "2 sessions × 20 pairs", "4 sessions × 10 pairs"],
+        rows,
+    ))
+    print()
+print("\\* independent verification cell (see below).")
+```
+
+*Seeded Monte Carlo under the stated synthetic mixture model; rejection
+rates are computed operating characteristics of candidate rules under that
+model and say nothing about any real serving stack.*
+
+Findings:
+
+- **Repeatability is not independence.** A perfectly repeatable apparatus
+  can still correlate task outcomes within a session; this family is why E1
+  must be an independence study and not only a repeatability study.
+- **The one-session layout is the dangerous one.** For the $z$ rule at
+  nominal 0.05, one session of 40 pairs gives rejection rates
+  0.082/0.115/0.203/0.341 at $\rho = 0.01/0.02/0.05/0.10$; splitting into
+  four sessions of 10 pairs reduces this to 0.057/0.071/0.085/0.126.
+- **Dependence can break even the boundary-calibrated rule.** The
+  grid-boundary-calibrated rule's computed size under independence at this
+  $\pi_d = 0.3$ boundary point is 0.0012; under the mixture model in one
+  session its point estimate is 0.055 (MC SE 0.0032) at $\rho = 0.05$ and
+  0.156 (MC SE 0.0051) at $\rho = 0.10$. The $\rho = 0.05$ Monte Carlo
+  uncertainty includes 0.05, so that cell alone does not establish
+  over-rejection; the $\rho = 0.10$ cell is clearly above nominal. The rule's
+  calibration is conditional on independence, and this synthetic family shows
+  the consequence of violating it.
+- **Independent verification cell.** The commission carried a synthetic
+  advisory diagnostic for comparison under a different dependence model.
+  This package's independently derived starred cell gives
+  **0.203 ± 0.0057 (MC SE)** at $\rho = 0.05$ — higher than that external
+  advisory approximation.
+  Differences in the two synthetic dependence models (this one, for
+  instance, inflates marginal discordance as documented) can plausibly
+  account for the gap; per the falsifiable-cross-check discipline the
+  disagreement is **reported, not tuned to match**.
+
+## What this tranche defers
+
+- **Full formal estimand treatment** (required content 2): the candidate
+  estimand and null statements above are provisional and compact; the complete
+  package must settle their inferential basis, class weighting, missingness
+  algebra, and licensed claim.
+- **Finite-sample bounded-mean methods** (required content 7): the
+  betting/confidence-sequence constructions of Waudby-Smith and Ramdas will
+  be evaluated on the same dimensions as the three constructions above,
+  including their cells of the feasibility frontier. Nothing in this tranche
+  presumes their result in either direction; if they change the feasibility
+  picture, the complete package will show exactly where and by how much,
+  from committed code.
+- **Lattice-valued operating characteristics**: sizes and powers computed on
+  the $m \in \{2, 3\}$ replicate-proportion lattices. This tranche
+  demonstrates the lattice mechanics only; every operating characteristic
+  here uses one replicate per arm.
+- **Figures and full report treatment** for all scenario families.
+
+## Limitations, stated plainly
+
+- Everything here is computed under **stated synthetic models** — the
+  i.i.d./heterogeneous paired-trinomial families, the flip-channel floor
+  model, and the session-mixture dependence model. No number describes any
+  real system, campaign, or live run, and none of the models has been
+  validated against a real apparatus (that is E1's job, later and
+  separately gated).
+- LFC calibration searches a $1/100$ grid on the null boundary; grid
+  adequacy in $\pi_d$ for the continuous boundary is a design judgment.
+  (Interior null behavior on each grid line follows from the exact
+  fixed-$\pi_d$ monotonicity coupling stated with construction 2 and
+  verified in the committed tests.)
+- The dependence family's rates carry Monte Carlo error (reported per
+  cell); the enumerated families carry none.
+- Small-$N$ discreteness dominates several results (e.g., sup size 0.024 at
+  $N = 20$); conclusions do not transfer across $N$ without recomputation.
+- The heterogeneity profiles are five committed configurations, not a
+  search over the space of heterogeneous nulls.
+- The i.i.d. calculations do not establish validity for equal class weights,
+  class-stratified sampling, or independent non-identically distributed tasks.
+- The randomized-experiment theorems cited for construction 1 do not map to
+  this arm-order-only design without an additional theorem; construction 3
+  relies on assumed joint sign symmetry rather than assignment-generated
+  Fisher exactness.
+- The reported candidate powers are not a level-matched comparison and do
+  not identify why their power differs.
+- R1, R2, and R4 remain held. This tranche informs the coupled ruling and
+  selects nothing; its recommendations are labeled as such and bind no one.
+
+## References
+
+- Wu, J. and Ding, P. (2021). *Randomization Tests for Weak Null Hypotheses
+  in Randomized Experiments.* [arXiv:1809.07419](https://arxiv.org/abs/1809.07419).
+- Zhao, A. and Ding, P. (2021). *Covariate-adjusted Fisher randomization
+  tests for the average treatment effect.*
+  [arXiv:2010.14555](https://arxiv.org/abs/2010.14555).
+- Waudby-Smith, I. and Ramdas, A. *Estimating means of bounded random
+  variables by betting.* JRSS-B.
+  [doi:10.1093/jrsssb/qkad009](https://doi.org/10.1093/jrsssb/qkad009)
+  (evaluation deferred to the complete package).
+- vLLM v0.25.0 `CacheConfig` reference —
+  [`enable_prefix_caching` field default `True`](https://docs.vllm.ai/en/v0.25.0/api/vllm/config/cache/);
+  effective behavior depends on model support and must be observed, not
+  inferred from the default.
+- Decision-input artifacts, cited by name and SHA-256 only (contents
+  neither quoted nor consulted for the derivations here):
+  `science-layer-consult-r1-r5.md`
+  (`60409acec91e6aa02d4d39f8cfd4bc1f43b17031b1752da24f2f2e67f8aa896a`);
+  `suite_power.py`
+  (`bb534d7d908f64e01e45d2a039806fba22b54c994af9beb8713395f9ec53ff5a`).
