@@ -1,5 +1,5 @@
 ---
-title: "Fail-closed evaluation reporting (Contract B v2)"
+title: "Reporting that refuses when the evidence cannot support a conclusion"
 subtitle: "A synthetic-only draft demonstration; no scientific method or promotion rule is selected"
 format:
   html:
@@ -43,7 +43,7 @@ not measure a real model.
 - **Status:** Prototype
 - **Evidence:** Synthetic
 - **Decision:** `NOT_EVALUABLE` — no scientific conclusion permitted
-- **Demonstrates:** Independent, fail-closed evaluation reporting
+- **Demonstrates:** Independent evaluation reporting that refuses to report a result rather than guess when the evidence is insufficient
 - **Does not demonstrate:** Performance of any real model
 - **Relevant to:** Model testing, challenger evaluation, and model-risk review
 
@@ -54,7 +54,7 @@ study design is incomplete, instead of manufacturing a pass-or-fail result.
 
 ## What I built
 
-A draft evidence and reporting contract (Contract B v2, `2.0.0-draft.1`) that binds a complete
+A draft evidence contract (v2, `2.0.0-draft.1`) that binds a complete
 synthetic evaluation record — registration, schedule, attempts, observations, analysis, decision,
 and report — together with a separate verifier that recomputes the published result from the
 frozen evidence bytes and refuses on any mutation, mismatch, or missing prerequisite.
@@ -108,7 +108,7 @@ root = next(
     None,
 )
 if root is None:
-    raise RuntimeError("repository root for Contract B v2 report not found")
+    raise RuntimeError("repository root for evidence contract v2 report not found")
 sys.path.insert(0, str(root))
 
 from analysis.contract_v2 import verify_exact_bytes
