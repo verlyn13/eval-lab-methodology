@@ -4,6 +4,9 @@ format:
   html:
     toc: true
     standalone: true
+    # The deploy workflow copies this report's .html alone into _site/reports/*,
+    # so a sidecar _files/ directory would not travel with it. Inline instead.
+    embed-resources: true
     theme: cosmo
 jupyter: python3
 execute:
