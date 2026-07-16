@@ -34,9 +34,9 @@ no defensible powered real-model result and no promotion recommendation.
 <!-- /project-card -->
 
 - **Status:** Prototype — public methodology and verification code; repository-versioned, with no distributed release
-- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no admissible real-model comparison
+- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no scientifically sound real-model comparison
 - **Decision:** No promotion recommendation — the draft evidence contract recomputes `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn from its evidence
-- **Demonstrates:** Independent, fail-closed evaluation reporting on synthetic evidence
+- **Demonstrates:** Independent evaluation reporting that refuses to report a result rather than guess when the evidence is insufficient, on synthetic evidence
 - **Does not demonstrate:** Performance of any real model
 - **Relevant to:** Model testing, challenger evaluation, and model-risk review
 
@@ -50,11 +50,11 @@ model leaderboard, or deployment service.
 - Evidence Contract `1.1.0` and a parameterized Quarto report for historical and synthetic examples.
 - A frozen identity-domain v1 field set, canonicalization rule, and cross-implementation vector.
 - An executable experimental methods note with committed, byte-checked synthetic results.
-- Contract B `2.0.0-draft.1` — a draft evidence and reporting contract that validates a synthetic
-  registration-to-report join, independently recomputes the result, and refuses mismatched or
-  incomplete evidence.
+- Evidence contract `2.0.0-draft.1` — a draft evidence and reporting contract that validates a
+  synthetic registration-to-report join, independently recomputes the result, and refuses
+  mismatched or incomplete evidence.
 - Recursive evidence-input scanning in the parameterized report path and a separately bound
-  Contract B publication-safety scanner.
+  publication-safety scanner for the evidence contract.
 
 The public core's historical superiority helper returns true only when the bootstrap confidence
 interval lower bound is strictly greater than the supplied margin. That implementation is preserved
@@ -94,7 +94,7 @@ order to trust or challenge an evaluation.
 
 - [Methodology site](https://jvjohnson.dev/eval-lab-methodology/)
 - [Experimental inference note](reports/experimental-inference-note.qmd)
-- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd)
+- [Refusal example](reports/contract-v2-not-evaluable.qmd)
 - [Identity-domain specification](identity-domain.qmd)
 - [Delivery manifest](evidence/contract-v2/delivery-manifest.v1.json)
 - [Roadmap](PLAN.md)
@@ -130,9 +130,9 @@ wheel containment, report validation, and site rendering before publication.
 |---|---|---|
 | Statistical core `0.2.0` | Repository-versioned; wheel builds locally; not tagged or published to a package registry | Preserves historical estimators and a superiority component; not authorized for a new powered claim |
 | Experimental inference note | Published synthetic decision input | No successor method is selected |
-| Evidence Contract B `2.0.0-draft.1` | Immutable repository-only draft with a frozen delivery manifest | Synthetic conformance only; recomputes `NOT_EVALUABLE`; no operational authority |
+| Evidence contract `2.0.0-draft.1` | Immutable repository-only draft with a frozen delivery manifest | Synthetic conformance only; recomputes `NOT_EVALUABLE`; no operational authority |
 | Identity domain v1 | Frozen structural specification and conformance vector | Matching hashes are necessary, not sufficient, for numerical comparability |
-| Real campaign evidence | One historical four-task smoke summary with a transport confound; raw attempt records are not published | Not independently recomputable, not a benchmark, and not a scientifically admissible powered comparison |
+| Real campaign evidence | One historical four-task smoke summary with a transport confound; raw attempt records are not published | Not independently recomputable, not a benchmark, and not a scientifically sound, adequately powered comparison |
 
 There is currently no defensible powered real-model result and no promotion recommendation. See
 [STATUS.md](STATUS.md) for the readiness boundary and remaining work.
@@ -144,8 +144,9 @@ There is currently no defensible powered real-model result and no promotion reco
 - Synthetic, representative, smoke, and measured evidence remain distinct.
 - A copied fact retains its originating observer and receipt; copying never upgrades provenance.
 - Missing or contradictory inputs produce refusal, not a best-effort decision.
-- The parameterized evidence-report path recursively re-scans evidence inputs; Contract B checks
-  its bound public payload separately. Neither control is a whole-repository scanner.
+- The parameterized evidence-report path recursively re-scans evidence inputs; the evidence
+  contract checks its bound public payload separately. Neither control is a whole-repository
+  scanner.
 
 ### Identity-domain scope
 
@@ -160,9 +161,9 @@ the conformance vector remain unchanged.
 Frozen v1 constants and the conformance vector are never changed in place. A wider field set requires
 a new schema version.
 
-### Contract B delivery mechanics
+### Evidence-contract delivery mechanics
 
-The Contract B verifier and report renderer are under `analysis/contract_v2/`. They are deliberately
+The evidence-contract verifier and report renderer are under `analysis/contract_v2/`. They are deliberately
 outside the installable `0.2.0` wheel. The delivery manifest pins their source commit and tree,
 relative layout, dependencies, file digests, aggregate digests, conformance fixture, and golden
 report. Downstream consumers must verify those exact bytes and preserve the layout.

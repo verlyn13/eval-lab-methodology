@@ -36,9 +36,9 @@ real-model result and no promotion recommendation.
 <!-- /project-card -->
 
 - **Status:** Prototype — public methodology and verification code; repository-versioned, with no distributed release
-- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no admissible real-model comparison
+- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no scientifically sound real-model comparison
 - **Decision:** No promotion recommendation — the draft evidence contract recomputes `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn from its evidence
-- **Demonstrates:** Independent, fail-closed evaluation reporting on synthetic evidence
+- **Demonstrates:** Independent evaluation reporting that refuses to report a result rather than guess when the evidence is insufficient, on synthetic evidence
 - **Does not demonstrate:** Performance of any real model
 - **Relevant to:** Model testing, challenger evaluation, and model-risk review
 
@@ -60,9 +60,9 @@ for refusing to decide when the evidence cannot support a decision.
   not sufficient, for numerical comparability.
 - [Experimental inference note](reports/experimental-inference-note.qmd) — an executable synthetic
   review of candidate statistical methods. It is decision input only; it selects no method.
-- [Contract B v2 refusal example](reports/contract-v2-not-evaluable.qmd) — a draft evidence and
-  reporting contract demonstrated on synthetic records: a separate verifier recomputes the
-  published result or refuses, and cannot recommend promotion.
+- [Refusal example](reports/contract-v2-not-evaluable.qmd) — the draft evidence contract (v2)
+  demonstrated on synthetic records: a separate verifier recomputes the published result or
+  refuses, and cannot recommend promotion.
 
 ## What this demonstrates
 
@@ -109,8 +109,8 @@ Evidence rules that bind every published number:
 |---|---|
 | Core `0.2.0` | Repository-versioned and wheel-buildable; not tagged or published to a package registry |
 | Successor method | Under review; no enforcing test, replicate policy, or practical-benefit rule selected |
-| Contract B `2.0.0-draft.1` | Repository-only synthetic draft; independently recomputes `NOT_EVALUABLE`; no operational authority |
-| Real evidence | No powered, scientifically admissible model comparison published |
+| Evidence contract `2.0.0-draft.1` | Repository-only synthetic draft; independently recomputes `NOT_EVALUABLE`; no operational authority |
+| Real evidence | No scientifically sound, adequately powered real-model comparison published |
 
 ### Current scientific result
 
@@ -124,12 +124,12 @@ for a narrower synthetic model. No successor method is selected.
 
 ### Publication-scan scope
 
-Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its
-bound public payload separately. No whole-repository scan is claimed.
+Evidence inputs are recursively scanned in the parameterized report path; the evidence contract
+checks its bound public payload separately. No whole-repository scan is claimed.
 
 ### Remaining work
 
-Before a powered claim is admissible, the project must complete the scientific design, owner-issued
+Before a powered claim can support a decision, the project must complete the scientific design, owner-issued
 runtime receipts, operational registration verification, grader validation, governed task selection,
 A/A independence and noise-floor calibration, and operating-characteristic analysis.
 

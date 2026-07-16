@@ -65,7 +65,9 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         )
         self.assertIn("raw per-attempt outcomes required to recompute", status)
         self.assertIn("no defensible powered real-model result", readme)
-        self.assertIn("No powered, scientifically admissible model comparison", index)
+        # Both conditions must survive rewording: adequate power AND scientific
+        # soundness. A well-powered but confounded comparison is still not evidence.
+        self.assertIn("No scientifically sound, adequately powered real-model comparison", index)
         self.assertIn("necessary, not sufficient", identity)
         self.assertIn("does not prove numerical equivalence", errata)
 
