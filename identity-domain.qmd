@@ -177,6 +177,24 @@ changed recorded launch field produces a new identity domain and therefore a
 **re-baseline**. A matching domain does not waive the separate residual-state,
 assignment, and calibration requirements stated above.
 
+## Local-lane convention (separate from normative v1)
+
+Small, same-host campaigns may use the distinct downstream convention
+`agentic-coding-evaluation-lab.identity-domain.local-v1`. Its lane fingerprint
+contains the local serving engine and version, host hardware, and launch
+configuration. It deliberately excludes per-model identity so a candidate and
+incumbent measured in the same lane receive the same domain hash by
+construction; model identity remains explicit elsewhere in the evidence
+manifest.
+
+This is a documented adapter convention, **not** an extension or reinterpretation
+of the normative v1 field set above. It is not accepted by
+`validate_identity_domain`, does not alter the canonical v1 constants or frozen
+conformance vector, and uses its own `schema_version` precisely so the two
+contracts cannot be confused. Implementations using the local convention retain
+the canonical JSON and `sha256:` hashing rule, and must fail closed when the
+engine version, hardware, or launch configuration is unavailable.
+
 ## Downstream conformance
 
 This page is the normative definition; the private components conform to it
