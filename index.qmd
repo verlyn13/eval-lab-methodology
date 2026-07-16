@@ -36,7 +36,7 @@ real-model result and no promotion recommendation.
 <!-- /project-card -->
 
 - **Status:** Prototype — public methodology and verification code; repository-versioned, with no distributed release
-- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no real-model comparison strong enough to support a conclusion
+- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no scientifically sound real-model comparison
 - **Decision:** No promotion recommendation — the draft evidence contract recomputes `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn from its evidence
 - **Demonstrates:** Independent evaluation reporting that refuses to report a result rather than guess when the evidence is insufficient, on synthetic evidence
 - **Does not demonstrate:** Performance of any real model
@@ -110,7 +110,7 @@ Evidence rules that bind every published number:
 | Core `0.2.0` | Repository-versioned and wheel-buildable; not tagged or published to a package registry |
 | Successor method | Under review; no enforcing test, replicate policy, or practical-benefit rule selected |
 | Evidence contract `2.0.0-draft.1` | Repository-only synthetic draft; independently recomputes `NOT_EVALUABLE`; no operational authority |
-| Real evidence | No real-model comparison published with enough statistical power to support a conclusion |
+| Real evidence | No scientifically sound, adequately powered real-model comparison published |
 
 ### Current scientific result
 

@@ -34,7 +34,7 @@ no defensible powered real-model result and no promotion recommendation.
 <!-- /project-card -->
 
 - **Status:** Prototype — public methodology and verification code; repository-versioned, with no distributed release
-- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no real-model comparison strong enough to support a conclusion
+- **Evidence:** Synthetic and representative examples, plus one confounded historical smoke summary — no scientifically sound real-model comparison
 - **Decision:** No promotion recommendation — the draft evidence contract recomputes `NOT_EVALUABLE`, meaning no scientific conclusion can be drawn from its evidence
 - **Demonstrates:** Independent evaluation reporting that refuses to report a result rather than guess when the evidence is insufficient, on synthetic evidence
 - **Does not demonstrate:** Performance of any real model
@@ -132,7 +132,7 @@ wheel containment, report validation, and site rendering before publication.
 | Experimental inference note | Published synthetic decision input | No successor method is selected |
 | Evidence contract `2.0.0-draft.1` | Immutable repository-only draft with a frozen delivery manifest | Synthetic conformance only; recomputes `NOT_EVALUABLE`; no operational authority |
 | Identity domain v1 | Frozen structural specification and conformance vector | Matching hashes are necessary, not sufficient, for numerical comparability |
-| Real campaign evidence | One historical four-task smoke summary with a transport confound; raw attempt records are not published | Not independently recomputable, not a benchmark, and not a comparison with enough statistical power to support a conclusion |
+| Real campaign evidence | One historical four-task smoke summary with a transport confound; raw attempt records are not published | Not independently recomputable, not a benchmark, and not a scientifically sound, adequately powered comparison |
 
 There is currently no defensible powered real-model result and no promotion recommendation. See
 [STATUS.md](STATUS.md) for the readiness boundary and remaining work.
