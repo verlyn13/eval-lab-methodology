@@ -131,7 +131,9 @@ def session_mixture_weight(rho: float, pi_d: float) -> float:
         raise ValueError("pi_d must satisfy 0 < pi_d <= 1")
     if rho == 0.0:
         return 0.0
-    lam = (rho * (1.0 - pi_d) + math.sqrt(rho * rho * (1.0 - pi_d) ** 2 + 4.0 * rho * pi_d)) / 2.0
+    lam = (
+        rho * (1.0 - pi_d) + math.sqrt(rho * rho * (1.0 - pi_d) ** 2 + 4.0 * rho * pi_d)
+    ) / 2.0
     if lam > 1.0:
         raise ValueError("no feasible mixture weight lam <= 1 for these inputs")
     return lam

@@ -55,7 +55,9 @@ __all__ = [
 def _exact(value: Fraction | int, name: str) -> Fraction:
     """Coerce ``value`` to ``Fraction``, rejecting floats to preserve exactness."""
     if isinstance(value, float):
-        raise TypeError(f"{name} must be an exact rational (Fraction or int), not float")
+        raise TypeError(
+            f"{name} must be an exact rational (Fraction or int), not float"
+        )
     return Fraction(value)
 
 
@@ -75,7 +77,9 @@ def _cell_weights(p_plus: Fraction, p_minus: Fraction) -> tuple[int, int, int, i
     return w_plus, w_minus, q - w_plus - w_minus, q
 
 
-def sum_distribution(n: int, p_plus: Fraction, p_minus: Fraction) -> dict[int, Fraction]:
+def sum_distribution(
+    n: int, p_plus: Fraction, p_minus: Fraction
+) -> dict[int, Fraction]:
     """Deterministically enumerate the exact distribution of ``S = sum_i d_i``.
 
     Integer-DP convolution of ``n`` i.i.d. trinomial tasks: per-step
@@ -208,7 +212,9 @@ def critical_value(dist: Mapping[int, Fraction], alpha: Fraction) -> int:
     raise AssertionError("unreachable: the tail at max(support) + 1 is exactly zero")
 
 
-def boundary_configuration(delta0: Fraction, pi_d: Fraction) -> tuple[Fraction, Fraction]:
+def boundary_configuration(
+    delta0: Fraction, pi_d: Fraction
+) -> tuple[Fraction, Fraction]:
     """Composite-null boundary point with mean difference ``delta0`` and discordance ``pi_d``.
 
     Returns ``(p_plus, p_minus) = ((pi_d + delta0) / 2, (pi_d - delta0) / 2)``,
@@ -296,9 +302,7 @@ def lfc_calibrate(
     if pi_d_grid is None:
         start = max(1, math.ceil(100 * delta0))
         hundredths = tuple(
-            point
-            for k in range(start, 101)
-            if (point := Fraction(k, 100)) > delta0
+            point for k in range(start, 101) if (point := Fraction(k, 100)) > delta0
         )
         grid: tuple[Fraction, ...] = (
             hundredths if delta0 == 0 else (delta0, *hundredths)
@@ -318,9 +322,7 @@ def lfc_calibrate(
             suffix[i] = suffix[i + 1] + dist[support[i]]
         tails.append((support, suffix))
     for c in range(-n, n + 2):
-        sizes = tuple(
-            suffix[bisect_left(support, c)] for support, suffix in tails
-        )
+        sizes = tuple(suffix[bisect_left(support, c)] for support, suffix in tails)
         sup_size = max(sizes)
         if sup_size <= alpha:
             return LfcCalibration(
@@ -380,7 +382,9 @@ def _signflip_pvalue_scaled(
     return Fraction(favourable, 2**n)
 
 
-def signflip_pvalue(n_plus: int, n_zero: int, n_minus: int, delta0: Fraction) -> Fraction:
+def signflip_pvalue(
+    n_plus: int, n_zero: int, n_minus: int, delta0: Fraction
+) -> Fraction:
     """Exact one-sided (upper) p-value of the shifted sign-flip statistic.
 
     With ``n = n_plus + n_zero + n_minus`` observed differences, the observed

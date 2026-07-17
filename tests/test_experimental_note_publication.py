@@ -48,7 +48,9 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         plan = (ROOT / "PLAN.md").read_text(encoding="utf-8")
         index = (ROOT / "index.qmd").read_text(encoding="utf-8")
         self.assertIn("historical superiority helper", readme)
-        self.assertIn("lower bound is strictly greater than the supplied margin", readme)
+        self.assertIn(
+            "lower bound is strictly greater than the supplied margin", readme
+        )
         self.assertIn("historical implementation truth", plan)
         self.assertIn("not tagged or published to a package registry", index)
 
@@ -67,7 +69,9 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         self.assertIn("no defensible powered real-model result", readme)
         # Both conditions must survive rewording: adequate power AND scientific
         # soundness. A well-powered but confounded comparison is still not evidence.
-        self.assertIn("No scientifically sound, adequately powered real-model comparison", index)
+        self.assertIn(
+            "No scientifically sound, adequately powered real-model comparison", index
+        )
         self.assertIn("necessary, not sufficient", identity)
         self.assertIn("does not prove numerical equivalence", errata)
 
@@ -76,7 +80,9 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         self.assertNotIn("Calibrated small-n statistics", public_overviews)
         self.assertNotIn("everything that can change the numerics", public_overviews)
 
-    def test_historical_examples_use_the_implemented_rule_without_model_claims(self) -> None:
+    def test_historical_examples_use_the_implemented_rule_without_model_claims(
+        self,
+    ) -> None:
         example = (ROOT / "evidence" / "false-positive-representative.md").read_text(
             encoding="utf-8"
         )

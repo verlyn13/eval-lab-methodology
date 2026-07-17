@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import unittest
 
-from eval_lab_methodology import bootstrap_ci, sign_test, superiority_by_margin, wilson_interval
+from eval_lab_methodology import (
+    bootstrap_ci,
+    sign_test,
+    superiority_by_margin,
+    wilson_interval,
+)
 
 
 class PrimitiveParityTests(unittest.TestCase):
     def test_wilson_interval_matches_reference_outputs(self) -> None:
         self.assertEqual(wilson_interval(0, 0), (0.0, 0.0))
-        self.assertEqual(wilson_interval(5, 10), (0.23658959361548731, 0.7634104063845126))
+        self.assertEqual(
+            wilson_interval(5, 10), (0.23658959361548731, 0.7634104063845126)
+        )
         self.assertEqual(wilson_interval(10, 10), (0.7224598312333834, 1.0))
         self.assertEqual(wilson_interval(0, 10), (0.0, 0.2775401687666166))
 

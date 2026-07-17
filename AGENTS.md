@@ -1,8 +1,23 @@
+---
+title: "AGENTS.md — eval-lab-methodology (PUBLIC)"
+category: charter
+component: eval-lab-methodology
+status: active
+version: 0.2.0
+last_updated: 2026-07-17
+tags: [methodology, statistics, evidence-contract, identity-domain, public, quarto]
+priority: high
+---
+
 # AGENTS.md — eval-lab-methodology (PUBLIC)
 
 Read this before doing any work in this repo. The estimator/report build order —
 what to build here and in what order — lives in `PLAN.md`; this file is the
 boundary and the honesty/sanitization rules that gate every commit.
+
+**This is a PUBLIC repository.** Anything here is world-readable, and the site
+**auto-publishes from `main`** — so treat every change as a public release from the
+moment it lands. There is no separate publish step at which to catch a leak.
 
 ## What this repo is
 
@@ -13,6 +28,30 @@ citable work sample for the job search — it must stay clean, honest, and runna
 by anyone with no access to private infrastructure.
 
 Anything here is world-readable. Treat every commit as a public release.
+
+## Boundaries
+
+**This repo owns:**
+
+- The **infra-agnostic statistical + reporting core** — the estimators (Wilson,
+  two-stage bootstrap, Wilcoxon, GLMM wrapper), the superiority-by-margin decision
+  rule, the power simulation, and the Quarto report templates — developed and tested
+  here, runnable on synthetic or sanitized data.
+- The **normative identity-domain spec** (`src/eval_lab_methodology/identity_domain.py`)
+  and its frozen conformance vector.
+- The versioned **public evidence contract**, independent recomputation, and the
+  published methodology write-up + figures + dashboard.
+- The public site, which **auto-deploys from `main`** to
+  <https://jvjohnson.dev/eval-lab-methodology/>.
+
+**This repo does NOT own (must not become):**
+
+- A router, transport, or provider registry — it holds no secrets and routes nothing.
+- The working evaluation lab, its real task suite, or any real-campaign plumbing —
+  those live in private infrastructure and are referred to here only functionally.
+- A fork or vendored copy of the editing harness under evaluation — cite it as a
+  dependency only.
+- A store of raw real-run artifacts, private fixtures, or unverified numbers.
 
 ## The ecosystem and the boundary (roles)
 
@@ -69,6 +108,31 @@ published values that downstream parity tests pin — **never edit them in place
 A change to the spec's semantics is a **new `schema_version` (v2) with a new
 conformance vector**, published alongside the old one, never a mutation of v1.
 
+## Frozen / do-not-edit-in-place
+
+- `src/eval_lab_methodology/identity_domain.py` — the normative identity-domain spec.
+  Its `CONFORMANCE_IDENTITY_DOMAIN` and `CONFORMANCE_IDENTITY_DOMAIN_SHA256` are
+  frozen, published values pinned by downstream parity tests. **Never edit them in
+  place.** A semantic change is a new `schema_version` with a new conformance vector,
+  published alongside the old one — never a mutation of the existing vector.
+
+## Hard rules
+
+1. **Public firewall.** Never reference private repos or private infrastructure by
+   name, and never introduce private absolute paths. Describe private couplings
+   **functionally** only. Merge to `main` auto-publishes, so **treat every change as
+   public** and assume anything committed is world-readable immediately.
+2. **No private imports.** Do not pull code, config, task fixtures, secrets, or
+   identifiers from private repos into this one.
+3. **Sanitization contract binds at merge time** — see the redaction list below.
+   Confirm none of it appears before anything is committed.
+4. **Honesty contract** — every published number traces to a produced artifact; no
+   number appears that a run didn't produce. See Honesty rules below.
+5. **Identity-domain freeze** — never edit the frozen conformance values in place;
+   semantic changes are a new versioned conformance vector.
+6. **Gate parity** — the exact merge gate below must pass locally before commit; the
+   local command equals CI.
+
 ## Sanitization contract (hard requirement — the redaction list)
 
 Before anything is committed, confirm NONE of these appear (files, filenames, and
@@ -96,14 +160,39 @@ bootstrap, GLMM, Quarto). The public alias "Agentic-Coding Evaluation Lab" is fi
   plainly. The honesty is the point of the artifact.
 - Seeded runs make intervals reproducible; keep it that way and say so.
 
-## Gates before commit
+## Gate parity (local == CI)
 
-Run all three from the repo root; every one must pass before a commit:
+The canonical merge gate — run from the repo root; local invocation equals CI, and
+every stage must pass before merge:
+
+```
+PYTHONPATH=src python -m unittest discover -s tests -v && PYTHONPATH=src python -m analysis.run_method_tranche --check && PYTHONPATH=src python -m analysis.run_contract_v2 --check
+```
+
+### Additional gates before commit
+
+In addition to the merge gate above, run these from the repo root; every one must
+pass before a commit:
 
 - `PYTHONPATH=src python -m unittest discover -s tests -v`
 - `make validate-report EVIDENCE=evidence/sample-lab-report.json` — and repeat
   for each `evidence/campaigns/**/evidence.json` file
 - `python -m pip wheel . --no-deps -w dist/`
+
+## Safe vs held commands
+
+**Safe (run freely):** the gate and validation commands above, `unittest` discovery,
+`make validate-report`, `python -m analysis.run_method_tranche --check`,
+`python -m analysis.run_contract_v2 --check`, `pip wheel`, figure regeneration
+(`figures/generate.py`), and local Quarto renders of synthetic-data example reports.
+
+**Held (stop and confirm first):**
+
+- Committing any real-run report, evidence, or figure — run the sanitization pass and
+  get a human confirmation first.
+- Editing the frozen identity-domain conformance values.
+- Any change that could reference private repos/infra or add a private path.
+- Anything that reaches private infrastructure, secrets, or the private task suite.
 
 ## What agents may / may not do here
 
@@ -113,3 +202,22 @@ example reports; sanitize and publish real results/figures; improve the write-up
 May not: import private-repo code/config/secrets; name private repos or providers;
 commit raw real-run artifacts or the private task suite; publish an unverified
 number.
+
+## Truth lanes
+
+- `PLAN.md` — the roadmap and estimator/report build order (authoritative for what to
+  build here and in what sequence).
+- `README.md` — the public methodology write-up and project status.
+
+## STOP and escalate
+
+Stop and escalate to a human maintainer before proceeding when:
+
+- A change would (or might) leak any item on the sanitization redaction list.
+- You are about to commit a real-run report/evidence/figure and cannot fully verify
+  the sanitization pass.
+- A change would require editing the frozen identity-domain conformance values in
+  place, or otherwise mutating a published v1 conformance vector.
+- The gate parity command cannot be made to pass, or CI and local disagree.
+- A change would introduce a private repo name, provider account, or private absolute
+  path — since merge to `main` auto-publishes, this is unrecoverable once merged.

@@ -34,16 +34,32 @@ def esc(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def text(x: float, y: float, s: str, *, size: int = 13, anchor: str = "start",
-         fill: str = INK, weight: str = "normal") -> str:
+def text(
+    x: float,
+    y: float,
+    s: str,
+    *,
+    size: int = 13,
+    anchor: str = "start",
+    fill: str = INK,
+    weight: str = "normal",
+) -> str:
     return (
         f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' "
         f"fill='{fill}' font-weight='{weight}' {FONT}>{esc(s)}</text>"
     )
 
 
-def line(x1: float, y1: float, x2: float, y2: float, *, stroke: str = GRID,
-         width: float = 1.0, dash: str | None = None) -> str:
+def line(
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
+    *,
+    stroke: str = GRID,
+    width: float = 1.0,
+    dash: str | None = None,
+) -> str:
     d = f" stroke-dasharray='{dash}'" if dash else ""
     return (
         f"<line x1='{x1:.1f}' y1='{y1:.1f}' x2='{x2:.1f}' y2='{y2:.1f}' "
@@ -75,22 +91,52 @@ def gate_figure() -> str:
         return x0 + (delta + 1.0) / 2.0 * (x1 - x0)
 
     body: list[str] = []
-    body.append(text(left, 34, "Historical promotion-rule examples", size=18, weight="bold"))
-    body.append(text(left, 56, "Paired success delta (candidate minus incumbent) with seeded bootstrap 95% CI",
-                     size=13, fill="#52606d"))
+    body.append(
+        text(left, 34, "Historical promotion-rule examples", size=18, weight="bold")
+    )
+    body.append(
+        text(
+            left,
+            56,
+            "Paired success delta (candidate minus incumbent) with seeded bootstrap 95% CI",
+            size=13,
+            fill="#52606d",
+        )
+    )
 
     # axis ticks
     for tick in (-1.0, -0.5, 0.0, 0.5, 1.0):
         xt = px(tick)
         body.append(line(xt, top, xt, h - bot, stroke=GRID, width=1.0))
-        body.append(text(xt, h - bot + 20, f"{tick:+.1f}", size=12, anchor="middle", fill="#52606d"))
+        body.append(
+            text(
+                xt,
+                h - bot + 20,
+                f"{tick:+.1f}",
+                size=12,
+                anchor="middle",
+                fill="#52606d",
+            )
+        )
     # zero + band
     body.append(line(px(0.0), top, px(0.0), h - bot, stroke=ZERO, width=2.0))
-    body.append(text(px(0.0), top - 8, "0", size=12, anchor="middle", fill=ZERO, weight="bold"))
+    body.append(
+        text(px(0.0), top - 8, "0", size=12, anchor="middle", fill=ZERO, weight="bold")
+    )
     for b in (band, -band):
-        body.append(line(px(b), top, px(b), h - bot, stroke="#9aa5b1", width=1.0, dash="4 3"))
-    body.append(text(px(band), h - bot + 38, "historical rule: bootstrap CI lower bound > +0.10 margin",
-                     size=11, anchor="middle", fill="#7b8794"))
+        body.append(
+            line(px(b), top, px(b), h - bot, stroke="#9aa5b1", width=1.0, dash="4 3")
+        )
+    body.append(
+        text(
+            px(band),
+            h - bot + 38,
+            "historical rule: bootstrap CI lower bound > +0.10 margin",
+            size=11,
+            anchor="middle",
+            fill="#7b8794",
+        )
+    )
 
     cases = DATA["promotion_gate_cases"]
     rows_y = [top + 40, top + 110]
@@ -101,11 +147,13 @@ def gate_figure() -> str:
         for cx in (lo, hi):
             body.append(line(cx, cy - 7, cx, cy + 7, stroke=color, width=3.0))
         body.append(f"<circle cx='{pt:.1f}' cy='{cy:.1f}' r='6' fill='{color}'/>")
-        label = "Representative (stubbed harness)" if "representative" in case["provenance"] else "Live smoke (small-n)"
-        body.append(text(left, cy - 14, label, size=13, weight="bold"))
-        detail = (
-            f"delta {case['paired_delta']:+.3f}, CI [{case['ci_low']:g}, {case['ci_high']:g}]  ->  NO-GO"
+        label = (
+            "Representative (stubbed harness)"
+            if "representative" in case["provenance"]
+            else "Live smoke (small-n)"
         )
+        body.append(text(left, cy - 14, label, size=13, weight="bold"))
+        detail = f"delta {case['paired_delta']:+.3f}, CI [{case['ci_low']:g}, {case['ci_high']:g}]  ->  NO-GO"
         body.append(text(x1, cy - 14, detail, size=12, anchor="end", fill=color))
     return svg(w, h, body)
 
@@ -124,14 +172,38 @@ def capability_figure() -> str:
         return y1 - val * (y1 - y0)
 
     body: list[str] = []
-    body.append(text(left, 34, "Capability by task-class (representative data)", size=18, weight="bold"))
-    body.append(text(left, 56, "Stubbed harness, representative data. Design behavior, not a live A/B.",
-                     size=13, fill="#b45309"))
+    body.append(
+        text(
+            left,
+            34,
+            "Capability by task-class (representative data)",
+            size=18,
+            weight="bold",
+        )
+    )
+    body.append(
+        text(
+            left,
+            56,
+            "Stubbed harness, representative data. Design behavior, not a live A/B.",
+            size=13,
+            fill="#b45309",
+        )
+    )
 
     for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
         yy = py(frac)
         body.append(line(x0, yy, x1, yy, stroke=GRID, width=1.0))
-        body.append(text(x0 - 8, yy + 4, f"{int(frac * 100)}%", size=12, anchor="end", fill="#52606d"))
+        body.append(
+            text(
+                x0 - 8,
+                yy + 4,
+                f"{int(frac * 100)}%",
+                size=12,
+                anchor="end",
+                fill="#52606d",
+            )
+        )
 
     n = len(classes)
     group_w = (x1 - x0) / n
@@ -142,8 +214,26 @@ def capability_figure() -> str:
         bc = gx + 3
         body.append(rect(bi, py(inc[i]), bar_w, y1 - py(inc[i]), INCUMBENT))
         body.append(rect(bc, py(cand[i]), bar_w, y1 - py(cand[i]), CANDIDATE))
-        body.append(text(bi + bar_w / 2, py(inc[i]) - 6, f"{int(inc[i] * 100)}", size=11, anchor="middle", fill=INCUMBENT))
-        body.append(text(bc + bar_w / 2, py(cand[i]) - 6, f"{int(cand[i] * 100)}", size=11, anchor="middle", fill=CANDIDATE))
+        body.append(
+            text(
+                bi + bar_w / 2,
+                py(inc[i]) - 6,
+                f"{int(inc[i] * 100)}",
+                size=11,
+                anchor="middle",
+                fill=INCUMBENT,
+            )
+        )
+        body.append(
+            text(
+                bc + bar_w / 2,
+                py(cand[i]) - 6,
+                f"{int(cand[i] * 100)}",
+                size=11,
+                anchor="middle",
+                fill=CANDIDATE,
+            )
+        )
         body.append(text(gx, y1 + 20, cls, size=11, anchor="middle", fill=INK))
 
     ly = h - 34
@@ -152,8 +242,16 @@ def capability_figure() -> str:
     body.append(rect(left + 250, ly - 10, 14, 14, CANDIDATE))
     body.append(text(left + 270, ly + 2, cap["candidate"]["label"], size=12))
     summary = cap["capability_summary"]
-    body.append(text(x1, 80, f"overall delta +{summary['overall_delta']:g}; no recommendation",
-                     size=12, anchor="end", fill="#b45309"))
+    body.append(
+        text(
+            x1,
+            80,
+            f"overall delta +{summary['overall_delta']:g}; no recommendation",
+            size=12,
+            anchor="end",
+            fill="#b45309",
+        )
+    )
     return svg(w, h, body)
 
 

@@ -142,8 +142,12 @@ class SimulateSessionDifferencesTests(unittest.TestCase):
 class SizeDistortionTests(unittest.TestCase):
     def test_same_seed_gives_identical_result(self) -> None:
         layout = SessionLayout(sessions=2, pairs_per_session=20)
-        kwargs = dict(rho=0.05, pi_d=0.3, rule=lambda d: sum(d) >= 6, n_sims=500, seed=11)
-        self.assertEqual(size_distortion(layout, **kwargs), size_distortion(layout, **kwargs))
+        kwargs = dict(
+            rho=0.05, pi_d=0.3, rule=lambda d: sum(d) >= 6, n_sims=500, seed=11
+        )
+        self.assertEqual(
+            size_distortion(layout, **kwargs), size_distortion(layout, **kwargs)
+        )
 
     def test_result_fields_are_consistent(self) -> None:
         layout = SessionLayout(sessions=2, pairs_per_session=20)
@@ -242,7 +246,9 @@ class FloorPropagationTests(unittest.TestCase):
             self.assertEqual(sum(cells), Fraction(1))
 
     def test_zero_floor_is_the_identity_transform(self) -> None:
-        self.assertEqual(floor_transformed_cells(self.BASE_CELLS, Fraction(0)), self.BASE_CELLS)
+        self.assertEqual(
+            floor_transformed_cells(self.BASE_CELLS, Fraction(0)), self.BASE_CELLS
+        )
 
     def test_hand_computed_cell_at_one_twentieth(self) -> None:
         # p11' = (19/20)^2 * 2/5 + (19/20)(1/20) * 3/10 + (1/20)^2 * 3/10 = 47/125.
