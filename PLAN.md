@@ -37,6 +37,11 @@ every commit is world-readable and every merge to `main` is a publication act.
 - No enforcing test, replicate policy, or minimum practically important
   benefit has been selected for the next contract. Powered promotion remains
   unavailable until that coupled decision is made from a complete package.
+- The calibration protocol family now has separate E4 grader-validation, E1
+  Lane A A/A session-position, and E2 operating-characteristic candidate SAPs.
+  They are not preregistered, authorize no observations, and select no powered
+  method. Their counts, thresholds, grids, and consequences remain review
+  candidates until separately frozen and registered.
 - Contract B `2.0.0-draft.1` is an immutable, repository-only normative draft
   beside v1. It binds synthetic registration, reveal, schedule, attempts,
   attrition, copied observation provenance, analysis, decision, and report
@@ -49,7 +54,7 @@ every commit is world-readable and every merge to `main` is a publication act.
   unchanged core identity, runtime dependency, and synthetic conformance pair.
   This is a repository delivery contract, not a package release or operational
   adoption; the wheel-buildable 0.2.0 package contents remain unchanged.
-- Its synthetic observation cardinality is one Aider-owner descriptor-validation
+- Its synthetic observation cardinality is one editing-client-owner descriptor-validation
   receipt and one lab-owned completion receipt per attempt; one distinct gateway
   open receipt, zero or more gateway call receipts, and one distinct gateway
   closure receipt per invocation. Zero calls are admissible only for a retained
@@ -78,9 +83,10 @@ open:
 3. **Nuisance-boundary control.** Replace the current finite `0.01` grid
    judgment with a justified continuous-boundary argument or an explicitly
    conservative bound.
-4. **Dependence.** Bound cross-task correlation induced by shared serving state,
-   session-by-arm interactions, batch composition, and prefix caching. Retain
-   session and task-pair identifiers so the assumption is auditable.
+4. **Dependence.** For Lane A, use one task pair per fresh session and attempt to
+   falsify session-position invariance rather than estimate an intra-session
+   correlation. Retain actual session position and task-pair identifiers; treat
+   shared serving state and cache effects as explicit residual threats.
 5. **Level-matched comparison.** Compare candidate procedures at the same
    demonstrated Type I level; do not attribute unmatched power gaps to one
    mechanism.

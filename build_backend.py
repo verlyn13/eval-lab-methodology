@@ -7,15 +7,19 @@ import csv
 import hashlib
 import io
 import tarfile
+import tomllib
 import zipfile
 from pathlib import Path
 from typing import Any
 
-NAME = "eval-lab-methodology"
-NORMALIZED_NAME = "eval_lab_methodology"
-VERSION = "0.2.0"
-DIST_INFO = f"{NORMALIZED_NAME}-{VERSION}.dist-info"
 ROOT = Path(__file__).resolve().parent
+PROJECT = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+    "project"
+]
+NAME = PROJECT["name"]
+NORMALIZED_NAME = NAME.replace("-", "_")
+VERSION = PROJECT["version"]
+DIST_INFO = f"{NORMALIZED_NAME}-{VERSION}.dist-info"
 PACKAGE_ROOT = ROOT / "src" / "eval_lab_methodology"
 
 
@@ -118,24 +122,25 @@ def _is_bytecode(path: Path) -> bool:
 
 
 def _metadata() -> str:
-    return "\n".join(
-        [
-            "Metadata-Version: 2.3",
-            f"Name: {NAME}",
-            f"Version: {VERSION}",
-            "Summary: Public statistical and reporting core for the Agentic-Coding Evaluation Lab methodology.",
-            "Author: Verlyn Nash",
-            "License-Expression: Apache-2.0",
-            "Requires-Python: >=3.11",
-            "Provides-Extra: glmm",
-            "Requires-Dist: pandas>=2.0; extra == 'glmm'",
-            "Requires-Dist: statsmodels>=0.14; extra == 'glmm'",
-            "Provides-Extra: dev",
-            "Requires-Dist: jsonschema>=4.22; extra == 'dev'",
-            "Requires-Dist: pytest>=8.0; extra == 'dev'",
-            "",
-        ]
-    )
+    lines = [
+        "Metadata-Version: 2.3",
+        f"Name: {NAME}",
+        f"Version: {VERSION}",
+        f"Summary: {PROJECT['description']}",
+        f"Author: {PROJECT['authors'][0]['name']}",
+        f"License-Expression: {PROJECT['license']}",
+        f"Requires-Python: {PROJECT['requires-python']}",
+    ]
+    for requirement in PROJECT.get("dependencies", []):
+        lines.append(f"Requires-Dist: {requirement}")
+    for extra, requirements in PROJECT.get("optional-dependencies", {}).items():
+        lines.append(f"Provides-Extra: {extra}")
+        lines.extend(
+            f"Requires-Dist: {requirement}; extra == '{extra}'"
+            for requirement in requirements
+        )
+    lines.append("")
+    return "\n".join(lines)
 
 
 def _wheel_metadata() -> str:

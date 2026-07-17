@@ -162,22 +162,19 @@ bootstrap, GLMM, Quarto). The public alias "Agentic-Coding Evaluation Lab" is fi
 
 ## Gate parity (local == CI)
 
-The canonical merge gate — run from the repo root; local invocation equals CI, and
-every stage must pass before merge:
+The canonical merge gate — run from the repo root; CI invokes the same script and every stage must
+pass before merge. Install the Python extras and the exact Quarto release named in
+`.quarto-version`, then run:
 
 ```
-PYTHONPATH=src python -m unittest discover -s tests -v && PYTHONPATH=src python -m analysis.run_method_tranche --check && PYTHONPATH=src python -m analysis.run_contract_v2 --check
+python -m pip install '.[dev,report]' && bash scripts/run-merge-gate.sh
 ```
 
-### Additional gates before commit
-
-In addition to the merge gate above, run these from the repo root; every one must
-pass before a commit:
-
-- `PYTHONPATH=src python -m unittest discover -s tests -v`
-- `make validate-report EVIDENCE=evidence/sample-lab-report.json` — and repeat
-  for each `evidence/campaigns/**/evidence.json` file
-- `python -m pip wheel . --no-deps -w dist/`
+The script first refuses a missing or mismatched Quarto version, then enforces Ruff lint/format
+with the version pinned in `pyproject.toml`, unit tests, both
+exact-result checks, wheel containment, sample and campaign evidence validation, the full Quarto
+site render, and sample/campaign report rendering. Adding a CI stage requires adding it to this
+script so local and CI stay identical.
 
 ## Safe vs held commands
 
