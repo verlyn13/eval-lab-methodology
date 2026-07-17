@@ -197,7 +197,12 @@ class TailAndCriticalValueTests(unittest.TestCase):
 
     def test_critical_value_minimality(self) -> None:
         dist = sum_distribution(12, Fraction(2, 5), Fraction(1, 5))
-        for alpha in (Fraction(1, 100), Fraction(1, 20), Fraction(1, 10), Fraction(1, 4)):
+        for alpha in (
+            Fraction(1, 100),
+            Fraction(1, 20),
+            Fraction(1, 10),
+            Fraction(1, 4),
+        ):
             c = critical_value(dist, alpha)
             self.assertLessEqual(tail_probability(dist, c), alpha)
             self.assertGreater(tail_probability(dist, c - 1), alpha)
@@ -292,7 +297,9 @@ class LfcCalibrationTests(unittest.TestCase):
         calibration = lfc_calibrate(40, Fraction(1, 10), ALPHA)
         self.assertEqual(calibration.critical_value, 15)
         self.assertLessEqual(calibration.sup_size, ALPHA)
-        self.assertAlmostEqual(float(calibration.sup_size), 0.04325358925091875, places=14)
+        self.assertAlmostEqual(
+            float(calibration.sup_size), 0.04325358925091875, places=14
+        )
         # The grid supremum lands adjacent to — not exactly at — maximum
         # discordance: at pi_d = 1 the support of S is even-parity only, so an
         # odd-parity boundary point just inside pi_d = 1 carries the supremum.
@@ -300,9 +307,13 @@ class LfcCalibrationTests(unittest.TestCase):
         self.assertEqual(calibration.lfc_pi_d, Fraction(97, 100))
         superiority = lfc_calibrate(40, Fraction(0), ALPHA)
         self.assertEqual(superiority.critical_value, 11)
-        self.assertAlmostEqual(float(superiority.sup_size), 0.045117717694842636, places=14)
+        self.assertAlmostEqual(
+            float(superiority.sup_size), 0.045117717694842636, places=14
+        )
 
-    def test_delta0_zero_matches_hand_computed_binomial_critical_at_pi_d_one(self) -> None:
+    def test_delta0_zero_matches_hand_computed_binomial_critical_at_pi_d_one(
+        self,
+    ) -> None:
         # At delta0 = 0 and pi_d = 1 every task is discordant, so
         # S = 2X - n with X ~ Binomial(n, 1/2): the calibrated critical value
         # must equal the binomial sign-test critical computed by hand.
@@ -310,9 +321,7 @@ class LfcCalibrationTests(unittest.TestCase):
             expected = None
             for c in range(-n, n + 2):
                 k_min = max(0, -((c + n) // -2))  # ceil((c + n) / 2), integer-exact
-                tail = Fraction(
-                    sum(math.comb(n, x) for x in range(k_min, n + 1)), 2**n
-                )
+                tail = Fraction(sum(math.comb(n, x) for x in range(k_min, n + 1)), 2**n)
                 if tail <= ALPHA:
                     expected = c
                     break
@@ -437,7 +446,9 @@ class SignFlipTests(unittest.TestCase):
         n_plus, n_zero, n_minus = 7, 3, 2
         m = n_plus + n_minus
         expected = Fraction(sum(math.comb(m, k) for k in range(n_plus, m + 1)), 2**m)
-        self.assertEqual(signflip_pvalue(n_plus, n_zero, n_minus, Fraction(0)), expected)
+        self.assertEqual(
+            signflip_pvalue(n_plus, n_zero, n_minus, Fraction(0)), expected
+        )
 
     def test_rejection_probability_matches_full_outcome_enumeration(self) -> None:
         # Every task has positive discordance probability, so the task count
@@ -481,9 +492,7 @@ class SignFlipTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             signflip_pvalue(1, 1, 1, 0.1)
         with self.assertRaises(ValueError):
-            signflip_rejection_probability(
-                {}, n=1, delta0=Fraction(0), alpha=ALPHA
-            )
+            signflip_rejection_probability({}, n=1, delta0=Fraction(0), alpha=ALPHA)
         with self.assertRaises(ValueError):
             signflip_rejection_probability(
                 {(0, 0): Fraction(1)}, n=0, delta0=Fraction(0), alpha=ALPHA

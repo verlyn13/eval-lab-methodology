@@ -1,0 +1,12 @@
+# Ruff configuration for eval-lab-methodology.
+# Adopted 2026-07-17 as part of the agent-framework standardization.
+#
+# The published core in src/eval_lab_methodology/ is vendored BYTE-FOR-BYTE by downstream
+# consumers (content-hash pinned) and includes the frozen identity_domain.py conformance
+# source of record. It must stay byte-stable — exclude it entirely from ruff so an
+# incidental reformat can never break downstream vendored-core parity.
+extend-exclude = ["src/eval_lab_methodology"]
+
+[lint.per-file-ignores]
+# Test modules set PYTHONPATH/imports before importing the unit under test.
+"tests/**" = ["E402"]

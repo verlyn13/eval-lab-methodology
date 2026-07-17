@@ -68,7 +68,7 @@ class EnhancedEstimatorTests(unittest.TestCase):
     def test_glmm_wrapper_has_clean_optional_dependency_boundary(self) -> None:
         records = [
             {"success": 1, "model": "candidate", "task": "task-1"},
-            {"success": 0, "model": "incumbent", "task": "task-1"}
+            {"success": 0, "model": "incumbent", "task": "task-1"},
         ]
         if importlib.util.find_spec("statsmodels") is None:
             with self.assertRaises(OptionalDependencyError):

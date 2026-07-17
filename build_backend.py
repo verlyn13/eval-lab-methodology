@@ -19,11 +19,15 @@ ROOT = Path(__file__).resolve().parent
 PACKAGE_ROOT = ROOT / "src" / "eval_lab_methodology"
 
 
-def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:
+def get_requires_for_build_wheel(
+    config_settings: dict[str, Any] | None = None,
+) -> list[str]:
     return []
 
 
-def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:
+def get_requires_for_build_sdist(
+    config_settings: dict[str, Any] | None = None,
+) -> list[str]:
     return []
 
 
@@ -50,7 +54,9 @@ def build_wheel(
 
     for path in sorted(PACKAGE_ROOT.rglob("*")):
         if path.is_file() and not _is_bytecode(path):
-            arcname = f"eval_lab_methodology/{path.relative_to(PACKAGE_ROOT).as_posix()}"
+            arcname = (
+                f"eval_lab_methodology/{path.relative_to(PACKAGE_ROOT).as_posix()}"
+            )
             payloads.append((arcname, path.read_bytes()))
 
     payloads.extend(
@@ -96,7 +102,10 @@ def build_sdist(
             if path.is_dir():
                 for item in sorted(path.rglob("*")):
                     if item.is_file() and not _is_bytecode(item):
-                        tar.add(item, arcname=f"{prefix}/{item.relative_to(ROOT).as_posix()}")
+                        tar.add(
+                            item,
+                            arcname=f"{prefix}/{item.relative_to(ROOT).as_posix()}",
+                        )
             elif path.is_file():
                 tar.add(path, arcname=f"{prefix}/{relative}")
     return sdist_name

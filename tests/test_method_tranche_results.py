@@ -93,9 +93,7 @@ class MethodTrancheResultsTests(unittest.TestCase):
             self.assertEqual(sorted(record), ["name", "sha256"])
 
     def test_all_scenario_families_present(self) -> None:
-        self.assertEqual(
-            set(self.committed["scenarios"]), EXPECTED_SCENARIO_FAMILIES
-        )
+        self.assertEqual(set(self.committed["scenarios"]), EXPECTED_SCENARIO_FAMILIES)
 
     def test_check_mode_accepts_matching_bytes_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

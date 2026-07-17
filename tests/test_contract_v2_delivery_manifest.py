@@ -109,9 +109,7 @@ class ContractV2DeliveryManifestTests(unittest.TestCase):
                 for path in root.rglob("*")
                 if path.is_file() or path.is_symlink()
             }
-            expected_paths = {
-                entry["path"] for entry in self.manifest["runtime_files"]
-            }
+            expected_paths = {entry["path"] for entry in self.manifest["runtime_files"]}
             self.assertEqual(actual_paths, expected_paths)
 
     def test_manifest_is_canonical_exact_keyed_and_public_safe(self) -> None:
@@ -171,9 +169,7 @@ class ContractV2DeliveryManifestTests(unittest.TestCase):
                 "import_root": ".",
                 "layout": "preserve-relative-paths",
                 "python": ">=3.11",
-                "render_entrypoint": (
-                    "analysis.contract_v2.report:render_markdown"
-                ),
+                "render_entrypoint": ("analysis.contract_v2.report:render_markdown"),
                 "verify_entrypoint": "analysis.contract_v2:verify_exact_bytes",
             },
         )

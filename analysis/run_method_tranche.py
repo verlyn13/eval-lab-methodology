@@ -164,7 +164,10 @@ HETEROGENEITY_PROFILES: tuple[
     (
         "het-two-block-zero",
         Fraction(0),
-        ((20, Fraction(7, 20), Fraction(1, 20)), (20, Fraction(1, 20), Fraction(7, 20))),
+        (
+            (20, Fraction(7, 20), Fraction(1, 20)),
+            (20, Fraction(1, 20), Fraction(7, 20)),
+        ),
     ),
 )
 
@@ -288,7 +291,11 @@ def _null_boundary(
                         }
                     )
                 near_boundary.append(
-                    {"offset": _frac(offset), "true_delta": _frac(delta), "cells": cells}
+                    {
+                        "offset": _frac(offset),
+                        "true_delta": _frac(delta),
+                        "cells": cells,
+                    }
                 )
             record: dict[str, Any] = {
                 "n": n,
@@ -448,7 +455,9 @@ def _margin_feasibility(
                             "pi_d": _frac(pi_d),
                             "skipped": False,
                             "power": _frac(
-                                exact_power(n, p_plus, p_minus, calibration.critical_value)
+                                exact_power(
+                                    n, p_plus, p_minus, calibration.critical_value
+                                )
                             ),
                             "signflip_shifted_power": _frac(
                                 signflip_rejection_probability(
@@ -472,7 +481,9 @@ def _margin_feasibility(
                 }
             )
     check_calibration = calibrations[(40, DELTA0_RETIRED)]
-    check_p_plus, check_p_minus = boundary_configuration(Fraction(3, 10), Fraction(3, 10))
+    check_p_plus, check_p_minus = boundary_configuration(
+        Fraction(3, 10), Fraction(3, 10)
+    )
     derived_power = exact_power(
         40, check_p_plus, check_p_minus, check_calibration.critical_value
     )
@@ -480,9 +491,7 @@ def _margin_feasibility(
     # the maximum-discordance boundary point (p_zero = 0).  Recompute that
     # calibration from this package's own committed code — never from the
     # unconsulted decision inputs — so the route comparison is traceable.
-    max_discordance = lfc_calibrate(
-        40, DELTA0_RETIRED, ALPHA, pi_d_grid=(Fraction(1),)
-    )
+    max_discordance = lfc_calibrate(40, DELTA0_RETIRED, ALPHA, pi_d_grid=(Fraction(1),))
     cross_check = {
         "n": 40,
         "delta0": _frac(DELTA0_RETIRED),
@@ -566,7 +575,9 @@ def _superiority_mpib(
                     "mpib": _frac(mpib),
                     "point_estimate_threshold": point_threshold,
                     "joint_threshold": joint_threshold,
-                    "p_joint_pass": _frac(tail_probability(distribution, joint_threshold)),
+                    "p_joint_pass": _frac(
+                        tail_probability(distribution, joint_threshold)
+                    ),
                     "p_point_estimate_only": _frac(
                         tail_probability(distribution, point_threshold)
                     ),

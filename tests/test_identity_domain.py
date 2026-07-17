@@ -53,7 +53,9 @@ class IdentityDomainHashTests(unittest.TestCase):
             identity_domain_sha256(accented),
             CONFORMANCE_IDENTITY_DOMAIN_SHA256,
         )
-        self.assertEqual(identity_domain_sha256(accented), identity_domain_sha256(accented))
+        self.assertEqual(
+            identity_domain_sha256(accented), identity_domain_sha256(accented)
+        )
 
     def test_pattern_requires_prefixed_lowercase_64_hex(self) -> None:
         digest = "0" * 64
@@ -78,7 +80,9 @@ class IdentityDomainValidationTests(unittest.TestCase):
     def test_rejects_missing_launch_key(self) -> None:
         invalid = copy.deepcopy(CONFORMANCE_IDENTITY_DOMAIN)
         invalid["launch"].pop("batch_invariant")
-        self.assertIn("$.launch.batch_invariant is required", validate_identity_domain(invalid))
+        self.assertIn(
+            "$.launch.batch_invariant is required", validate_identity_domain(invalid)
+        )
 
     def test_rejects_run_id_at_top_level(self) -> None:
         invalid = copy.deepcopy(CONFORMANCE_IDENTITY_DOMAIN)
@@ -113,7 +117,9 @@ class IdentityDomainValidationTests(unittest.TestCase):
         payload = json.loads(canonical_json(CONFORMANCE_IDENTITY_DOMAIN))
         self.assertEqual(payload["schema_version"], IDENTITY_DOMAIN_SCHEMA_VERSION)
         self.assertEqual(payload["model"]["repo"], "example-org/synthetic-model")
-        self.assertEqual(payload["launch"]["activation_dtype"], payload["launch"]["dtype"])
+        self.assertEqual(
+            payload["launch"]["activation_dtype"], payload["launch"]["dtype"]
+        )
 
 
 if __name__ == "__main__":
