@@ -87,7 +87,8 @@ order to trust or challenge an evaluation.
   explicit decision.
 - No validated operating characteristics for the intended class-balanced design.
 - No operational registration signer, trusted timestamp path, or production owner-receipt join.
-- No validated grader study, governed 40-task suite, A/A calibration, or powered campaign.
+- No validated grader study, no public-safe validity evidence for the governed 40-task suite, no
+  A/A calibration, and no powered campaign.
 - No evidence that a candidate model or harness improves real task performance.
 
 ## Evidence and reproduction
@@ -97,6 +98,7 @@ order to trust or challenge an evaluation.
 - [Refusal example](reports/contract-v2-not-evaluable.qmd)
 - [Identity-domain specification](identity-domain.qmd)
 - [Delivery manifest](evidence/contract-v2/delivery-manifest.v1.json)
+- [Candidate calibration protocol family](docs/preregistrations/calibration-sap.md)
 - [Roadmap](PLAN.md)
 
 The repository contains two historical worked examples:
@@ -110,17 +112,17 @@ historical artifacts, not evidence for model selection.
 
 ### Verify locally
 
+Install the exact Quarto release named in `.quarto-version` (on macOS,
+`brew install --cask quarto` installs that release when Homebrew's cask matches the pin). Then run:
+
 ```bash
-python -m pip install '.[dev]'
-PYTHONPATH=src python -m unittest discover -s tests -v
-PYTHONPATH=src python -m analysis.run_method_tranche --check
-PYTHONPATH=src python -m analysis.run_contract_v2 --check
-make validate-report EVIDENCE=evidence/sample-lab-report.json
-python -m pip wheel . --no-deps -w dist/
+python -m pip install '.[dev,report]'
+bash scripts/run-merge-gate.sh
 ```
 
-Quarto is also required to render the site and HTML reports. CI runs tests, exact-result checks,
-wheel containment, report validation, and site rendering before publication.
+The script refuses a missing or mismatched Quarto version. CI reads the same version pin and invokes
+the same merge-gate script, covering Ruff, tests, exact-result checks, wheel containment, evidence
+validation, and site/report rendering before publication.
 
 ## Technical details
 

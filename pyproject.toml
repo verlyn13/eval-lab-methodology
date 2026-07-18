@@ -21,6 +21,11 @@ glmm = [
   "statsmodels>=0.14"
 ]
 dev = [
-  "jsonschema>=4.22",
-  "pytest>=8.0"
+  "jsonschema==4.26.0",
+  "pytest==9.1.1",
+  "ruff==0.15.10"
+]
+report = [
+  "jupyter==1.1.1",
+  "papermill==2.7.0"
 ]

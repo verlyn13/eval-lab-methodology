@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import tempfile
+import tomllib
 import unittest
 import zipfile
 from pathlib import Path
@@ -47,6 +48,16 @@ class ExperimentalModuleContainmentTests(unittest.TestCase):
                 ).decode("utf-8")
 
         self.assertIn("Version: 0.2.0\n", metadata)
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+            "project"
+        ]
+        for extra, requirements in project["optional-dependencies"].items():
+            self.assertIn(f"Provides-Extra: {extra}\n", metadata)
+            for requirement in requirements:
+                self.assertIn(
+                    f"Requires-Dist: {requirement}; extra == '{extra}'\n",
+                    metadata,
+                )
         for module in EXPERIMENTAL_MODULES:
             self.assertNotIn(f"eval_lab_methodology/{module}", names)
         self.assertFalse(any("_method_tranche" in name for name in names))

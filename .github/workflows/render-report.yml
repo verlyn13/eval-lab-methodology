@@ -21,75 +21,22 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install Jupyter runtime
-        run: python -m pip install --upgrade pip jupyter papermill jsonschema
-
-      - name: Ruff lint and format check (published core excluded — see ruff.toml)
+      - name: Install pinned gate runtime
         run: |
-          python -m pip install ruff
-          ruff check .
-          ruff format --check .
+          python -m pip install --upgrade pip
+          python -m pip install '.[dev,report]'
 
-      - name: Run unit tests (includes frozen conformance vector)
-        run: PYTHONPATH=src python -m unittest discover -s tests -v
-
-      - name: Verify experimental results artifact
-        run: PYTHONPATH=src python -m analysis.run_method_tranche --check
-
-      - name: Verify Contract B v2 synthetic refusal artifact
-        run: PYTHONPATH=src python -m analysis.run_contract_v2 --check
-
-      - name: Build wheel
-        run: python -m pip wheel . --no-deps -w dist/
+      - name: Read pinned Quarto version
+        id: quarto-version
+        run: echo "version=$(<.quarto-version)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: "${{ steps.quarto-version.outputs.version }}"
 
-      - name: Validate sample evidence
-        run: make validate-report EVIDENCE=evidence/sample-lab-report.json
-
-      - name: Render website
-        run: quarto render
-
-      - name: Render sample report
-        run: |
-          python scripts/render_methodology_report.py \
-            --evidence evidence/sample-lab-report.json \
-            --report reports/methodology-report.qmd \
-            --output-dir reports/rendered/sample
-
-      - name: Collect sample report artifact
-        shell: bash
-        run: |
-          html_path="$(find reports/rendered/sample -name 'methodology-report.html' -print -quit)"
-          if [ -z "$html_path" ]; then
-            echo "rendered sample report not found under reports/rendered/sample" >&2
-            exit 1
-          fi
-          if [ "$html_path" != "reports/rendered/sample/methodology-report.html" ]; then
-            mv "$html_path" reports/rendered/sample/methodology-report.html
-          fi
-
-      - name: Render campaign evidence reports
-        shell: bash
-        run: |
-          shopt -s nullglob globstar
-          campaign_files=(evidence/campaigns/**/evidence.json)
-          if [ ${#campaign_files[@]} -eq 0 ]; then
-            echo "No evidence/campaigns/**/evidence.json files present."
-            exit 0
-          fi
-
-          for evidence in "${campaign_files[@]}"; do
-            safe_name="${evidence#evidence/campaigns/}"
-            safe_name="${safe_name%/evidence.json}"
-            safe_name="${safe_name//\//-}"
-            out_dir="reports/rendered/campaigns/${safe_name}"
-            python scripts/render_methodology_report.py \
-              --evidence "$evidence" \
-              --report reports/methodology-report.qmd \
-              --output-dir "$out_dir"
-          done
+      - name: Run canonical merge gate
+        run: bash scripts/run-merge-gate.sh
 
       - name: Upload rendered reports
         uses: actions/upload-artifact@v4

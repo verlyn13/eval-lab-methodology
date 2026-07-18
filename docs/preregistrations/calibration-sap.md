@@ -1,62 +1,44 @@
-# Calibration Statistical Analysis Plan (SAP)
+# Lane A calibration protocol family
 
-## 1. Metadata
-- **Title**: Phase 12 Lane A Instrument Calibration Preregistration
-- **Date**: 2026-07-16
-- **Version**: 1.0.0
-- **Status**: Preregistered Draft
+## Metadata
 
----
+- **Date:** 2026-07-17
+- **Version:** 1.1.0-candidate.1
+- **Status:** Candidate protocol — not preregistered; no observations authorized.
 
-## 2. E4 Grader Validation Protocol
-The objective of E4 is to measure the agreement between the deterministic machine grader ($G_m$) and the independent human gold label ($G_h$).
+## Purpose
 
-### Metrics
-We will compute the following metrics over a class-balanced validation corpus ($N \ge 40$ attempts representing all four classes and failure modes):
+This document is the index and common claim boundary for three separate candidate statistical
+analysis plans:
 
-* **Sensitivity (True Positive Rate)**:
-  $$\text{Sensitivity} = \frac{TP}{TP + FN}$$
-  *Where $TP$ is the number of attempts graded as success by both human and machine, and $FN$ is the number of attempts graded as success by human but failure by machine.*
+1. [E4 grader validation](e4-grader-validation-sap.md)
+2. [E1 Lane A A/A session-position study](e1-lane-a-aa-sap.md)
+3. [E2 operating-characteristics simulation](e2-operating-characteristics-sap.md)
 
-* **Specificity (True Negative Rate)**:
-  $$\text{Specificity} = \frac{TN}{TN + FP}$$
-  *Where $TN$ is graded as failure by both, and $FP$ is graded as failure by human but success by machine.*
+The former umbrella draft combined three different studies and incorrectly described the E1
+objective as estimation of within-session correlation. The replacement family uses Lane A `m = 1`
+by construction: one task pair per fresh session. E1 is therefore a determinism/falsification study,
+not a correlation-estimation study.
 
-* **Positive Predictive Value (PPV)**:
-  $$\text{PPV} = \frac{TP}{TP + FP}$$
+## Common rules
 
-* **Negative Predictive Value (NPV)**:
-  $$\text{NPV} = \frac{TN}{TN + FN}$$
+- E4, E1, and E2 require separate reviewed registrations and separate result artifacts.
+- Planned values in these documents are design candidates, not produced observations.
+- Every initiated E1 attempt is retained as exactly one terminal attempt row. Failure, timeout,
+  resource exhaustion, receipt failure, and harness failure are outcomes; none is silently dropped.
+- No whole-attempt automatic retry is allowed. A separately authorized rerun must use a new attempt
+  ordinal and a new registration rather than replacing the original record.
+- Each gateway call has a planned provider retry limit of zero. A client invocation may contain
+  multiple disclosed calls; all calls must be included in its closure record.
+- No fallback model, direct provider path, or unregistered schedule substitution is allowed.
+- A missing registration, byte binding, assignment row, owner receipt, invocation closure, terminal
+  attempt row, or required analysis artifact makes the affected study `NOT_EVALUABLE`.
+- Calibration results cannot promote a system, select a powered method, or settle a minimum
+  practically important benefit. Those require a later coupled ruling and a new protocol.
 
-### Validation Thresholds
-The instrument is declared valid for calibration only if:
-* $\text{Sensitivity} \ge 0.90$
-* $\text{Specificity} \ge 0.95$
+## Current readiness
 
----
-
-## 3. E1 A/A Independence Study
-The objective of E1 is to estimate the within-session correlation coefficient ($\rho$) and verify that local hardware and cache conditions do not introduce systematic bias between experimental arms.
-
-### Design
-* **Arms**: Arm 1 (A) and Arm 2 (A') run identical model digests (`qwen3.5:9b`).
-* **Sample Size**: 3 serial replicates of the frozen 40-task suite per arm (240 total attempts).
-* **Null Hypothesis**: $H_0: \rho = 0$ (attempts are independent).
-* **Test Statistic**: Pearson correlation coefficient and Ljung-Box test for serial autocorrelation on latency and success vectors.
-
----
-
-## 4. E2 Operating Characteristics Simulation
-E2 evaluates the provisional decision rule and estimates statistical power under varying effect sizes.
-
-### Simulation Inputs
-* Empirical success rates and transition matrices from E1.
-* Measurement error rates from E4.
-* Simulation runs ($B = 10,000$) to evaluate the Type I error rate ($\alpha$) and statistical power ($1-\beta$) under candidate sample sizes ($N$) and Minimum Practical Improvement Boundaries (MPIB).
-
----
-
-## 5. Attrition & Missingness Handling
-Every initiated attempt must be accounted for in the attrition table.
-* **Timeout/OOM/Harness Error**: Evaluated as `NOT_EVALUABLE` and excluded from the capability pass-rate calculations, but documented in the attrition table.
-* **Transient Network Error**: Subject to a maximum of 1 automatic retry; the retry carries its own unique attempt index and receipts.
+These documents are reviewable design inputs only. Before any study can be registered, reviewers
+must resolve the candidate decisions called out in each SAP, freeze the machine-readable inputs and
+implementations by digest, approve the evidence/report contracts, and establish operational
+registration and observation authority.
