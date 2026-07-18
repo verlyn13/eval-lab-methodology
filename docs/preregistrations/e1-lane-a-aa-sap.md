@@ -2,107 +2,121 @@
 
 ## Metadata and claim boundary
 
-- **Date:** 2026-07-17
-- **Version:** 0.1.0-candidate.1
-- **Status:** Candidate protocol — not preregistered; no observations authorized.
-- **Study type:** Local-lane calibration; structurally non-promotable.
+- **Decision date:** 2026-07-17
+- **Last updated:** 2026-07-18
+- **Version:** 0.2.0-candidate.2
+- **Status:** Candidate protocol — design decisions incorporated; not preregistered; no observations authorized.
+- **Study type:** Local-lane exact-identity falsification; structurally non-promotable.
 
-All counts, seeds, and rules below are **planned candidate values**. They are not observations and
-do not establish a powered-study replicate policy.
+The candidate design counts and rules below are protocol inputs, not observations. They establish
+no powered-study replicate policy.
 
-## Objective
+## Objective and estimand
 
-E1 attempts to falsify exact outcome invariance when two blinded arms resolve to the same content
-digest and task pairs are isolated by fresh sessions. Lane A uses **`m = 1`**: one task pair per
-fresh session. The design removes within-session clustering from the later task-level comparison by
-construction; E1 does not estimate an intra-session correlation and does not test a null hypothesis
-that such a correlation is zero.
+E1 attempts to falsify exact cross-arm identity when two blinded arms receive byte-identical
+registered scientific invocation payloads under the same versioned serving profile. Lane A uses
+**`m = 1`**: one task pair per fresh session. E1 does not estimate an intra-session correlation and
+does not claim general determinism outside the registered apparatus.
 
-E1 reports whether task success and exact outcome digests remain identical across A/A arms and
-registered session positions. Latency and resource measures are diagnostics only and never turn a
-divergent outcome into an invariant one.
+The primary estimand is the cross-arm divergence frequency among the 120 planned session pairs.
+Cross-position comparisons of the same task across rounds are a separately reported diagnostic;
+they are not pooled into the primary denominator. Latency, resource use, and warmup behavior are
+diagnostics and never turn a divergence into identity.
 
-## Planned design and counts
+## Design to register and counts
 
-- 40 registered task pairs, with 10 in each of four fixed task classes.
+- 40 task pairs, with 10 in each of four fixed task classes.
 - 3 rounds, each containing one fresh session for every task pair.
 - 120 sessions total: `40 task pairs x 3 rounds`.
+- 120 primary cross-arm comparisons.
 - 2 blinded arm attempts per session, yielding 240 terminal arm attempts total.
-- Each arm attempt has a separate editing-client descriptor and a separate gateway invocation with
-  open, zero-or-more call, and closure receipts.
-- Both arms must bind the same resolved content digest, decoding configuration, task bytes, harness,
-  grader, prompt, identity-domain preimage, and resource policy.
+- Each arm attempt has an isolated workspace, fresh client process, separate invocation record, and
+  separate terminal row.
+- Both arms bind the same task bytes, registered scientific invocation payload bytes, harness,
+  grader, prompt, identity-domain preimage, resource policy, and serving-profile digest.
 
-The number of model calls is not fixed at 240. A client invocation may make multiple gateway calls,
-all of which must appear in invocation closure. Zero calls are valid only for a retained terminal
-pre-dispatch failure.
+The exact scientific request-body bytes are hashed immediately before transmission and must match
+between arms. Transport-envelope fields that must differ, such as unique record identifiers, must
+remain outside that body, be enumerated before registration, and be bound separately. No
+post-transmission canonicalization may erase a request-body difference. An unregistered byte
+difference makes the comparison `NOT_EVALUABLE`.
 
-## Planned assignment schedule
+## Assignment schedule
 
-The candidate schedule seed is the UTF-8 string `lane-a-aa-schedule-v1`. Sort registered opaque task
+The schedule seed is the UTF-8 string `lane-a-aa-schedule-v1`. Sort registered opaque task
 identifiers by `SHA-256(seed || NUL || task_id)`. Use that base order in round 1 and rotate it by 13
-and 27 positions in rounds 2 and 3. The machine-readable schedule must bind the resulting task,
-round, planned-position, and arm-order rows before registration.
+and 27 positions in rounds 2 and 3. The machine-readable schedule binds task, round,
+planned-position, and arm-order rows before registration.
 
 Within each round, arm order is determined by the parity of `round_index + planned_position`, where
-round indices are 0, 1, and 2 and positions are 1 through 40. This yields exactly 20 sessions in each
-arm order per round and 60 in each arm order overall.
+round indices are 0, 1, and 2 and positions are 1 through 40. This yields exactly 20 sessions in
+each arm order per round and 60 in each arm order overall.
 
-The execution record must also store the **actual chronological session position**. Analysis uses
-actual position and reports any deviation from the registered order; a synthetic early/middle/late
-label is not a substitute.
+The execution record also stores the **actual chronological session position**. Analysis uses
+actual position and reports every deviation from registered order.
 
-## Session isolation and execution
+## Serving-profile and recomputation requirements
 
-Before each task-pair session, create isolated workspaces and fresh client processes for both arms.
-Each arm gets its own invocation and workspace; neither arm may read the other's artifacts. Close
-both invocations and emit both terminal attempt rows before beginning the next session. Record
-machine-load, model-residency, cache, process, harness, and verification-subprocess diagnostics that
-the registered observation contract can actually support. Do not claim an engine restart unless it
-is observed and receipt-bound.
+Every E1 record binds one registered serving-profile digest. That profile must structurally enforce
+serialized execution, independent prompt computation, transmitted decoding parameters, adequate
+context capacity, quiescence, and the registered resource bounds. Exact deployment values and
+mechanisms are not part of this public document.
 
-The provider retry limit is zero for every gateway call. There is no automatic whole-attempt retry.
-Client-generated additional calls are disclosed within the same invocation and do not create a new
-scientific attempt. Every failure remains in the attempt ledger.
+A scientific `INVARIANCE_NOT_REFUTED` requires authoritative, request-bound evidence that the
+second arm independently recomputed its prompt. Timing is corroborative only. If the registered
+apparatus cannot provide the authoritative recomputation record, E1 is `NOT_EVALUABLE`.
 
-## Analysis and falsification rule
+Each session begins with one standardized, non-task warmup invocation whose result is discarded and
+recorded outside the 240 scientific attempts. The warmup must not provide reusable task-prefix
+state. Cross-arm divergence is reported as a possible first-call/warm-state effect; cross-position
+divergence is reported separately as a possible position or state-leakage effect.
 
-For each task and round, compare the two arms' `task_success` and exact `outcome_digest`. For each
-task across its three actual positions, compare the same fingerprint. Report:
+## Stage localization
 
-- cross-arm and cross-position divergence counts and exact task/round locations;
-- terminal status and failure-mode counts by arm order, round, class, and actual position;
-- latency and resource summaries by the same strata, labeled diagnostic; and
-- all schedule deviations, receipt failures, and incomplete joins.
+Every arm records this digest chain:
 
-The candidate E1 result has four states, applied in the following precedence order:
+`fixture -> invocation -> transcript -> workspace_post -> diff -> outcome`
 
-- `INVARIANCE_NOT_REFUTED` when all 120 sessions and 240 arm attempts have complete terminal
-  accounting, every required owner join and digest binding validates, no unplanned terminal
-  apparatus failure occurs, and there is zero cross-arm and zero cross-position divergence;
-- `INVARIANCE_REFUTED` when the evidence is complete and valid but at least one fingerprint
-  diverges;
-- `APPARATUS_NOT_ADMISSIBLE` when fingerprints do not diverge but complete, valid evidence contains
-  an unplanned timeout, resource, harness, or client failure; or
-- `NOT_EVALUABLE` when missing or invalid registration, schedule, binding, receipt, closure, or
-  terminal accounting prevents the falsification analysis from being trusted.
+For every divergence, report the earliest differing stage. `outcome_digest` is the sensitive
+end-check; `task_success` is the estimand-level check. A transcript-stage classification is allowed
+only when fixture and registered invocation bytes match exactly and every required upstream digest
+and recomputation record validates.
 
-Thus a valid negative observation is reported as an invariance falsification or an apparatus
-admission failure, not discarded as missingness.
-This exact-invariance rule is a candidate requiring formal review; a clean result does not prove
-invariance outside the registered apparatus and makes no population-level claim about a correlation
-parameter.
+The non-causal localization label is
+`ENGINE_STAGE_DIVERGENCE_UNDER_REGISTERED_APPARATUS`. It identifies the earliest observed stage
+under one registered apparatus; it does not prove that an engine algorithm was the sole cause.
+Missing or ambiguous upstream evidence yields `NOT_EVALUABLE`, never this label.
 
-## Hard stops and consequences
+## Falsification rule and state precedence
 
-Stop dispatch on a content-digest mismatch, fallback, direct unregistered transport, broken receipt
-chain, schedule mutation, evidence-integrity failure, or loss of session isolation. Already initiated
-attempts remain reportable terminal rows. A validly observed timeout, resource exhaustion, harness
-error, or client error is not dropped or replaced and blocks apparatus admission; absent fingerprint
-divergence it yields `APPARATUS_NOT_ADMISSIBLE`. A broken evidence chain yields `NOT_EVALUABLE`.
+The terminal state is assigned in this conservative precedence order:
 
-An evaluable E1 result is evidence only about the frozen local apparatus and schedule. It cannot
-validate a remote lane, select an enforcing test, define the powered replicate unit, or authorize
-promotion.
-Before registration, reviewers must freeze the executable schedule, wall-time bound, zero-dollar
-resource budget, stop implementation, evidence schema, and report schema by exact digest.
+1. `NOT_EVALUABLE` when missing or invalid registration, schedule, binding, provenance,
+   recomputation, or terminal accounting prevents trusted analysis;
+2. `APPARATUS_NOT_ADMISSIBLE` when otherwise complete evidence contains any unplanned timeout,
+   resource, harness, or client failure, including a failure that co-occurs with divergence;
+3. `INVARIANCE_REFUTED` when all evidence is complete, the apparatus is admissible, every upstream
+   scientific byte and digest matches, and at least one of the 120 primary cross-arm comparisons
+   cleanly diverges; the divergence carries the localization label above; or
+4. `INVARIANCE_NOT_REFUTED` when all 120 sessions and 240 attempts are complete and admissible and
+   all 120 primary cross-arm comparisons are identical.
+
+Cross-position results are emitted as a separate diagnostic result and do not change the primary
+cross-arm denominator or silently acquire a causal label.
+
+With zero clean cross-arm divergences, the nominal rule-of-three upper detection bound is
+approximately `3 / 120 = 2.5%`. This does not prove invariance, cannot exclude rarer divergence, and
+is further limited by repeated-task dependence because the 120 pairs arise from 40 tasks across
+three rounds.
+
+## Hard stops and remaining freeze work
+
+Stop dispatch on an unregistered byte difference, serving-profile mismatch, schedule mutation,
+loss of isolation, evidence-integrity failure, or missing authoritative recomputation evidence.
+Already initiated attempts remain terminal rows.
+
+Before registration, reviewers must freeze the executable schedule, canonical scientific-payload
+rule, serving-profile digest, recomputation-record schema, wall-time and resource bounds, stop
+implementation, evidence schema, classifier implementation, and report schema by exact digest.
+This public SAP does not establish operational authority or reveal deployment-specific apparatus
+values.

@@ -40,8 +40,12 @@ every commit is world-readable and every merge to `main` is a publication act.
 - The calibration protocol family now has separate E4 grader-validation, E1
   Lane A A/A session-position, and E2 operating-characteristic candidate SAPs.
   They are not preregistered, authorize no observations, and select no powered
-  method. Their counts, thresholds, grids, and consequences remain review
-  candidates until separately frozen and registered.
+  method. The 2026-07-17 design decisions are incorporated: E1 uses 120
+  cross-arm pairs with conservative stage-localized falsification, E4 certifies
+  overall adjudicated-positive/negative populations under asymmetric thresholds,
+  and E2 uses rule-relative nuisance control with exact or simultaneous-bound
+  admission. Exact corpus strata, immutable implementations, schemas, and other
+  named freeze inputs remain registration blockers.
 - Contract B `2.0.0-draft.1` is an immutable, repository-only normative draft
   beside v1. It binds synthetic registration, reveal, schedule, attempts,
   attrition, copied observation provenance, analysis, decision, and report

@@ -16,10 +16,10 @@ ready for a powered scientific promotion decision or production use.
 
 | Item | Evidence | Status |
 |---|---|---|
-| Public site | Render run `29614595319` and Pages run `29614595347` passed for current published baseline `6aabf7f` | published |
+| Public site | Render run `29657510137` and Pages run `29657510147` passed for current published baseline `5423caa` | published |
 | Core version | `pyproject.toml` and frozen core identify `0.2.0`; wheel containment is tested | repository-versioned, not distributed — the version names code in this repository, not a release anyone can install from a registry |
 | Experimental calculations | Committed synthetic results regenerate byte-for-byte | decision input only — the numbers inform, but do not make, the pending method decision |
-| Calibration SAP family | Separate E4, E1, and E2 candidate protocols define reviewable objectives, counts, failure rules, and claim boundaries | not preregistered; no observations authorized; numerical choices remain candidates |
+| Calibration SAP family | Separate E4, E1, and E2 candidate protocols incorporate the 2026-07-17 statistical decisions and retain explicit freeze blockers | not preregistered; no observations authorized; exact corpus strata, implementations, schemas, and operational bindings remain incomplete |
 | Contract B v2 draft | Exact schema, verifier, renderer, safety scanner, fixture, report, and delivery manifest are digest-bound (every implementation byte is hash-pinned) | synthetic conformance only — the draft evidence contract is validated against invented data, not real campaigns |
 | Independent refusal | The public verifier derives `NOT_EVALUABLE` from the synthetic fixture and rejects mutations — it recomputes the result from frozen evidence bytes and refuses any altered copy | verified for the fixture |
 | Publication scanning | Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its bound public payload separately | path-scoped; no whole-repository scan — leak scanning covers the report inputs, not every file in the repository |
@@ -73,5 +73,5 @@ conformance vector are unchanged.
 
 ## Provenance
 
-- Status date: 2026-07-17
-- Baseline reviewed for this candidate update: `6aabf7f32e3d824ee63f2eef3a761f29be4e2d4c`
+- Status date: 2026-07-18
+- Baseline reviewed for this candidate update: `5423caa370664f1e34101e8e812397f6a9608e1a`

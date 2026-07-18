@@ -110,6 +110,10 @@ Neither is a current statistical result. The smoke artifact retains summary valu
 raw per-attempt outcomes needed for independent interval recomputation. Their recorded values are
 historical artifacts, not evidence for model selection.
 
+The candidate calibration family incorporates the 2026-07-17 statistical design decisions but is
+still unregistered and non-authorizing. Its remaining freeze fields and operational prerequisites
+must be completed outside any observation before a study can begin.
+
 ### Verify locally
 
 Install the exact Quarto release named in `.quarto-version` (on macOS,

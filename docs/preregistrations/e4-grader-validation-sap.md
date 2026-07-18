@@ -2,53 +2,59 @@
 
 ## Metadata and claim boundary
 
-- **Date:** 2026-07-17
-- **Version:** 0.1.0-candidate.1
-- **Status:** Candidate protocol — not preregistered; no observations authorized.
+- **Decision date:** 2026-07-17
+- **Last updated:** 2026-07-18
+- **Version:** 0.2.0-candidate.2
+- **Status:** Candidate protocol — design decisions incorporated; not preregistered; no observations authorized.
 - **Study type:** Authored-fixture instrument validation; no model or provider execution.
 
-All counts and thresholds below are **planned candidate values**. They are neither accepted design
-parameters nor produced results.
+Counts and thresholds below are design inputs. They are not produced results, and this SAP cannot
+admit the grader without a separately registered and accepted E4 result.
 
 ## Objective
 
-E4 tests construct validity of the deterministic editing grader against an independently authored
-gold label. It does not test whether a deterministic function agrees with itself. Re-executed
-score-path repeatability belongs to E1's outcome-digest checks.
+E4 tests construct validity of the deterministic editing grader against independently adjudicated
+human gold labels. It does not test whether a deterministic function agrees with itself.
 
 The primary question is whether machine success/failure agrees sufficiently with the adjudicated
-human interpretation of the task contract to admit the instrument for calibration studies. Passing
-E4 would not validate a powered comparison or establish general validity outside the frozen task
-suite and grader version.
+human interpretation of the task contract to admit the instrument for calibration studies. Because
+the grader executes deterministically, disagreement principally diagnoses contract-to-test-system
+fidelity, including ambiguous contracts, incomplete test oracles, and grader/harness
+mis-specification. It is not described as random grader noise.
 
-## Planned corpus
+## Corpus construction
 
-- 160 authored output records: 40 from each of four registered task classes.
-- Within each class, 20 records are authored to satisfy the task contract and 20 are authored not to
-  satisfy it, for a planned 80/80 gold-label balance.
-- Non-success records cover registered failure strata, including incomplete edits, out-of-scope
-  edits, verification failure, setup failure, timeout, and malformed output where applicable.
-- Corpus records, task contracts, expected labels, failure strata, and the machine grader are frozen
-  by exact digest before either reviewer receives an assignment.
-- Corpus construction cannot use outputs from the later E1 study or any powered campaign.
+- Begin with at least 160 authored output records across four registered task classes.
+- The construction target is at least 80 adjudicated-positive and 80 adjudicated-negative records.
+- Each class includes satisfying, clearly non-satisfying, boundary, and near-miss records.
+- Boundary categories, minimum effective adjudicated counts per stratum, deterministic top-up
+  rules, and the ambiguity threshold must be fixed before authoring starts.
+- A top-up appends a new retained record under the predeclared rule; it never replaces or suppresses
+  a reviewed record. The final registered corpus may therefore exceed 160 records.
+- Corpus records, task contracts, author-intended labels, failure/boundary strata, and the machine
+  grader are frozen by exact digest before reviewer assignment.
+- Construction cannot use outputs from E1 or a powered campaign.
 
-The corpus size and strata are candidates that require methodology review before registration.
+The corpus is a versioned, extensible validation instrument. Suite growth requires a new corpus
+version and revalidation rather than silently carrying forward the prior admission.
+
+Registration remains blocked until the boundary taxonomy, per-stratum minimums, top-up rule, and
+ambiguity threshold are populated with exact values and reviewed.
 
 ## Independent labels and adjudication
 
 Two qualified reviewers independently label every record without seeing the machine grade, the
-other reviewer's label, or a success/non-success target. Reviewer order is randomized. Reviewers
+other reviewer's label, or the author-intended target. Reviewer order is randomized. Reviewers
 record a binary label, rationale code, and ambiguity flag.
 
-Agreement between reviewers becomes the provisional gold label. A disagreement or any ambiguity
-flag goes to a third adjudicator, who sees the task contract and both rationales but remains blinded
-to the machine grade. The adjudicated label is the analysis gold label. Reviewer identities,
-qualification criteria, conflicts, assignments, and adjudications must be retained in the private
-study record; only a sanitized role-level report is public.
+Agreement becomes the provisional gold label. A disagreement or any ambiguity flag goes to a third
+adjudicator, who sees the task contract and both rationales but remains blinded to the machine
+grade. The adjudicated label is the analysis gold label. The author-intent-versus-adjudicated-gold
+disagreement rate and ambiguity rate are reported as contract-ambiguity diagnostics.
 
-## Analysis
+## Analysis and certification granularity
 
-Using the adjudicated human label as truth and machine success as the prediction, report `TP`, `TN`,
+Using adjudicated human label as truth and machine success as the prediction, report `TP`, `TN`,
 `FP`, and `FN`, then compute:
 
 \[
@@ -56,28 +62,34 @@ Using the adjudicated human label as truth and machine success as the prediction
 \mathrm{specificity}=\frac{TN}{TN+FP}.
 \]
 
-Also report positive predictive value, negative predictive value, class-stratified confusion
-matrices, failure-stratum errors, raw reviewer agreement, and Cohen's kappa. Sensitivity and
-specificity receive two-sided 95% Wilson intervals. Reviewer-agreement measures are disclosures,
-not substitute admission criteria.
+Certification applies to the overall adjudicated-positive population and the overall
+adjudicated-negative population. Class- and stratum-specific confusion matrices are diagnostics;
+their smaller denominators do not independently carry the overall Wilson-bound admission rule.
 
-## Candidate admission rule
+Also report positive and negative predictive values, class/stratum confusion matrices, raw reviewer
+agreement, Cohen's kappa, author/adjudicator disagreement, and ambiguity. Sensitivity and
+specificity receive two-sided 95% Wilson intervals.
 
-The instrument is only a **candidate for calibration admission** when all of these planned criteria
-hold:
+## Admission rule
+
+The instrument is eligible for explicit calibration admission only when all of these criteria hold:
 
 - point sensitivity is at least 0.90;
 - point specificity is at least 0.95;
-- the two-sided 95% Wilson lower bound is at least 0.80 for both sensitivity and specificity;
-- all 160 records have complete independent labels and any required adjudication; and
+- the two-sided 95% Wilson lower bound is at least 0.80 for both overall sensitivity and overall
+  specificity;
+- the frozen minimum effective adjudicated counts and every corpus-stratum requirement are met;
+- every record has complete independent labels and any required adjudication; and
 - no corpus, grader, task-contract, blinding, or byte-binding violation occurred.
 
-These numerical thresholds remain decisions for formal review. Even if achieved, the registered
-E4 result must still be accepted explicitly; this draft cannot admit the instrument by itself.
+The higher specificity threshold deliberately prioritizes false-pass avoidance: crediting a failure
+as success can inflate a later candidate score, while a false fail is conservative. Passing this
+rule does not establish validity outside the frozen suite and grader version.
 
 ## Missingness and hard stops
 
-Any missing label, lost rationale, failed blinding check, post-assignment corpus change, or absent
-digest makes E4 `NOT_EVALUABLE`. Records are not replaced after review begins. E4 stops immediately
-on unblinding or evidence-integrity failure. The review schedule, reviewer-hour budget, conflict
-rule, and exact public report schema must be frozen before registration.
+Any missing label, lost rationale, failed blinding check, post-assignment mutation, absent digest,
+or unregistered top-up makes E4 `NOT_EVALUABLE`. E4 stops immediately on unblinding or
+evidence-integrity failure. Before registration, reviewers must freeze reviewer qualifications,
+conflict rules, assignments, hour budget, corpus-stratum values, evidence schema, and exact public
+report schema.

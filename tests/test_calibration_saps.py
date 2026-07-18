@@ -15,43 +15,78 @@ SAP_FILES = (
     SAP_DIR / "e1-lane-a-aa-sap.md",
     SAP_DIR / "e2-operating-characteristics-sap.md",
 )
+STATUS = (
+    "Status:** Candidate protocol — design decisions incorporated; "
+    "not preregistered; no observations authorized."
+)
 
 
 class CalibrationSapTests(unittest.TestCase):
-    def test_saps_are_explicitly_unregistered_and_public_safe(self) -> None:
+    def test_saps_are_unregistered_non_authorizing_and_public_safe(self) -> None:
         for path in SAP_FILES:
             with self.subTest(path=path.name):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn(
-                    "Status:** Candidate protocol — not preregistered; no observations authorized.",
-                    text,
-                )
-                self.assertNotIn("Status:** Preregistered Draft", text)
+                self.assertIn(STATUS, text)
+                self.assertNotIn("Status:** Preregistered", text)
                 assert_publication_content_is_safe(text)
 
-    def test_e1_uses_m_one_and_fixed_terminal_counts(self) -> None:
+    def test_umbrella_declares_dependency_and_opaque_profile(self) -> None:
+        text = (SAP_DIR / "calibration-sap.md").read_text(encoding="utf-8")
+        normalized = " ".join(text.split())
+        self.assertIn("E4 and E1 may proceed independently", text)
+        self.assertIn("base operating-characteristics grid", text)
+        self.assertIn("opaque registered input", text)
+        self.assertIn("before the E4/E1 results are observed", normalized)
+
+    def test_e1_localizes_exact_identity_and_uses_session_pairs(self) -> None:
         text = (SAP_DIR / "e1-lane-a-aa-sap.md").read_text(encoding="utf-8")
         self.assertIn("`m = 1`", text)
         self.assertIn("120 sessions total", text)
+        self.assertIn("120 primary cross-arm comparisons", text)
         self.assertIn("240 terminal arm attempts total", text)
         self.assertIn("actual chronological session position", text)
-        self.assertIn("`INVARIANCE_NOT_REFUTED`", text)
-        self.assertIn("`INVARIANCE_REFUTED`", text)
-        self.assertIn("`APPARATUS_NOT_ADMISSIBLE`", text)
-        self.assertIn("`NOT_EVALUABLE`", text)
-        self.assertNotIn("objective is to estimate", text.lower())
-        self.assertNotIn("pearson correlation", text.lower())
+        self.assertIn("`ENGINE_STAGE_DIVERGENCE_UNDER_REGISTERED_APPARATUS`", text)
+        self.assertIn("authoritative, request-bound evidence", text)
+        self.assertIn("Timing is corroborative only", text)
+        self.assertIn("approximately `3 / 120 = 2.5%`", text)
+        self.assertIn("repeated-task dependence", text)
+        self.assertNotIn("engine_nondeterminism", text)
 
-    def test_e4_and_e2_numbers_are_labeled_candidate(self) -> None:
-        e4 = (SAP_DIR / "e4-grader-validation-sap.md").read_text(encoding="utf-8")
-        e2 = (SAP_DIR / "e2-operating-characteristics-sap.md").read_text(
+    def test_e1_conservative_state_precedence_is_explicit(self) -> None:
+        text = (SAP_DIR / "e1-lane-a-aa-sap.md").read_text(encoding="utf-8")
+        states = [
+            "1. `NOT_EVALUABLE`",
+            "2. `APPARATUS_NOT_ADMISSIBLE`",
+            "3. `INVARIANCE_REFUTED`",
+            "4. `INVARIANCE_NOT_REFUTED`",
+        ]
+        positions = [text.index(state) for state in states]
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn("including a failure that co-occurs with divergence", text)
+
+    def test_e4_certifies_overall_gold_populations_and_freezes_strata(self) -> None:
+        text = (SAP_DIR / "e4-grader-validation-sap.md").read_text(encoding="utf-8")
+        self.assertIn("at least 160 authored output records", text)
+        self.assertIn("at least 80 adjudicated-positive", text)
+        self.assertIn("boundary, and near-miss records", text)
+        self.assertIn("deterministic top-up", text)
+        self.assertIn("overall adjudicated-positive population", text)
+        self.assertIn("point sensitivity is at least 0.90", text)
+        self.assertIn("point specificity is at least 0.95", text)
+        self.assertIn("false-pass avoidance", text)
+
+    def test_e2_uses_rule_relative_exact_or_simultaneous_admission(self) -> None:
+        text = (SAP_DIR / "e2-operating-characteristics-sap.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn("160 authored output records", e4)
-        self.assertIn("planned candidate values", e4)
-        self.assertIn("10,000 planned simulation draws", e2)
-        self.assertIn("planned candidate value", e2)
-        self.assertIn("must be committed", e2)
+        self.assertIn("exact conditional paired binary", text)
+        self.assertIn("remain held design slots", text)
+        self.assertIn("rule-relative null cell", text)
+        self.assertIn("supremum over the feasible discordance nuisance domain", text)
+        self.assertIn("simultaneous one-sided upper confidence bounds", text)
+        self.assertIn("10,000 draws", text)
+        self.assertIn("`N = 60` is a hypothetical feasibility point", text)
+        self.assertIn("producer claim that differs from recomputation", text)
 
 
 if __name__ == "__main__":
