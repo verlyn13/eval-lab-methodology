@@ -35,8 +35,12 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
             ),
         ]
         readme, plan, index, note = surfaces
-        self.assertIn("No accepted successor estimand", readme)
-        self.assertIn("No enforcing test", plan)
+        self.assertIn("No admitted successor enforcing test", readme)
+        self.assertIn(
+            "No enforcing test has been admitted or selected for a powered campaign",
+            " ".join(plan.split()),
+        )
+        self.assertIn("not a powered-method selection", " ".join(readme.split()))
         self.assertIn("No successor method is selected", " ".join(index.split()))
         self.assertIn("No method is selected", note)
         self.assertIn("Exact arithmetic", note)

@@ -16,10 +16,10 @@ ready for a powered scientific promotion decision or production use.
 
 | Item | Evidence | Status |
 |---|---|---|
-| Public site | Render run `29657510137` and Pages run `29657510147` passed for current published baseline `5423caa` | published |
+| Public site | Render run `29667132085` and Pages run `29667132097` passed for current published baseline `c382065` | published |
 | Core version | `pyproject.toml` and frozen core identify `0.2.0`; wheel containment is tested | repository-versioned, not distributed — the version names code in this repository, not a release anyone can install from a registry |
 | Experimental calculations | Committed synthetic results regenerate byte-for-byte | decision input only — the numbers inform, but do not make, the pending method decision |
-| Calibration SAP family | Separate E4, E1, and E2 candidate protocols incorporate the 2026-07-17 statistical decisions and retain explicit freeze blockers | not preregistered; no observations authorized; exact corpus strata, implementations, schemas, and operational bindings remain incomplete |
+| Calibration SAP family | Separate E4, E1, and E2 candidate protocols incorporate the reviewed decisions; the content-free E4 construction contract and E2 exact leading-rule/base-grid manifest regenerate byte-for-byte | not preregistered; no observations authorized; no corpus, grader result, operating-characteristic result, or scientific verdict exists |
 | Contract B v2 draft | Exact schema, verifier, renderer, safety scanner, fixture, report, and delivery manifest are digest-bound (every implementation byte is hash-pinned) | synthetic conformance only — the draft evidence contract is validated against invented data, not real campaigns |
 | Independent refusal | The public verifier derives `NOT_EVALUABLE` from the synthetic fixture and rejects mutations — it recomputes the result from frozen evidence bytes and refuses any altered copy | verified for the fixture |
 | Publication scanning | Evidence inputs are recursively scanned in the parameterized report path; Contract B checks its bound public payload separately | path-scoped; no whole-repository scan — leak scanning covers the report inputs, not every file in the repository |
@@ -31,7 +31,7 @@ therefore identifies repository and wheel metadata, not a distributed release.
 
 | Requirement | Current gap |
 |---|---|
-| Scientific design | Estimand, enforcing test, replicate policy, and practical-benefit rule remain undecided — what is measured, the test that determines whether evidence supports a decision, how many repeated trials are required, and the minimum improvement worth changing models for are all still awaiting an explicit decision |
+| Scientific design | E2 now has a frozen equal-class estimand and leading exact-rule candidate for calibration, but no enforcing test has been admitted or selected for a powered campaign; the replicate policy and minimum practically important benefit also remain undecided |
 | Operating characteristics | Type I error (how often the rule would be wrong), power (how often it would detect a real difference), dependence sensitivity, and feasibility are not established for the intended design |
 | Measurement validity | Grader validation, protected-task policy, and governed task selection are incomplete — the scoring instrument itself is not yet validated |
 | Operational provenance | Registration signing/timestamp verification and runtime owner receipts are not operational — runtime evidence is not yet signed and independently verified in production |
@@ -74,4 +74,4 @@ conformance vector are unchanged.
 ## Provenance
 
 - Status date: 2026-07-18
-- Baseline reviewed for this candidate update: `5423caa370664f1e34101e8e812397f6a9608e1a`
+- Baseline reviewed for this candidate update: `c382065fe19439140e2d9ad7210845748e3f94a2`

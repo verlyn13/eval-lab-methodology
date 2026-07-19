@@ -34,9 +34,12 @@ every commit is world-readable and every merge to `main` is a publication act.
 - The committed results artifact is regenerated and compared byte-for-byte in
   CI. Exact computation is therefore reproducible; inferential validity still
   depends on the stated design and assumptions.
-- No enforcing test, replicate policy, or minimum practically important
-  benefit has been selected for the next contract. Powered promotion remains
-  unavailable until that coupled decision is made from a complete package.
+- E2 now has a repository-frozen equal-class estimand and
+  `exact_conditional_sign_v1` leading candidate, plus a content-free exact
+  base-grid manifest. No enforcing test has been admitted or selected for a
+  powered campaign; replicate policy and minimum practically important benefit
+  also remain open. Powered promotion remains unavailable until that coupled
+  decision is made from a complete package.
 - The calibration protocol family now has separate E4 grader-validation, E1
   Lane A A/A session-position, and E2 operating-characteristic candidate SAPs.
   They are not preregistered, authorize no observations, and select no powered
@@ -44,8 +47,11 @@ every commit is world-readable and every merge to `main` is a publication act.
   cross-arm pairs with conservative stage-localized falsification, E4 certifies
   overall adjudicated-positive/negative populations under asymmetric thresholds,
   and E2 uses rule-relative nuisance control with exact or simultaneous-bound
-  admission. Exact corpus strata, immutable implementations, schemas, and other
-  named freeze inputs remain registration blockers.
+  admission. The E4 construction schema/checks and E2 leading-rule/base-grid
+  generator are now repository-versioned and byte-recomputed as synthetic
+  design inputs. Actual corpus/reviewer bindings, result-producing E2
+  convolution and certified maximization, report schemas, and operational
+  inputs remain registration blockers.
 - Contract B `2.0.0-draft.1` is an immutable, repository-only normative draft
   beside v1. It binds synthetic registration, reveal, schedule, attempts,
   attrition, copied observation provenance, analysis, decision, and report
@@ -77,16 +83,18 @@ every commit is world-readable and every merge to `main` is a publication act.
 The experimental note narrows the problem but deliberately leaves these items
 open:
 
-1. **Estimand and design.** State whether the target is a fixed finite suite or
-   a task superpopulation; define the four-class weighting; define arm-order
-   assignment; and state the unit and source of replication.
+1. **Estimand and design.** E2's candidate calibration estimand now uses equal
+   four-class weighting for a fixed horizon. A later coupled ruling must decide
+   whether that rule is valid and selected for the powered finite-suite claim,
+   and must still define arm-order assignment and the unit and source of
+   replication.
 2. **Applicable validity argument.** Establish a theorem or calibrated design
    for the actual class-balanced, paired, potentially non-identically
    distributed task setting. Results for randomized treatment assignment do not
    automatically validate arm-order randomization.
-3. **Nuisance-boundary control.** Replace the current finite `0.01` grid
-   judgment with a justified continuous-boundary argument or an explicitly
-   conservative bound.
+3. **Nuisance-boundary control.** Implement and verify the frozen certified
+   branch-and-bound design over the full class-specific Cartesian product; the
+   earlier finite `0.01` grid is not admissible.
 4. **Dependence.** For Lane A, use one task pair per fresh session and attempt to
    falsify session-position invariance rather than estimate an intra-session
    correlation. Retain actual session position and task-pair identifiers; treat
@@ -99,8 +107,10 @@ open:
    deployment-grounded replicate interpretation.
 7. **Bounded-mean alternative.** Complete the authorized bounded-mean/betting
    interval frontier and compare its assumptions and operating characteristics.
-8. **Outcome and missingness.** Fix the grader definition, measurement-error
-   study, retry/error/timeout policy, attrition table, and protected-task rule.
+8. **Outcome and missingness.** E2 now separates gradeable terminal failure
+   from missing evidence and freezes the leading-rule refusal policy. The
+   grader definition, measurement-error result, retry/error/timeout policy,
+   attrition table, and protected-task rule still require registered bindings.
 9. **Practical benefit.** Justify any nonzero margin from calibration,
    feasibility, and cost/benefit evidence; a preregistered arbitrary constant is
    not a scientific justification.
