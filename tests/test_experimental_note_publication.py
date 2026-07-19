@@ -70,6 +70,10 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
             " ".join(status.split()),
         )
         self.assertIn("raw per-attempt outcomes required to recompute", status)
+        self.assertIn("Offline-freeze publication baseline `cdb4690`", status)
+        self.assertIn("Render run `29668338617`", status)
+        self.assertIn("Pages run `29668338608`", status)
+        self.assertNotIn("current published baseline", status)
         self.assertIn("no defensible powered real-model result", readme)
         # Both conditions must survive rewording: adequate power AND scientific
         # soundness. A well-powered but confounded comparison is still not evidence.

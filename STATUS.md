@@ -16,7 +16,7 @@ ready for a powered scientific promotion decision or production use.
 
 | Item | Evidence | Status |
 |---|---|---|
-| Public site | Render run `29667132085` and Pages run `29667132097` passed for current published baseline `c382065` | published |
+| Public site | Offline-freeze publication baseline `cdb4690`: Render run `29668338617` and Pages run `29668338608` passed | published |
 | Core version | `pyproject.toml` and frozen core identify `0.2.0`; wheel containment is tested | repository-versioned, not distributed — the version names code in this repository, not a release anyone can install from a registry |
 | Experimental calculations | Committed synthetic results regenerate byte-for-byte | decision input only — the numbers inform, but do not make, the pending method decision |
 | Calibration SAP family | Separate E4, E1, and E2 candidate protocols incorporate the reviewed decisions; the content-free E4 construction contract and E2 exact leading-rule/base-grid manifest regenerate byte-for-byte | not preregistered; no observations authorized; no corpus, grader result, operating-characteristic result, or scientific verdict exists |
@@ -74,4 +74,4 @@ conformance vector are unchanged.
 ## Provenance
 
 - Status date: 2026-07-18
-- Baseline reviewed for this candidate update: `c382065fe19439140e2d9ad7210845748e3f94a2`
+- Baseline reviewed for this candidate update: `cdb4690aa0fe3c76c0025ef2cec6a56430bc8ff2`
