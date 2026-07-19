@@ -20,6 +20,11 @@ from eval_lab_methodology._version import _HASHED_SOURCE_FILES
 
 
 EXPERIMENTAL_MODULES = {"dependence.py", "paired_trinomial.py"}
+REPOSITORY_ONLY_CALIBRATION = {
+    "analysis/calibration/e2_base_grid.py",
+    "analysis/calibration/e4_corpus.py",
+    "analysis/run_calibration_freeze.py",
+}
 
 
 class ExperimentalModuleContainmentTests(unittest.TestCase):
@@ -61,6 +66,9 @@ class ExperimentalModuleContainmentTests(unittest.TestCase):
         for module in EXPERIMENTAL_MODULES:
             self.assertNotIn(f"eval_lab_methodology/{module}", names)
         self.assertFalse(any("_method_tranche" in name for name in names))
+        for path in REPOSITORY_ONLY_CALIBRATION:
+            self.assertTrue((ROOT / path).is_file())
+            self.assertFalse(any(path.rsplit("/", 1)[-1] in name for name in names))
 
 
 if __name__ == "__main__":

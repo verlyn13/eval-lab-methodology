@@ -50,6 +50,9 @@ model leaderboard, or deployment service.
 - Evidence Contract `1.1.0` and a parameterized Quarto report for historical and synthetic examples.
 - A frozen identity-domain v1 field set, canonicalization rule, and cross-implementation vector.
 - An executable experimental methods note with committed, byte-checked synthetic results.
+- A content-free E4 corpus-construction contract and E2 exact leading-rule/base-grid manifest that
+  regenerate byte-for-byte without authoring records or producing operating-characteristic
+  results.
 - Evidence contract `2.0.0-draft.1` — a draft evidence and reporting contract that validates a
   synthetic registration-to-report join, independently recomputes the result, and refuses
   mismatched or incomplete evidence.
@@ -80,11 +83,9 @@ order to trust or challenge an evaluation.
 
 ## What it does not demonstrate
 
-- No accepted successor estimand, enforcing test, replicate policy, or minimum practically
-  important benefit — in plain terms, the statistical method that will decide future comparisons,
-  the test that determines whether evidence supports a decision, how many repeated trials are
-  required, and the minimum improvement worth changing models for are all still awaiting an
-  explicit decision.
+- No admitted successor enforcing test, replicate policy, or minimum practically important benefit.
+  E2 has an equal-class estimand and exact leading-rule candidate for calibration, but that is not
+  a powered-method selection or evidence that the rule controls the intended heterogeneous null.
 - No validated operating characteristics for the intended class-balanced design.
 - No operational registration signer, trusted timestamp path, or production owner-receipt join.
 - No validated grader study, no public-safe validity evidence for the governed 40-task suite, no
@@ -99,6 +100,7 @@ order to trust or challenge an evaluation.
 - [Identity-domain specification](identity-domain.qmd)
 - [Delivery manifest](evidence/contract-v2/delivery-manifest.v1.json)
 - [Candidate calibration protocol family](docs/preregistrations/calibration-sap.md)
+- [E4/E2 offline calibration freeze](analysis/calibration-freeze.v1.json)
 - [Roadmap](PLAN.md)
 
 The repository contains two historical worked examples:
@@ -110,9 +112,12 @@ Neither is a current statistical result. The smoke artifact retains summary valu
 raw per-attempt outcomes needed for independent interval recomputation. Their recorded values are
 historical artifacts, not evidence for model selection.
 
-The candidate calibration family incorporates the 2026-07-17 statistical design decisions but is
-still unregistered and non-authorizing. Its remaining freeze fields and operational prerequisites
-must be completed outside any observation before a study can begin.
+The candidate calibration family incorporates the reviewed statistical design decisions. Its E4
+construction schema/checks and E2 leading-rule/base-grid generator are repository-versioned as a
+synthetic, content-free design artifact. The family remains unregistered and non-authorizing: no
+corpus, observation, grader admission, operating-characteristic result, or scientific verdict is
+present, and remaining result-producing and operational prerequisites must be completed before a
+study can begin.
 
 ### Verify locally
 
@@ -137,6 +142,7 @@ validation, and site/report rendering before publication.
 | Statistical core `0.2.0` | Repository-versioned; wheel builds locally; not tagged or published to a package registry | Preserves historical estimators and a superiority component; not authorized for a new powered claim |
 | Experimental inference note | Published synthetic decision input | No successor method is selected |
 | Evidence contract `2.0.0-draft.1` | Immutable repository-only draft with a frozen delivery manifest | Synthetic conformance only; recomputes `NOT_EVALUABLE`; no operational authority |
+| E4/E2 offline calibration freeze | Repository-only schema, exact-rule candidate, scenario generator, and byte-checked synthetic manifest | No authored corpus or result; unregistered and non-authorizing |
 | Identity domain v1 | Frozen structural specification and conformance vector | Matching hashes are necessary, not sufficient, for numerical comparability |
 | Real campaign evidence | One historical four-task smoke summary with a transport confound; raw attempt records are not published | Not independently recomputable, not a benchmark, and not a scientifically sound, adequately powered comparison |
 

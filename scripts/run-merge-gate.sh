@@ -20,6 +20,7 @@ ruff format --check .
 PYTHONPATH=src python -m unittest discover -s tests -v
 PYTHONPATH=src python -m analysis.run_method_tranche --check
 PYTHONPATH=src python -m analysis.run_contract_v2 --check
+PYTHONPATH=src python -m analysis.run_calibration_freeze --check
 python -m pip wheel . --no-deps -w "${wheel_dir}"
 make validate-report EVIDENCE=evidence/sample-lab-report.json
 quarto render

@@ -4,8 +4,8 @@
 
 - **Decision date:** 2026-07-17
 - **Last updated:** 2026-07-18
-- **Version:** 1.2.0-candidate.2
-- **Status:** Candidate protocol — design decisions incorporated; not preregistered; no observations authorized.
+- **Version:** 1.2.0-candidate.3
+- **Status:** Candidate protocol — offline design freeze implemented; not preregistered; no observations authorized.
 
 ## Purpose
 
@@ -24,8 +24,9 @@ inherits accepted E4 and E1 inputs for sensitivity analysis.
 ## Common public rules
 
 - E4, E1, and E2 require separate reviewed registrations and separate result artifacts.
-- Values in these documents are frozen design inputs only after their remaining named fields are
-  completed and registered. They are not produced observations.
+- Repository-versioned design inputs remain distinct from study registration. The implemented E4
+  construction contract and E2 base-grid manifest are synthetic design artifacts, not produced
+  observations or accepted results.
 - Every initiated attempt is retained as exactly one terminal attempt row. Failure, timeout,
   resource exhaustion, provenance failure, and harness failure are outcomes; none is silently
   dropped.
@@ -54,7 +55,10 @@ observed. This prevents later results from tuning the sensitivity analysis.
 
 ## Current readiness
 
-The statistical decisions from the 2026-07-17 review are incorporated below, but the family is not
-registered. Registration remains blocked on the incomplete E4 corpus-stratum fields, exact
-machine-readable artifacts and implementations, reviewed evidence/report schemas, and separately
-established operational authority. Nothing in this public family authorizes execution.
+The statistical decisions from the 2026-07-17 review and the exact E4/E2 offline freeze values
+recorded on 2026-07-18 are incorporated. The generic E4 construction schema/checks and E2 leading
+rule/base-grid generator now recompute from a digest-bound artifact. The family is still not
+registered. Registration remains blocked on actual E4 corpus and reviewer bindings, the E2 exact
+result-producing maximizer/convolution layer, reviewed evidence/report schemas, accepted E4/E1
+inputs for sensitivity work, and separately established operational authority. Nothing in this
+public family authorizes observation or a scientific verdict.
