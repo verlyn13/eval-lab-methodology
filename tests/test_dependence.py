@@ -142,9 +142,13 @@ class SimulateSessionDifferencesTests(unittest.TestCase):
 class SizeDistortionTests(unittest.TestCase):
     def test_same_seed_gives_identical_result(self) -> None:
         layout = SessionLayout(sessions=2, pairs_per_session=20)
-        kwargs = dict(
-            rho=0.05, pi_d=0.3, rule=lambda d: sum(d) >= 6, n_sims=500, seed=11
-        )
+        kwargs = {
+            "rho": 0.05,
+            "pi_d": 0.3,
+            "rule": lambda d: sum(d) >= 6,
+            "n_sims": 500,
+            "seed": 11,
+        }
         self.assertEqual(
             size_distortion(layout, **kwargs), size_distortion(layout, **kwargs)
         )

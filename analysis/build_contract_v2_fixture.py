@@ -8,6 +8,7 @@ import hmac
 from pathlib import Path
 from typing import Any
 
+from analysis.contract_v2.report import render_markdown
 from analysis.contract_v2.verification import (
     ANALYSIS_RESULT_VERSION,
     CONTRACT_V2_SCHEMA_VERSION,
@@ -31,7 +32,6 @@ from analysis.contract_v2.verification import (
     verifier_implementation_bundle_sha256,
     verifier_implementation_manifest,
 )
-from analysis.contract_v2.report import render_markdown
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "evidence" / "contract-v2" / "synthetic-not-evaluable.json"

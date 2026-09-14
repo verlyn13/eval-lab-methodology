@@ -33,7 +33,7 @@ from bisect import bisect_left
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from fractions import Fraction
-from functools import lru_cache
+from functools import cache
 
 __all__ = [
     "LfcCalibration",
@@ -348,7 +348,7 @@ def exact_power(n: int, p_plus: Fraction, p_minus: Fraction, critical: int) -> F
     return tail_probability(sum_distribution(n, p_plus, p_minus), critical)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _signflip_pvalue_scaled(
     n_plus: int, n_zero: int, n_minus: int, numerator: int, denominator: int
 ) -> Fraction:

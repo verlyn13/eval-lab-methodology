@@ -25,8 +25,9 @@ SRC_PATH = REPO_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from eval_lab_methodology import validate_evidence_report  # noqa: E402
-from publication_safety import assert_publication_content_is_safe  # noqa: E402
+from publication_safety import assert_publication_content_is_safe
+
+from eval_lab_methodology import validate_evidence_report
 
 
 def parse_args() -> argparse.Namespace:

@@ -13,6 +13,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 from unittest import mock
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -61,8 +62,8 @@ class MethodTrancheResultsTests(unittest.TestCase):
 
     runner = None
     committed_text: str = ""
-    committed: dict = {}
-    recomputed: dict = {}
+    committed: ClassVar[dict] = {}
+    recomputed: ClassVar[dict] = {}
 
     @classmethod
     def setUpClass(cls) -> None:

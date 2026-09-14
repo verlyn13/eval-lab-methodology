@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+python3 scripts/check_agent_contract.py
+
 required_quarto_version="$(tr -d '[:space:]' < .quarto-version)"
 if ! command -v quarto >/dev/null 2>&1; then
   echo "Quarto ${required_quarto_version} is required; see README.md" >&2

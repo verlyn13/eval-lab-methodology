@@ -144,14 +144,11 @@ def _metadata() -> str:
 
 
 def _wheel_metadata() -> str:
-    return "\n".join(
-        [
-            "Wheel-Version: 1.0",
-            "Generator: eval-lab-methodology-build-backend",
-            "Root-Is-Purelib: true",
-            "Tag: py3-none-any",
-            "",
-        ]
+    return (
+        "Wheel-Version: 1.0\n"
+        "Generator: eval-lab-methodology-build-backend\n"
+        "Root-Is-Purelib: true\n"
+        "Tag: py3-none-any\n"
     )
 
 
