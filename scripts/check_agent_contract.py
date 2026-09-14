@@ -34,6 +34,36 @@ if agents.is_file():
         agents.stat().st_size <= 32 * 1024,
         "AGENTS.md exceeds the 32 KiB Codex discovery limit",
     )
+    require(
+        "uv sync --frozen --no-install-project --extra dev --extra report"
+        in agents.read_text(),
+        "AGENTS.md must use the locked development/report environment",
+    )
+
+require((ROOT / "uv.lock").is_file(), "uv.lock is missing")
+require(
+    (ROOT / "scripts/audit-dependencies.sh").is_file(),
+    "dependency audit script is missing",
+)
+
+for workflow_name in ("render-report.yml", "deploy-pages.yml"):
+    workflow = ROOT / ".github/workflows" / workflow_name
+    require(workflow.is_file(), f"{workflow_name} is missing")
+    if workflow.is_file():
+        workflow_text = workflow.read_text()
+        require(
+            "uv sync --frozen --python 3.13 --no-install-project --extra dev --extra report"
+            in workflow_text,
+            f"{workflow_name} must install the locked gate environment",
+        )
+        require(
+            'version: "${{ steps.quarto-version.outputs.version }}"' in workflow_text,
+            f"{workflow_name} must install the repository-pinned Quarto version",
+        )
+        require(
+            "uv run --frozen --no-sync bash scripts/run-merge-gate.sh" in workflow_text,
+            f"{workflow_name} must run the canonical merge gate",
+        )
 
 claude = ROOT / "CLAUDE.md"
 require(claude.is_file(), "CLAUDE.md is missing")

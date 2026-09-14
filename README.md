@@ -125,13 +125,13 @@ Install the exact Quarto release named in `.quarto-version` (on macOS,
 `brew install --cask quarto` installs that release when Homebrew's cask matches the pin). Then run:
 
 ```bash
-python -m pip install '.[dev,report]'
-bash scripts/run-merge-gate.sh
+uv sync --frozen --no-install-project --extra dev --extra report
+uv run --frozen --no-sync bash scripts/run-merge-gate.sh
 ```
 
 The script refuses a missing or mismatched Quarto version. CI reads the same version pin and invokes
-the same merge-gate script, covering Ruff, tests, exact-result checks, wheel containment, evidence
-validation, and site/report rendering before publication.
+the same merge-gate script, covering Ruff, tests, exact-result checks, a known-vulnerability audit,
+wheel containment, evidence validation, and site/report rendering before publication.
 
 ## Technical details
 
