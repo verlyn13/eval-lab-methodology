@@ -1,6 +1,7 @@
 # Python cache from running figures/generate.py
 __pycache__/
 *.pyc
+.venv/
 
 # Quarto render outputs and execution scratch
 .quarto/

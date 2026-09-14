@@ -30,11 +30,12 @@ Keep current release state and dated findings in `STATUS.md`, `PLAN.md`, and Git
 
 ## Validation and handoff
 
-Install the declared development/report extras, then run:
+Install the locked development/report extras, then run:
 
 ```bash
+uv sync --frozen --no-install-project --extra dev --extra report
 python3 scripts/check_agent_contract.py
-bash scripts/run-merge-gate.sh
+uv run --frozen --no-sync bash scripts/run-merge-gate.sh
 ```
 
 The merge-gate script owns local/CI parity, including the declared Quarto version, lint, tests, exact-result checks, wheel containment, evidence validation, site rendering, and report rendering. Update `STATUS.md`, `README.md`, or `PLAN.md` when their owned truth changes. Treat a merge as a publication action.
