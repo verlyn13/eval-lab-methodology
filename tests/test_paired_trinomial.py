@@ -20,6 +20,7 @@ import itertools
 import math
 import unittest
 from fractions import Fraction
+from typing import ClassVar
 
 from analysis._method_tranche.paired_trinomial import (
     boundary_configuration,
@@ -142,7 +143,7 @@ class SumDistributionTests(unittest.TestCase):
 
 
 class CountsDistributionTests(unittest.TestCase):
-    HETEROGENEOUS = [
+    HETEROGENEOUS: ClassVar[list[tuple[Fraction, Fraction]]] = [
         (Fraction(1, 3), Fraction(1, 6)),
         (Fraction(1, 2), Fraction(0)),
         (Fraction(1, 10), Fraction(2, 5)),

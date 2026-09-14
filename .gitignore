@@ -13,3 +13,6 @@ reports/rendered/
 .DS_Store
 
 /.quarto/
+
+# Personal Claude Code overrides
+.claude/settings.local.json

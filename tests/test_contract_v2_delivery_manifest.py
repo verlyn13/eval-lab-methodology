@@ -337,17 +337,19 @@ else:
     def test_every_runtime_file_mutation_or_deletion_breaks_parity(self) -> None:
         for entry in self.manifest["runtime_files"]:
             for operation in ("mutate", "delete"):
-                with self.subTest(path=entry["path"], operation=operation):
-                    with tempfile.TemporaryDirectory() as directory:
-                        root = Path(directory)
-                        self.copy_runtime_tree(root)
-                        target = root / entry["path"]
-                        if operation == "mutate":
-                            target.write_bytes(target.read_bytes() + b"\n")
-                        else:
-                            target.unlink()
-                        with self.assertRaises(AssertionError):
-                            self.assert_runtime_tree_matches(root, exact_layout=True)
+                with (
+                    self.subTest(path=entry["path"], operation=operation),
+                    tempfile.TemporaryDirectory() as directory,
+                ):
+                    root = Path(directory)
+                    self.copy_runtime_tree(root)
+                    target = root / entry["path"]
+                    if operation == "mutate":
+                        target.write_bytes(target.read_bytes() + b"\n")
+                    else:
+                        target.unlink()
+                    with self.assertRaises(AssertionError):
+                        self.assert_runtime_tree_matches(root, exact_layout=True)
 
     def test_unexpected_runtime_file_breaks_exact_layout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

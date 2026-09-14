@@ -26,7 +26,6 @@ from eval_lab_methodology import (
     wilson_interval,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

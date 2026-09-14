@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status --short --branch)",
+      "Bash(git log --oneline -1)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch --show-current)",
+      "Bash(python3 scripts/check_agent_contract.py)",
+      "Bash(bash scripts/run-merge-gate.sh)",
+      "Bash(make validate-report:*)",
+      "Bash(quarto render:*)",
+      "Bash(ruff check .)",
+      "Bash(ruff format --check .)",
+      "Bash(python -m unittest discover -s tests -v)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.claude/settings.local.json)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin master:*)",
+      "Read(../**)",
+      "Bash(git push:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_context.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/statusline.py\""
+  }
+}

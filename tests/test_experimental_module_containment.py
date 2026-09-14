@@ -18,7 +18,6 @@ import build_backend
 from eval_lab_methodology import __core_content_hash__, __core_version__
 from eval_lab_methodology._version import _HASHED_SOURCE_FILES
 
-
 EXPERIMENTAL_MODULES = {"dependence.py", "paired_trinomial.py"}
 REPOSITORY_ONLY_CALIBRATION = {
     "analysis/calibration/e2_base_grid.py",

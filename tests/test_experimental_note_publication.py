@@ -6,7 +6,6 @@ import hashlib
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -83,7 +82,7 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         self.assertIn("necessary, not sufficient", identity)
         self.assertIn("does not prove numerical equivalence", errata)
 
-        public_overviews = "\n".join((status, readme, index, identity))
+        public_overviews = f"{status}\n{readme}\n{index}\n{identity}"
         self.assertNotIn("released 0.2.0", public_overviews)
         self.assertNotIn("Calibrated small-n statistics", public_overviews)
         self.assertNotIn("everything that can change the numerics", public_overviews)
@@ -96,7 +95,7 @@ class ExperimentalNotePublicationTests(unittest.TestCase):
         )
         data = (ROOT / "evidence" / "data.json").read_text(encoding="utf-8")
         figure_source = (ROOT / "figures" / "generate.py").read_text(encoding="utf-8")
-        combined = "\n".join((example, data, figure_source))
+        combined = f"{example}\n{data}\n{figure_source}"
 
         self.assertIn("ci_low > margin", example)
         self.assertNotIn("delta > band AND CI low > 0", combined)
