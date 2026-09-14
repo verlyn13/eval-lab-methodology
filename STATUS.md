@@ -12,6 +12,8 @@
 The audited baseline passes its current CI and exact-result checks. The evaluation system is not
 ready for a powered scientific promotion decision or production use.
 
+The 2026-09-14 maintenance pass verified Ruff 0.16.7, Quarto 1.10.18, 213 tests, exact-result checks, wheel containment, public-boundary validation, and all site/report renders. No merge, publication, real-model run, or scientific authorization occurred in that verification.
+
 ## Verified now
 
 | Item | Evidence | Status |
@@ -73,5 +75,5 @@ conformance vector are unchanged.
 
 ## Provenance
 
-- Status date: 2026-07-18
-- Baseline reviewed for this candidate update: `cdb4690aa0fe3c76c0025ef2cec6a56430bc8ff2`
+- Status date: 2026-09-14
+- Baseline reviewed for this maintenance update: `9c39160e822463e1a00cd071b7eeb93726e652ba`
